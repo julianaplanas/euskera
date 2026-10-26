@@ -147,6 +147,26 @@ app.post("/api/weak", auth, (req, res) => {
   res.json({ ok: true, weak });
 });
 
+// Estadísticas de todos los usuarios para la pestaña de competición
+app.get("/api/stats", auth, (req, res) => {
+  const today = madridDay(), yesterday = madridDay(-1);
+  const days = Array.from({ length: 7 }, (_, i) => madridDay(i - 6));
+  const weekStart = days[0];
+  const users = db.prepare("SELECT id, name, xp, streak, last_day FROM users ORDER BY xp DESC").all();
+  const totals = db.prepare("SELECT user_id, COUNT(*) n, SUM(ok) ok, SUM(total) total FROM rounds GROUP BY user_id").all();
+  const week = db.prepare("SELECT user_id, day, SUM(ok)*10 xp, COUNT(*) n FROM rounds WHERE day >= ? GROUP BY user_id, day").all(weekStart);
+  const lessonsDone = db.prepare("SELECT user_id, COUNT(*) n FROM progress WHERE rounds >= 3 GROUP BY user_id").all();
+  const by = (rows, f) => Object.fromEntries(rows.map(r => [r.user_id, f(r)]));
+  const T = by(totals, r => r), L = by(lessonsDone, r => r.n);
+  res.json({ days, users: users.map(u => {
+    const t = T[u.id] || { n: 0, ok: 0, total: 0 };
+    const perDay = days.map(d => { const w = week.find(x => x.user_id === u.id && x.day === d); return w ? w.xp : 0; });
+    return { name: u.name, me: u.id === req.user.id, xp: u.xp, streak: u.last_day === today || u.last_day === yesterday ? u.streak : 0,
+      rounds: t.n, accuracy: t.total ? Math.round(t.ok / t.total * 100) : 0, lessonsDone: L[u.id] || 0,
+      weekXp: perDay.reduce((a, b) => a + b, 0), perDay, practicedToday: u.last_day === today };
+  }) });
+});
+
 // Ranking sencillo entre los usuarios de la app
 app.get("/api/board", auth, (req, res) => {
   res.json(db.prepare("SELECT name, xp FROM users ORDER BY xp DESC LIMIT 10").all());
