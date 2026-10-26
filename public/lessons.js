@@ -6,7 +6,7 @@
 // dialogue:  [[quién, euskera, castellano], ...] -> mini diálogo de ejemplo
 window.LESSONS = [
   {
-    id: "l1", title: "Saludos y despedidas", desc: "Kaixo, egun on, agur…", emoji: "👋",
+    id: "l1", title: "Saludos y despedidas", desc: "Kaixo, egun on, agur…", emoji: "👋", scene: { emoji: "☕", title: "Kafetegian · en el café" },
     pairs: [["Kaixo", "Hola", "👋"], ["Egun on", "Buenos días", "🌅"], ["Arratsalde on", "Buenas tardes", "🌇"], ["Gabon", "Buenas noches", "🌙"], ["Agur", "Adiós", "🚪"], ["Ikusi arte", "Hasta la vista", "👀"], ["Gero arte", "Hasta luego", "⏰"], ["Eskerrik asko", "Gracias", "🙏"]],
     sentences: [["Egun on!", "¡Buenos días!"], ["Kaixo! Zer moduz?", "¡Hola! ¿Qué tal?"], ["Agur, gero arte!", "¡Adiós, hasta luego!"]],
     pattern: "___ on",
@@ -14,7 +14,7 @@ window.LESSONS = [
     dialogue: [["A", "Kaixo!", "¡Hola!"], ["B", "Egun on! Zer moduz?", "¡Buenos días! ¿Qué tal?"], ["A", "Ondo. Agur, gero arte!", "Bien. ¡Adiós, hasta luego!"]]
   },
   {
-    id: "l2", title: "Presentarse", desc: "Nola duzu izena? Ni … naiz", emoji: "🙋",
+    id: "l2", title: "Presentarse", desc: "Nola duzu izena? Ni … naiz", emoji: "🙋", scene: { emoji: "☕", title: "Kafetegian · en el café" },
     pairs: [["Nola duzu izena?", "¿Cómo te llamas?", "❓"], ["Zein da zure izena?", "¿Cuál es tu nombre?", "🪪"], ["Ni Ane naiz", "Yo soy Ane", "🙋‍♀️"], ["Nire izena Ane da", "Mi nombre es Ane", "✍️"], ["Pozten naiz", "Encantado/a", "🤝"], ["ni", "yo", "👤"], ["nire", "mi", "👈"], ["izena", "nombre", "🏷️"]],
     sentences: [["Ni Mikel naiz.", "Yo soy Mikel."], ["Nire izena Ane da.", "Mi nombre es Ane."], ["Nola duzu izena?", "¿Cómo te llamas?"], ["Pozten naiz!", "¡Encantado!"]],
     pattern: "Ni ___ naiz",
@@ -22,7 +22,7 @@ window.LESSONS = [
     dialogue: [["A", "Nola duzu izena?", "¿Cómo te llamas?"], ["B", "Ni Mikel naiz. Eta zu?", "Yo soy Mikel. ¿Y tú?"], ["A", "Nire izena Ane da. Pozten naiz!", "Mi nombre es Ane. ¡Encantada!"]]
   },
   {
-    id: "l3", title: "¿Qué tal?", desc: "Zer moduz? Ondo, eta zu?", emoji: "😊",
+    id: "l3", title: "¿Qué tal?", desc: "Zer moduz? Ondo, eta zu?", emoji: "😊", scene: { emoji: "🚶", title: "Kalean · por la calle" },
     pairs: [["Zer moduz?", "¿Qué tal?", "❓"], ["Oso ondo", "Muy bien", "😄"], ["Ondo", "Bien", "🙂"], ["Hala-hola", "Así así", "😐"], ["Gaizki", "Mal", "😞"], ["Nekatuta", "Cansado/a", "🥱"], ["Eta zu?", "¿Y tú?", "👉"], ["Zer moduz zaude?", "¿Cómo estás?", "💬"]],
     sentences: [["Ondo, eskerrik asko. Eta zu?", "Bien, gracias. ¿Y tú?"], ["Oso ondo nago.", "Estoy muy bien."], ["Hala-hola, nekatuta nago.", "Así así, estoy cansado."]],
     pattern: "___ nago",
@@ -30,7 +30,7 @@ window.LESSONS = [
     dialogue: [["A", "Zer moduz?", "¿Qué tal?"], ["B", "Oso ondo, eskerrik asko. Eta zu?", "Muy bien, gracias. ¿Y tú?"], ["A", "Hala-hola, nekatuta nago.", "Así así, estoy cansada."]]
   },
   {
-    id: "l4", title: "La edad y los números", desc: "Zenbat urte dituzu?", emoji: "🎂",
+    id: "l4", title: "La edad y los números", desc: "Zenbat urte dituzu?", emoji: "🎂", scene: { emoji: "🎂", title: "Urtebetetzean · en un cumpleaños" }, countable: "🍎",
     pairs: [["Zenbat urte dituzu?", "¿Cuántos años tienes?", "🎂"], ["urte", "año(s)", "📅"], ["bat", "1", "1️⃣"], ["bi", "2", "2️⃣"], ["hiru", "3", "3️⃣"], ["lau", "4", "4️⃣"], ["bost", "5", "5️⃣"], ["sei", "6", "6️⃣"], ["zazpi", "7", "7️⃣"], ["zortzi", "8", "8️⃣"], ["bederatzi", "9", "9️⃣"], ["hamar", "10", "🔟"], ["hamaika", "11", "🔢"], ["hamabi", "12", "🔢"], ["hamabost", "15", "🔢"], ["hogei", "20", "🔢"], ["hogeita hamar", "30", "🔢"], ["berrogei", "40", "🔢"], ["berrogeita hamar", "50", "🔢"], ["hirurogei", "60", "🔢"], ["hogeita bost", "25", "🔢"], ["berrogeita bi", "42", "🔢"]],
     sentences: [["Zenbat urte dituzu?", "¿Cuántos años tienes?"], ["Hogeita hamar urte ditut.", "Tengo treinta años."], ["Hogeita zortzi urte ditut.", "Tengo veintiocho años."], ["Berrogei urte ditu.", "Tiene cuarenta años."]],
     pattern: "___ urte ditut",
@@ -38,11 +38,20 @@ window.LESSONS = [
     dialogue: [["A", "Zenbat urte dituzu?", "¿Cuántos años tienes?"], ["B", "Hogeita hamabost urte ditut. Eta zuk?", "Tengo treinta y cinco. ¿Y tú?"], ["A", "Berrogei urte ditut.", "Tengo cuarenta."]]
   },
   {
-    id: "l5", title: "Gustos", desc: "Gustatzen zait / zaizkit", emoji: "❤️",
+    id: "l5", title: "Gustos", desc: "Gustatzen zait / zaizkit", emoji: "❤️", scene: { emoji: "🍢", title: "Pintxo-potean · de pintxos" },
     pairs: [["Zer gustatzen zaizu?", "¿Qué te gusta?", "❓"], ["Musika gustatzen zait", "Me gusta la música", "🎵"], ["Liburuak gustatzen zaizkit", "Me gustan los libros", "📚"], ["Ez zait gustatzen hotza", "No me gusta el frío", "🥶"], ["Asko gustatzen zait", "Me gusta mucho", "❤️"], ["zinema", "cine", "🎬"], ["kirola", "deporte", "⚽"], ["janaria", "comida", "🍽️"], ["pintxoak", "pintxos", "🍢"], ["bidaiatzea", "viajar", "✈️"], ["sukaldatzea", "cocinar", "🍳"], ["hotza", "frío", "❄️"]],
     sentences: [["Musika gustatzen zait.", "Me gusta la música."], ["Pintxoak gustatzen zaizkit.", "Me gustan los pintxos."], ["Ez zait gustatzen hotza.", "No me gusta el frío."], ["Zinema asko gustatzen zait.", "Me gusta mucho el cine."]],
     pattern: "___ gustatzen zait",
     tips: [{ t: "zait / zaizkit", b: "Una cosa: musika gustatzen zait. Varias: liburuak gustatzen zaizkit (la -k final marca plural)." }, { t: "Negativo con ez", b: "Ez va delante del verbo auxiliar: Ez zait gustatzen hotza. Para actividades, el verbo acaba en -tzea: bidaiatzea gustatzen zait." }],
     dialogue: [["A", "Zer gustatzen zaizu?", "¿Qué te gusta?"], ["B", "Zinema asko gustatzen zait. Eta zuri?", "Me gusta mucho el cine. ¿Y a ti?"], ["A", "Pintxoak gustatzen zaizkit!", "¡Me gustan los pintxos!"]]
+  },
+  {
+    id: "l6", title: "Hermanos y hermanas", desc: "Anaia, neba, arreba, ahizpa", emoji: "👨‍👩‍👧‍👦", scene: { emoji: "👨‍👩‍👧‍👦", title: "Familian · en familia" },
+    grid: { title: "La palabra depende de TU género, no del de tu hermano/a", cols: ["👧 Si eres chica", "👦 Si eres chico"], rows: [["hermano", "neba", "anaia"], ["hermana", "ahizpa", "arreba"], ["hermanos (mixto)", "neba-arrebak", "anai-arrebak"]] },
+    pairs: [["neba", "hermano (dice una chica)", "👧➡️👦"], ["anaia", "hermano (dice un chico)", "👦➡️👦"], ["ahizpa", "hermana (dice una chica)", "👧➡️👧"], ["arreba", "hermana (dice un chico)", "👦➡️👧"], ["neba-arrebak", "hermanos (dice una chica)", "👧➡️👫"], ["anai-arrebak", "hermanos (dice un chico)", "👦➡️👫"], ["Anai-arrebarik baduzu?", "¿Tienes hermanos?", "❓"], ["Ez dut anai-arrebarik", "No tengo hermanos", "🚫"], ["bat dut", "tengo uno/una", "1️⃣"], ["bi ditut", "tengo dos", "2️⃣"], ["familia", "familia", "🏡"]],
+    sentences: [["Ahizpa bat dut.", "Tengo una hermana (dice una chica)."], ["Anaia bat eta arreba bat ditut.", "Tengo un hermano y una hermana (dice un chico)."], ["Neba bi ditut.", "Tengo dos hermanos (dice una chica)."], ["Ez dut anai-arrebarik.", "No tengo hermanos."]],
+    pattern: "___ bat dut",
+    tips: [{ t: "Cuatro palabras para dos", b: "Una chica dice neba (hermano) y ahizpa (hermana). Un chico dice anaia (hermano) y arreba (hermana). Lo que cambia es quién habla." }, { t: "dut / ditut", b: "Uno: ahizpa bat dut. Dos o más: neba bi ditut. Para preguntar: Anai-arrebarik baduzu?" }, { t: "El plural -k", b: "neba → nebak, ahizpa → ahizpak. Mezcla: neba-arrebak (chica) / anai-arrebak (chico)." }],
+    dialogue: [["A", "Anai-arrebarik baduzu?", "¿Tienes hermanos?"], ["B", "Bai, ahizpa bat eta neba bat ditut. Eta zuk?", "Sí, tengo una hermana y un hermano (habla una chica). ¿Y tú?"], ["A", "Ez, ez dut anai-arrebarik.", "No, no tengo hermanos."]]
   }
 ];

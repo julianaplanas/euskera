@@ -149,7 +149,18 @@ input.ans{width:100%;font:inherit;font-size:20px;padding:14px 16px;border-radius
 .v small{color:var(--muted);font-size:14px}
 .tip{border-left:5px solid var(--ochre);background:var(--ochre-soft);border-radius:0 var(--r) var(--r) 0;padding:12px 14px}
 .tip b{display:block;margin-bottom:4px} .tip p{font-size:15px}
-.dlg{display:flex;flex-direction:column;gap:10px}
+.dlg{display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.scene{display:flex;align-items:center;gap:10px;margin:-4px 0 6px;font-weight:800;color:var(--muted)}
+.scene span{font-size:34px;line-height:1}
+.dlg::after{content:"";position:absolute;right:-10px;bottom:-14px;width:120px;height:120px;background:var(--ochre-soft);border-radius:50%;opacity:.6;z-index:0}
+.dlg .line{position:relative;z-index:1}
+.v .em.q{font-size:22px;letter-spacing:-2px;line-height:1.2;overflow-wrap:anywhere}
+.gtab{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.gtab th,.gtab td{padding:10px 8px;text-align:center;border-top:1px solid var(--line);font-size:15px}
+.gtab th{background:var(--green-soft);font-weight:800;border-top:0}
+.gtab td.lab{text-align:left;color:var(--muted);font-weight:700}
+.gtab td b{font-family:var(--display);font-weight:400;color:var(--red);font-size:17px}
+.count{display:flex;flex-wrap:wrap;gap:4px;font-size:34px;line-height:1.1;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r)}
 .dlg .line{max-width:88%;padding:10px 14px;border-radius:16px;background:var(--green-soft)}
 .dlg .line.b{align-self:flex-end;background:var(--red-soft)}
 .dlg .eu{font-weight:800} .dlg .es{font-size:14px;color:var(--muted)}
@@ -191,6 +202,8 @@ function OLEN(mood="happy",size=96){
     <path d="M160 170 Q170 100 256 95 Q342 100 352 170 Q256 150 160 170 Z" fill="#1A1816"/><ellipse cx="256" cy="168" rx="100" ry="18" fill="#1A1816"/><circle cx="258" cy="96" r="7" fill="#1A1816"/>
   </svg>`;
 }
+// Cantidad dibujada: decenas como 🔟 y unidades con el emoji de la lección
+function qty(n, em){ n=+n; if(!Number.isInteger(n)||n<1||n>99) return ""; return "🔟".repeat(Math.floor(n/10))+em.repeat(n%10); }
 const GOOD=[["Oso ondo!","¡Muy bien!"],["Ederki!","¡Estupendo!"],["Primeran!","¡De primera!"],["Bikain!","¡Excelente!"],["Txapeldun!","¡Campeón/a!"],["Zoragarria!","¡Maravilloso!"],["Hori da!","¡Eso es!"],["Aupa!","¡Aúpa!"],["Oso ondo egin duzu!","¡Lo has hecho muy bien!"],["Ikaragarria!","¡Tremendo!"]];
 const BAD=[["Ia-ia!","¡Casi!"],["Lasai, hurrengoan!","Tranqui, a la próxima"],["Ez da ezer!","¡No pasa nada!"],["Saiatu berriro!","¡Inténtalo otra vez!"],["Kasik!","¡Por poco!"],["Segi aurrera!","¡Sigue adelante!"]];
 async function api(path, body){
@@ -259,10 +272,11 @@ function renderLesson(l){
   app.innerHTML=`<div class="top pad"><button id="back" aria-label="Volver" style="font-size:22px;color:var(--muted)">‹</button><div style="flex:1;min-width:0"><p class="eyebrow">Ikasgaia ${LESSONS.indexOf(l)+1}</p><h2>${esc(l.emoji||"")} ${esc(l.title)}</h2></div><span class="pill g">${st.rounds}/3</span></div>
    <div class="stack pad" style="flex:1;gap:18px">
     ${l.pattern?`<div class="pattern"><p class="eyebrow" style="color:#F6C9C2">Egitura · estructura clave</p><p class="pat">${esc(l.pattern).replace("___",'<span class="blank">___</span>')}</p></div>`:""}
+    ${l.grid?`<p class="eyebrow">${esc(l.grid.title)}</p><table class="gtab"><tr><th></th>${l.grid.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${l.grid.rows.map(r=>`<tr><td class="lab">${esc(r[0])}</td>${r.slice(1).map(c=>`<td><b>${esc(c)}</b></td>`).join("")}</tr>`).join("")}</table>`:""}
     <p class="eyebrow">Hiztegia · vocabulario</p>
-    <div class="vocab">${l.pairs.map(([eu,es,em])=>`<div class="v"><span class="em">${esc(em||"•")}</span><b>${esc(eu)}</b><small>${esc(es)}</small></div>`).join("")}</div>
+    <div class="vocab">${l.pairs.map(([eu,es,em])=>{ const q=l.countable?qty(es,l.countable):""; return `<div class="v"><span class="em ${q?"q":""}">${esc(q||em||"•")}</span><b>${esc(eu)}</b><small>${esc(es)}</small></div>`; }).join("")}</div>
     ${l.tips&&l.tips.length?`<p class="eyebrow">Nola funtzionatzen du · cómo funciona</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
-    ${l.dialogue&&l.dialogue.length?`<p class="eyebrow">Elkarrizketa · diálogo</p><div class="card dlg">${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>`).join("")}</div>`:""}
+    ${l.dialogue&&l.dialogue.length?`<p class="eyebrow">Elkarrizketa · diálogo</p><div class="card dlg">${l.scene?`<div class="scene"><span>${esc(l.scene.emoji)}</span><p>${esc(l.scene.title)}</p></div>`:""}${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>`).join("")}</div>`:""}
     <p class="hint">Lee en voz alta, luego practica: cada ronda son ${ROUND} ejercicios y la lección se completa con 3.</p>
    </div>
    <div class="bottom pad"><button class="btn red" id="go">Praktikatu · Practicar</button></div>`;
@@ -346,12 +360,17 @@ function buildExercises(opts){
     pool.push({type:"choice",dir:"es-eu",q:es,a:eu,pair:[eu,es],opts:shuffle([eu,...distr([...new Set(basePairs.map(p=>p[0]))],eu)])});
     if(words(eu).length>=2) pool.push({type:"type",q:es,a:eu,pair:[eu,es]});
   }
+  if(!opts.weak) for(const l of lessons){ if(!l.countable) continue;
+    const nums=l.pairs.filter(p=>/^\d+$/.test(p[1]) && +p[1]<=60);
+    for(const [eu,es] of nums) pool.push({type:"count",q:qty(es,l.countable),a:eu,pair:[eu,es],opts:shuffle([eu,...distr(nums.map(p=>p[0]),eu)])});
+  }
   if(!opts.weak) for(const [eu,es] of allSent){
     const w=words(eu); pool.push({type:"tiles",q:es,a:eu,pair:[eu,es],tiles:shuffle([...w,...shuffle(allEuWords.filter(x=>!w.includes(x))).slice(0,3)])});
     pool.push({type:"type",q:es,a:eu,pair:[eu,es]});
   }
   const take=(t,n)=>shuffle(pool.filter(x=>x.type===t)).slice(0,n);
-  let ex=opts.weak?[...take("choice",7),...take("type",3)]:[...take("choice",5),...take("tiles",3),...take("type",2)];
+  const cnt=take("count",3);
+  let ex=opts.weak?[...take("choice",7),...take("type",3)]:[...take("choice",5-Math.min(2,cnt.length)),...cnt,...take("tiles",3),...take("type",2)];
   if(ex.length<ROUND) ex=ex.concat(shuffle(pool.filter(x=>!ex.includes(x))).slice(0,ROUND-ex.length));
   return shuffle(ex).slice(0,ROUND);
 }
@@ -361,6 +380,7 @@ function renderExercise(){
   const e=SES.ex[SES.i]; const pct=Math.round(SES.i/SES.ex.length*100);
   let body="";
   if(e.type==="choice") body=`<p class="eyebrow">${e.dir==="eu-es"?"Zer esan nahi du? · ¿Qué significa?":"Nola esaten da euskaraz? · ¿Cómo se dice?"}</p><p class="prompt ${e.dir==="eu-es"?"eu":""}">${esc(e.q)}</p><div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
+  else if(e.type==="count") body=`<p class="eyebrow">Zenbat daude? · ¿Cuántos hay?</p><div class="count" aria-label="${esc(e.pair[1])}">${esc(e.q)}</div><div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
   else if(e.type==="tiles") body=`<p class="eyebrow">Ordenatu · Ordena las fichas</p><p class="prompt">${esc(e.q)}</p><div class="tiles" id="answer" aria-label="Tu respuesta"></div><div class="tiles bank" id="bank">${e.tiles.map((t,k)=>`<button class="tile" data-k="${k}">${esc(t)}</button>`).join("")}</div>`;
   else body=`<p class="eyebrow">Idatzi euskaraz · Escríbelo en euskera</p><p class="prompt">${esc(e.q)}</p><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Escribe aquí…"><p class="hint">No importan tildes ni signos de puntuación.</p>`;
   app.innerHTML=`<div class="top pad"><button id="quit" aria-label="Salir" style="font-size:22px;color:var(--muted)">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="pill g">${SES.ok*XP_OK} XP</span></div>
@@ -368,7 +388,7 @@ function renderExercise(){
    <div class="bottom pad"><button class="btn" id="check" disabled>Egiaztatu · Comprobar</button></div>`;
   document.getElementById("quit").onclick=()=>setTab(TAB);
   const check=document.getElementById("check"); let picked=null; const chosen=[];
-  if(e.type==="choice"){
+  if(e.type==="choice"||e.type==="count"){
     app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ app.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); picked=e.opts[+b.dataset.k]; check.disabled=false; });
   } else if(e.type==="tiles"){
     const ans=document.getElementById("answer"), bank=document.getElementById("bank");
@@ -378,9 +398,9 @@ function renderExercise(){
     const inp=document.getElementById("typed"); inp.oninput=()=>check.disabled=!inp.value.trim(); inp.onkeydown=ev=>{ if(ev.key==="Enter"&&inp.value.trim()) check.click(); }; setTimeout(()=>inp.focus(),50);
   }
   check.onclick=()=>{
-    let given; if(e.type==="choice") given=picked; else if(e.type==="tiles") given=chosen.map(k=>e.tiles[k]).join(" "); else given=document.getElementById("typed").value;
+    let given; if(e.type==="choice"||e.type==="count") given=picked; else if(e.type==="tiles") given=chosen.map(k=>e.tiles[k]).join(" "); else given=document.getElementById("typed").value;
     const ok = norm(given)===norm(e.a);
-    if(e.type==="choice") app.querySelectorAll(".opt").forEach(b=>{ const v=e.opts[+b.dataset.k]; if(v===e.a) b.classList.add("ok"); else if(v===picked&&!ok) b.classList.add("bad"); });
+    if(e.type==="choice"||e.type==="count") app.querySelectorAll(".opt").forEach(b=>{ const v=e.opts[+b.dataset.k]; if(v===e.a) b.classList.add("ok"); else if(v===picked&&!ok) b.classList.add("bad"); });
     check.disabled=true;
     const key=norm(e.pair[0]);
     if(ok){ SES.ok++; if(SES.weak||SES.review) P.weak=P.weak.filter(w=>norm(w[0])!==key); }
@@ -394,7 +414,7 @@ function showSheet(ok,e){
   document.getElementById("sh-olen").innerHTML=OLEN(ok?"happy":"sad",64);
   document.getElementById("sh-title").textContent=ph[0];
   document.getElementById("sh-sub").textContent=ph[1];
-  document.getElementById("sh-body").textContent= ok ? (e.type==="choice"?`${e.q} = ${e.a}`:e.a) : "Erantzun zuzena · correcta: "+e.a;
+  document.getElementById("sh-body").textContent= ok ? (e.type==="choice"?`${e.q} = ${e.a}`:e.type==="count"?`${e.pair[1]} = ${e.a}`:e.a) : "Erantzun zuzena · correcta: "+e.a;
   const next=document.getElementById("sh-next");
   next.onclick=()=>{ sh.className="sheet"; SES.i++; if(SES.i<SES.ex.length) renderExercise(); else finish(); };
   next.focus();
