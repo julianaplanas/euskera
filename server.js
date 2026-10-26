@@ -216,15 +216,34 @@ async function synthAzure(text) {
   if (!r.ok) throw new Error("Azure TTS " + r.status + " " + (await r.text()).slice(0, 200));
   return Buffer.from(await r.arrayBuffer());
 }
-let edgeTTS = null;
+let edgeTTS = null, edgeVoiceOk = null;
 async function synthEdge(text) {
   const { MsEdgeTTS, OUTPUT_FORMAT } = require("msedge-tts");
-  if (!edgeTTS) { edgeTTS = new MsEdgeTTS(); await edgeTTS.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3); }
+  if (!edgeTTS) {
+    const t = new MsEdgeTTS();
+    if (edgeVoiceOk === null) {
+      try { const voices = await t.getVoices(); edgeVoiceOk = voices.some(v => v.ShortName === VOICE); console.log(`Edge TTS: voz ${VOICE} ${edgeVoiceOk ? "disponible" : "NO disponible"}; voces eu-ES: ${voices.filter(v => /^eu-/i.test(v.Locale || v.ShortName)).map(v => v.ShortName).join(", ") || "ninguna"}`); }
+      catch (e) { console.log("Edge TTS: no se pudo listar voces:", e.message); }
+    }
+    if (edgeVoiceOk === false) throw new Error(`La voz ${VOICE} no existe en Edge TTS. Configura AZURE_TTS_KEY (vía oficial).`);
+    await t.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+    edgeTTS = t;
+  }
   const chunks = [];
-  await new Promise((resolve, reject) => { const st = edgeTTS.toStream(text, { rate: 0.9 }); st.on("data", d => chunks.push(d)); st.on("end", resolve); st.on("close", resolve); st.on("error", reject); });
-  if (!chunks.length) { edgeTTS = null; throw new Error("Edge TTS devolvió audio vacío"); }
+  await new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("Edge TTS: tiempo agotado")), 15000);
+    try {
+      const { audioStream } = edgeTTS.toStream(text, { rate: 0.9 });
+      audioStream.on("data", d => chunks.push(d));
+      audioStream.on("end", () => { clearTimeout(timer); resolve(); });
+      audioStream.on("close", () => { clearTimeout(timer); resolve(); });
+      audioStream.on("error", e => { clearTimeout(timer); reject(e); });
+    } catch (e) { clearTimeout(timer); reject(e); }
+  });
+  if (!chunks.length) { try { edgeTTS.close(); } catch (e) {} edgeTTS = null; throw new Error("Edge TTS devolvió audio vacío"); }
   return Buffer.concat(chunks);
 }
+process.on("unhandledRejection", e => { console.error("TTS/promesa no manejada:", e && (e.message || e)); try { edgeTTS && edgeTTS.close(); } catch (x) {} edgeTTS = null; });
 const inflight = new Map();
 let ttsBroken = false;
 app.get("/api/tts/status", (req, res) => res.json({ ok: !ttsBroken, provider: ttsProvider, voice: VOICE }));
@@ -238,7 +257,7 @@ app.get("/api/tts", async (req, res) => {
     if (!inflight.has(file)) inflight.set(file, (ttsProvider === "azure" ? synthAzure(text) : synthEdge(text)).then(buf => { fs.writeFileSync(file, buf); return buf; }).finally(() => inflight.delete(file)));
     const buf = await inflight.get(file);
     ttsBroken = false; res.type("audio/mpeg").send(buf);
-  } catch (e) { ttsBroken = true; console.error("TTS error:", e.message); res.status(503).json({ error: "Audio no disponible ahora mismo." }); }
+  } catch (e) { ttsBroken = true; console.error("TTS error:", e && (e.message || JSON.stringify(e))); res.status(503).json({ error: "Audio no disponible ahora mismo." }); }
 });
 
 app.listen(PORT, () => console.log(`Euskara praktika en http://localhost:${PORT} (db: ${DB_PATH})`));
