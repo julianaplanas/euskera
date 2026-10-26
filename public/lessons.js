@@ -55,3 +55,26 @@ window.LESSONS = [
     dialogue: [["A", "Anai-arrebarik baduzu?", "¿Tienes hermanos?"], ["B", "Bai, ahizpa bat eta neba bat ditut. Eta zuk?", "Sí, tengo una hermana y un hermano (habla una chica). ¿Y tú?"], ["A", "Ez, ez dut anai-arrebarik.", "No, no tengo hermanos."]]
   }
 ];
+
+// Pistas de "noticing": cuando fallas, se muestra la que coincide con la forma correcta.
+window.NOTES = [
+  { m: /zaizkit/i, t: "zaizkit = me gustAN (varias cosas). Fíjate en la -k del plural: liburuak, pintxoak." },
+  { m: /\bzait\b/i, t: "zait = me gustA (una cosa). Si fuera plural sería zaizkit." },
+  { m: /\bez zait|ez zaizkit|ez dut/i, t: "El negativo ez va justo delante del verbo auxiliar: ez zait, ez dut." },
+  { m: /urte ditut/i, t: "Los años son varios: ditut (los tengo), no dut." },
+  { m: /urte ditu\b/i, t: "ditu = los tiene (otra persona). ditut = los tengo (yo)." },
+  { m: /\bditut\b/i, t: "ditut = tengo varios/as. Con uno solo es dut: ahizpa bat dut." },
+  { m: /\bbat dut\b/i, t: "dut = tengo (uno). Con dos o más cambia a ditut." },
+  { m: /hogeita/i, t: "hogeita = 20 y… Del 21 al 39 todo empieza por hogeita." },
+  { m: /berrogeita/i, t: "berrogeita = 40 y… (berrogei = 2 × 20)." },
+  { m: /hirurogei/i, t: "hirurogei = 3 × 20 = 60. El euskera cuenta de 20 en 20." },
+  { m: /\bnaiz\b/i, t: "naiz = soy. Va al final: Ni Ane naiz." },
+  { m: /\bda\b/i, t: "da = es. Nire izena Ane da (mi nombre Ane es)." },
+  { m: /\bnago\b/i, t: "nago = estoy. Ondo nago, nekatuta nago." },
+  { m: /\bneba\b|\bahizpa\b/i, t: "neba y ahizpa son las palabras que usa una CHICA para hermano y hermana." },
+  { m: /\banaia\b|\barreba\b/i, t: "anaia y arreba son las palabras que usa un CHICO para hermano y hermana." },
+  { m: /-arrebak/i, t: "neba-arrebak (dice ella) / anai-arrebak (dice él) = hermanos en general." },
+  { m: /\bon\b/i, t: "on = bueno. egun on, arratsalde on, gabon (gau + on)." },
+  { m: /eskerrik asko/i, t: "eskerrik asko = gracias (literalmente «muchas gracias»)." },
+  { m: /eta zu\??$/i, t: "Eta zu? = ¿y tú? Devuelve la pregunta para seguir la conversación." }
+];
