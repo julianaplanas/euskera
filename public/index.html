@@ -121,6 +121,24 @@ body.notabs .app{padding-bottom:0}
 .weak{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .weak b{color:var(--red)}
 .weak button{color:var(--muted);font-weight:700;font-size:14px}
+.lb-list{display:flex;flex-direction:column;gap:10px}
+.lbrow{display:grid;grid-template-columns:28px 40px 1fr auto;gap:10px;align-items:center;padding:6px 0}
+.lbrow.me .who b{color:var(--red)}
+.lbrow .rank{font-size:18px;text-align:center}
+.lbrow .av{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-size:18px}
+.lbrow .who{min-width:0;display:flex;flex-direction:column;gap:4px}
+.lbrow .wbar{display:block;height:8px;background:var(--line);border-radius:999px;overflow:hidden}
+.lbrow .wbar i{display:block;height:100%;border-radius:999px;min-width:2px}
+.lbrow .num{font-family:var(--display);font-weight:400;font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chart .bars i{width:14px;max-width:none;background:var(--red)}
+.tabwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+.stab{width:100%;border-collapse:collapse;font-size:15px;min-width:420px}
+.stab th,.stab td{padding:10px 8px;text-align:center;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.stab th{border-top:0;background:var(--green-soft);font-weight:800;font-size:13px}
+.stab td.lab{text-align:left;font-weight:800}
+.stab tr.me td{background:var(--ochre-soft)}
+.stab td.win{color:var(--green);font-weight:800}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch}
 .vs .who{text-align:center;padding:14px 8px;border-radius:var(--r);background:var(--card);border:1px solid var(--line)}
 .vs .who.me{border-color:var(--red);box-shadow:0 4px 0 var(--red)}
@@ -174,8 +192,8 @@ body.notabs .app{padding-bottom:0}
 <div class="sheet" id="sheet"><div class="in"><div class="row" style="align-items:flex-start"><div id="sh-olen" class="sh-olen"></div><div style="min-width:0"><h3 id="sh-title"></h3><p id="sh-sub" class="hint"></p><p id="sh-body" style="margin-top:6px;font-weight:700"></p></div></div><button class="btn" id="sh-next">Jarraitu · Continuar</button></div></div>
 <nav class="tabs" id="tabs" hidden><div class="in">
  <button class="tab" data-tab="praktika"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 9 L13 15 L16 11 L21 20 Z"/><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0-2 0"/></svg>Praktika</button>
- <button class="tab" data-tab="estatistikak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>Estatistikak</button>
  <button class="tab" data-tab="errepasoa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 5V3h14v14h-2"/></svg>Errepasoa</button>
+ <button class="tab" data-tab="estatistikak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>Estatistikak</button>
 </div></nav>
 
 <script src="lessons.js"></script>
@@ -325,34 +343,32 @@ function renderReview(){
 
 // ---------- ESTATISTIKAK ----------
 async function renderStats(){
-  app.innerHTML = header("Norgehiagoka · a ver quién practica más")+`<div class="stack pad" style="padding-top:18px"><p class="muted">Kargatzen…</p></div>`;
+  app.innerHTML = header("Denon artean · a ver quién practica más")+`<div class="stack pad" style="padding-top:18px"><p class="muted">Kargatzen…</p></div>`;
   let data; try{ data=await api("stats"); }catch(e){ app.querySelector(".stack").innerHTML=`<p class="err">No se pudieron cargar las estadísticas.</p>`; return; }
-  const me=data.users.find(u=>u.me); const others=data.users.filter(u=>!u.me);
-  const rival=others.find(u=>u.name===RIVAL)||others[0]; // por defecto, quien más XP tiene aparte de ti
+  const COLORS=["#B8281F","#2A7A4F","#D9A441","#3B6EA5","#8E4A9E","#C8683A"];
+  const users=data.users.slice().sort((a,b)=>b.weekXp-a.weekXp||b.xp-a.xp).map((u,i)=>({...u,color:COLORS[i%COLORS.length]}));
+  const active=users.filter(u=>u.weekXp>0||u.me);
+  const me=users.find(u=>u.me);
   const dayLabel=d=>["Ig","Al","Ar","Az","Og","Ol","Lr"][new Date(d+"T12:00:00").getDay()];
-  const row=(lab,a,b,fmt=x=>x)=>`<div class="cmp"><span class="l ${a>b?"win":""}"><b>${fmt(a)}</b></span><span class="lab">${lab}</span><span class="${b>a?"win":""}"><b>${fmt(b)}</b></span></div>`;
-  const mx=Math.max(1,...me.perDay,...(rival?rival.perDay:[0]));
+  const maxWeek=Math.max(1,...users.map(u=>u.weekXp));
+  const mx=Math.max(1,...users.flatMap(u=>u.perDay));
+  const best=k=>Math.max(...users.map(u=>u[k]));
+  const cell=(u,k,fmt=x=>x)=>`<td class="${u[k]===best(k)&&u[k]>0?"win":""}">${fmt(u[k])}</td>`;
   app.querySelector(".stack").innerHTML = `
-    ${others.length>1?`<p class="eyebrow">Aukeratu aurkaria · elige rival</p><div class="chips">${others.map(u=>`<button class="chip ${u===rival?"on":""}" data-r="${esc(u.name)}">${esc(u.name)}</button>`).join("")}</div>`:""}
-    ${rival?`<div class="vs"><div class="who me"><div class="av">${esc(me.name[0].toUpperCase())}</div><b>${esc(me.name)}</b></div><div class="mid">vs</div><div class="who"><div class="av">${esc(rival.name[0].toUpperCase())}</div><b>${esc(rival.name)}</b></div></div>
-    <div class="card">
-      ${row("XP astea · semana",me.weekXp,rival.weekXp)}
-      ${row("XP guztira · total",me.xp,rival.xp)}
-      ${row("Raxa · racha",me.streak,rival.streak,x=>"🔥"+x)}
-      ${row("Txandak · rondas",me.rounds,rival.rounds)}
-      ${row("Zehaztasuna · acierto",me.accuracy,rival.accuracy,x=>x+"%")}
-      ${row("Ikasgaiak · completas",me.lessonsDone,rival.lessonsDone)}
-      <p class="hint" style="padding-top:10px;text-align:center">${me.weekXp>rival.weekXp?`Esta semana vas ganando por ${me.weekXp-rival.weekXp} XP. Txapeldun!`:me.weekXp<rival.weekXp?`${esc(rival.name)} te saca ${rival.weekXp-me.weekXp} XP esta semana. Una ronda son 100 XP como mucho.`:"Empate esta semana. La próxima ronda desempata."}</p>
-    </div>`:`<div class="card"><p class="eyebrow">Todavía sin rival</p><p style="margin-top:6px">Cuando Vera cree su cuenta, aquí veréis la comparativa semanal.</p></div>`}
+    <p class="eyebrow">Asteko sailkapena · ranking de la semana</p>
+    <div class="card lb-list">${users.map((u,i)=>`<div class="lbrow ${u.me?"me":""}"><span class="rank">${["🥇","🥈","🥉"][i]||(i+1)}</span><span class="av" style="background:${u.color}">${esc(u.name[0].toUpperCase())}</span><span class="who"><b>${esc(u.name)}${u.me?" (tú)":""}</b>${u.practicedToday?" <span class='muted' style='font-size:13px'>· gaur 🔥</span>":""}<i class="wbar"><i style="width:${Math.round(u.weekXp/maxWeek*100)}%;background:${u.color}"></i></i></span><b class="num">${u.weekXp} XP</b></div>`).join("")}</div>
+    ${users.length>1?`<p class="hint">${me&&users[0].me?`Vas primera esta semana, ${users[1].weekXp?`${users[0].weekXp-users[1].weekXp} XP por delante de ${esc(users[1].name)}`:"nadie más ha practicado"}. Txapeldun!`:me?`Te faltan ${users[0].weekXp-me.weekXp} XP para alcanzar a ${esc(users[0].name)}. Una ronda son hasta 100 XP.`:""}</p>`:`<p class="hint">Cuando entren más personas con el código de invitación aparecerán aquí.</p>`}
     <p class="eyebrow">Azken 7 egunak · XP por día</p>
     <div class="card">
-      <div class="chart">${data.days.map((d,i)=>`<div class="d"><div class="bars"><i style="height:${Math.round(me.perDay[i]/mx*100)}%" title="${me.perDay[i]} XP"></i>${rival?`<i class="o" style="height:${Math.round(rival.perDay[i]/mx*100)}%" title="${rival.perDay[i]} XP"></i>`:""}</div><small>${dayLabel(d)}</small></div>`).join("")}</div>
-      <div class="legend" style="margin-top:10px"><span><i></i>${esc(me.name)}</span>${rival?`<span><i class="o"></i>${esc(rival.name)}</span>`:""}</div>
+      <div class="chart">${data.days.map((d,i)=>`<div class="d"><div class="bars">${active.map(u=>`<i style="height:${Math.round(u.perDay[i]/mx*100)}%;background:${u.color}" title="${esc(u.name)}: ${u.perDay[i]} XP"></i>`).join("")}</div><small>${dayLabel(d)}</small></div>`).join("")}</div>
+      <div class="legend" style="margin-top:10px;flex-wrap:wrap">${active.map(u=>`<span><i style="background:${u.color}"></i>${esc(u.name)}</span>`).join("")}</div>
     </div>
-    <div class="stats"><div class="stat"><b>${me.rounds}</b><span>rondas</span></div><div class="stat"><b>${me.accuracy}%</b><span>acierto</span></div></div>
-    ${data.users.length>1?`<p class="eyebrow">Asteko sailkapena · ranking de la semana</p><div class="card board">${data.users.slice().sort((a,b)=>b.weekXp-a.weekXp).map((u,i)=>`<p><span>${["🥇","🥈","🥉"][i]||(i+1)+"."} ${esc(u.name)}${u.me?" (tú)":""}${u.practicedToday?" ·🔥":""}</span><b>${u.weekXp} XP <span class="muted" style="font-weight:600;font-size:14px">/ ${u.xp} total</span></b></p>`).join("")}</div>`:""}
+    <p class="eyebrow">Denak · todos</p>
+    <div class="tabwrap"><table class="stab"><tr><th></th><th>Astea</th><th>Guztira</th><th>🔥</th><th>Txandak</th><th>%</th><th>Ikasg.</th></tr>
+      ${users.map(u=>`<tr class="${u.me?"me":""}"><td class="lab"><span class="dot" style="background:${u.color}"></span>${esc(u.name)}</td>${cell(u,"weekXp")}${cell(u,"xp")}${cell(u,"streak")}${cell(u,"rounds")}${cell(u,"accuracy",x=>x+"%")}${cell(u,"lessonsDone")}</tr>`).join("")}
+    </table></div>
+    <p class="hint">En verde, quien va mejor en cada columna. Astea = XP de la semana · Guztira = XP total · Txandak = rondas · % = acierto · Ikasg. = lecciones completadas.</p>
   `;
-  app.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ RIVAL=b.dataset.r; renderStats(); });
 }
 
 // ---------- EJERCICIOS ----------
