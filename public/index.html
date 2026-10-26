@@ -45,6 +45,7 @@ button:focus-visible,input:focus-visible{outline:3px solid var(--ochre);outline-
 .err{color:var(--red);font-weight:700;min-height:1.4em}
 /* cabecera roja con lauburu */
 .head{position:relative;overflow:hidden;background:var(--red);color:var(--cream);padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:18px}
+.head .mascot{position:absolute;right:max(14px,env(safe-area-inset-right,0px));bottom:-26px;z-index:2;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
 .head .lb{position:absolute;right:-40px;top:-30px;width:190px;height:190px;color:#fff;opacity:.12}
 .head .lb svg{width:100%;height:100%}
 .head .eyebrow{color:#F6C9C2}
@@ -88,6 +89,7 @@ input.ans{width:100%;font:inherit;font-size:20px;padding:14px 16px;border-radius
 .hint{font-size:14px;color:var(--muted)}
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .25s;border-radius:24px 24px 0 0}
 .sheet.show{transform:none}
+.sh-olen{flex:none;width:64px;height:94px;overflow:hidden}
 .sheet .in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .sheet.ok{background:var(--green-soft)} .sheet.bad{background:var(--red-soft)}
 .sheet h3{font-family:var(--body);font-weight:800;font-size:20px}
@@ -137,13 +139,27 @@ input.ans{width:100%;font:inherit;font-size:20px;padding:14px 16px;border-radius
 .legend{display:flex;gap:14px;font-size:13px;font-weight:700;color:var(--muted)}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;background:var(--red);vertical-align:-1px;margin-right:4px}
 .legend i.o{background:var(--green)}
-.olen{width:96px;height:96px;border-radius:24px;flex:none}
+.pattern{background:var(--red);color:var(--cream);border-radius:var(--r);padding:16px 18px}
+.pattern .pat{font-family:var(--display);font-size:30px;line-height:1.15;margin-top:6px}
+.pattern .blank{color:var(--ochre);border-bottom:4px solid var(--ochre)}
+.vocab{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.v{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.v .em{font-size:30px;line-height:1}
+.v b{font-family:var(--display);font-weight:400;font-size:17px;color:var(--red);line-height:1.2;overflow-wrap:anywhere}
+.v small{color:var(--muted);font-size:14px}
+.tip{border-left:5px solid var(--ochre);background:var(--ochre-soft);border-radius:0 var(--r) var(--r) 0;padding:12px 14px}
+.tip b{display:block;margin-bottom:4px} .tip p{font-size:15px}
+.dlg{display:flex;flex-direction:column;gap:10px}
+.dlg .line{max-width:88%;padding:10px 14px;border-radius:16px;background:var(--green-soft)}
+.dlg .line.b{align-self:flex-end;background:var(--red-soft)}
+.dlg .eu{font-weight:800} .dlg .es{font-size:14px;color:var(--muted)}
+.olen{flex:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
 @media (prefers-reduced-motion:reduce){ .sheet,.top .bar i,.flash .face{transition:none} }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
-<div class="sheet" id="sheet"><div class="in"><h3 id="sh-title"></h3><p id="sh-body"></p><button class="btn" id="sh-next">Jarraitu · Continuar</button></div></div>
+<div class="sheet" id="sheet"><div class="in"><div class="row" style="align-items:flex-start"><div id="sh-olen" class="sh-olen"></div><div style="min-width:0"><h3 id="sh-title"></h3><p id="sh-sub" class="hint"></p><p id="sh-body" style="margin-top:6px;font-weight:700"></p></div></div><button class="btn" id="sh-next">Jarraitu · Continuar</button></div></div>
 <nav class="tabs" id="tabs" hidden><div class="in">
  <button class="tab" data-tab="praktika"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 9 L13 15 L16 11 L21 20 Z"/><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0-2 0"/></svg>Praktika</button>
  <button class="tab" data-tab="estatistikak"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg>Estatistikak</button>
@@ -160,6 +176,23 @@ const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replac
 const words = s => s.replace(/[¿?¡!.,]/g,"").split(/\s+/).filter(Boolean);
 const LAUBURU = `<svg viewBox="0 0 100 100"><g fill="currentColor"><path d="M50 50 A25 25 0 0 1 50 0 A12.5 12.5 0 0 1 50 25 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 100 50 A12.5 12.5 0 0 1 75 50 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 50 100 A12.5 12.5 0 0 1 50 75 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 0 50 A12.5 12.5 0 0 1 25 50 A12.5 12.5 0 0 0 50 50Z"/></g></svg>`;
 const HILLS = `<svg class="hills" viewBox="0 0 560 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H560 V70 H0 Z" fill="var(--red)"/><path d="M0 70 L0 40 L90 18 L170 44 L260 10 L350 38 L430 22 L560 48 L560 70 Z" fill="var(--green-deep)"/><path d="M0 70 L0 56 L120 34 L230 60 L330 42 L450 62 L560 44 L560 70 Z" fill="var(--green)"/></svg>`;
+// Olentzero mascota: mood = "happy" | "sad" | "wave"
+function OLEN(mood="happy",size=96){
+  const mouth = mood==="sad" ? `<path d="M232 252 Q256 238 280 252" stroke="#8F1D16" stroke-width="7" fill="none" stroke-linecap="round"/>` : `<path d="M226 243 Q256 262 286 243 Q275 258 256 258 Q237 258 226 243 Z" fill="#B8281F"/>`;
+  const brows = mood==="sad" ? `<path d="M212 184 Q228 192 244 190" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M268 190 Q284 192 300 184" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/>` : `<path d="M212 190 Q228 182 244 190" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M268 190 Q284 182 300 190" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+  const eyes = mood==="happy" ? `<path d="M218 210 Q228 200 238 210" stroke="#26211B" stroke-width="6" fill="none" stroke-linecap="round"/><path d="M274 210 Q284 200 294 210" stroke="#26211B" stroke-width="6" fill="none" stroke-linecap="round"/>` : `<circle cx="228" cy="208" r="7" fill="#26211B"/><circle cx="284" cy="208" r="7" fill="#26211B"/>`;
+  const arm = mood==="wave" ? `<path d="M340 330 Q400 300 420 230" stroke="#B8281F" stroke-width="34" fill="none" stroke-linecap="round"/><circle cx="424" cy="222" r="22" fill="#E9B98B"/>` : "";
+  return `<svg viewBox="120 80 300 440" width="${size}" height="${size*440/300}" aria-label="Olentzero" style="display:block;overflow:visible">
+    <path d="M150 520 L150 360 Q150 300 256 300 Q362 300 362 360 L362 520 Z" fill="#B8281F"/>${arm}
+    <path d="M232 300 L256 520 L280 300 Z" fill="#F7F1E3" opacity=".9"/><circle cx="256" cy="360" r="7" fill="#26211B"/><circle cx="256" cy="410" r="7" fill="#26211B"/>
+    <circle cx="256" cy="215" r="80" fill="#E9B98B"/>
+    <path d="M186 225 Q190 320 256 330 Q322 320 326 225 Q300 265 256 262 Q212 265 186 225 Z" fill="#D9D4CA"/>
+    ${mouth}<circle cx="216" cy="228" r="12" fill="#E07A6A" opacity=".7"/><circle cx="296" cy="228" r="12" fill="#E07A6A" opacity=".7"/>${eyes}${brows}
+    <path d="M160 170 Q170 100 256 95 Q342 100 352 170 Q256 150 160 170 Z" fill="#1A1816"/><ellipse cx="256" cy="168" rx="100" ry="18" fill="#1A1816"/><circle cx="258" cy="96" r="7" fill="#1A1816"/>
+  </svg>`;
+}
+const GOOD=[["Oso ondo!","¡Muy bien!"],["Ederki!","¡Estupendo!"],["Primeran!","¡De primera!"],["Bikain!","¡Excelente!"],["Txapeldun!","¡Campeón/a!"],["Zoragarria!","¡Maravilloso!"],["Hori da!","¡Eso es!"],["Aupa!","¡Aúpa!"],["Oso ondo egin duzu!","¡Lo has hecho muy bien!"],["Ikaragarria!","¡Tremendo!"]];
+const BAD=[["Ia-ia!","¡Casi!"],["Lasai, hurrengoan!","Tranqui, a la próxima"],["Ez da ezer!","¡No pasa nada!"],["Saiatu berriro!","¡Inténtalo otra vez!"],["Kasik!","¡Por poco!"],["Segi aurrera!","¡Sigue adelante!"]];
 async function api(path, body){
   const r = await fetch("/api/"+path, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
   const data = await r.json().catch(()=>({error:"Error de red."}));
@@ -168,12 +201,12 @@ async function api(path, body){
 }
 let P = null, TAB = "praktika";
 
-function header(sub){
-  return `<header class="head pad"><div class="lb">${LAUBURU}</div>
+function header(sub, mood="wave"){
+  return `<header class="head pad"><div class="lb">${LAUBURU}</div><div class="mascot">${OLEN(mood,84)}</div>
     <div class="row"><span class="avatar">${esc(P.name[0].toUpperCase())}</span>
     <div style="min-width:0"><p class="eyebrow">Kaixo</p><h1 style="font-size:28px">${esc(P.name)}</h1></div>
     <span class="spacer"></span><span class="pill">🔥 ${P.streak}</span><span class="pill">${P.xp} XP</span></div>
-    ${sub?`<p style="margin-top:12px;color:#F6C9C2;font-weight:600">${sub}</p>`:""}
+    ${sub?`<p style="margin-top:12px;color:#F6C9C2;font-weight:600;max-width:70%">${sub}</p>`:""}
    </header>${HILLS}`;
 }
 function setTab(t){ TAB=t; tabs.hidden=false; tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); ({praktika:renderHome,errepasoa:renderReview,estatistikak:renderStats})[t](); }
@@ -184,7 +217,7 @@ function renderLogin(mode="login", prefill={}){
   tabs.hidden=true; const reg = mode==="register";
   app.innerHTML = `
    <div class="head pad" style="padding-bottom:30px"><div class="lb">${LAUBURU}</div>
-     <div class="row" style="gap:18px"><img class="olen" src="icon-192.png" alt="Olentzero"><div><p class="eyebrow">Euskara praktika</p><h1>${reg?"Sortu kontua":"Nor zara?"}</h1><p style="color:#F6C9C2;font-weight:600">${reg?"Crea tu cuenta":"¿Quién eres?"}</p></div></div>
+     <div class="row" style="gap:18px"><div class="olen">${OLEN("wave",80)}</div><div><p class="eyebrow">Euskara praktika</p><h1>${reg?"Sortu kontua":"Nor zara?"}</h1><p style="color:#F6C9C2;font-weight:600">${reg?"Crea tu cuenta":"¿Quién eres?"}</p></div></div>
    </div>${HILLS}
    <div class="stack pad" style="padding-top:22px">
     <p class="muted">${reg?"Elige un nombre, un PIN de 4 cifras y el código de invitación. Vale en cualquier teléfono.":"Entra con tu nombre y tu PIN."}</p>
@@ -215,8 +248,27 @@ async function renderHome(){
     <button class="link" id="logout" style="align-self:center">Salir</button>
    </div>`;
   document.getElementById("logout").onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
-  app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>startSession({lessons:[LESSONS.find(l=>l.id===b.dataset.l)]}));
+  app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(LESSONS.find(l=>l.id===b.dataset.l)));
   try{ const board=await api("board"); const el=document.getElementById("board"); if(el) el.insertAdjacentHTML("beforeend", board.map(u=>`<p><span>${esc(u.name)}</span><b>${u.xp} XP</b></p>`).join("")); }catch(e){}
+}
+
+// ---------- IKASGAIA (página visual de la lección) ----------
+function renderLesson(l){
+  tabs.hidden=true;
+  const st=P.lessons[l.id]||{rounds:0,best:0};
+  app.innerHTML=`<div class="top pad"><button id="back" aria-label="Volver" style="font-size:22px;color:var(--muted)">‹</button><div style="flex:1;min-width:0"><p class="eyebrow">Ikasgaia ${LESSONS.indexOf(l)+1}</p><h2>${esc(l.emoji||"")} ${esc(l.title)}</h2></div><span class="pill g">${st.rounds}/3</span></div>
+   <div class="stack pad" style="flex:1;gap:18px">
+    ${l.pattern?`<div class="pattern"><p class="eyebrow" style="color:#F6C9C2">Egitura · estructura clave</p><p class="pat">${esc(l.pattern).replace("___",'<span class="blank">___</span>')}</p></div>`:""}
+    <p class="eyebrow">Hiztegia · vocabulario</p>
+    <div class="vocab">${l.pairs.map(([eu,es,em])=>`<div class="v"><span class="em">${esc(em||"•")}</span><b>${esc(eu)}</b><small>${esc(es)}</small></div>`).join("")}</div>
+    ${l.tips&&l.tips.length?`<p class="eyebrow">Nola funtzionatzen du · cómo funciona</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
+    ${l.dialogue&&l.dialogue.length?`<p class="eyebrow">Elkarrizketa · diálogo</p><div class="card dlg">${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>`).join("")}</div>`:""}
+    <p class="hint">Lee en voz alta, luego practica: cada ronda son ${ROUND} ejercicios y la lección se completa con 3.</p>
+   </div>
+   <div class="bottom pad"><button class="btn red" id="go">Praktikatu · Practicar</button></div>`;
+  document.getElementById("back").onclick=()=>setTab("praktika");
+  document.getElementById("go").onclick=()=>startSession({lessons:[l]});
+  window.scrollTo(0,0);
 }
 
 // ---------- ERREPASOA ----------
@@ -231,7 +283,7 @@ function renderReview(){
     <p class="eyebrow">Txartelak · Tarjetas</p>
     <div class="chips">${LESSONS.map(l=>`<button class="chip ${l.id===RV.lesson?"on":""}" data-c="${l.id}">${esc(l.title)}</button>`).join("")}</div>
     <div class="flash" id="flash"><div class="face">
-      <div class="side front"><p class="eyebrow">Euskara</p><p class="eu">${esc(c[0])}</p><p class="hint">Toca para ver la traducción</p></div>
+      <div class="side front"><p class="eyebrow">Euskara</p>${c[2]?`<p style="font-size:40px;line-height:1">${esc(c[2])}</p>`:""}<p class="eu">${esc(c[0])}</p><p class="hint">Toca para ver la traducción</p></div>
       <div class="side back"><p class="eyebrow">Castellano</p><p class="es">${esc(c[1])}</p></div>
     </div></div>
     <div class="row"><button class="btn ghost" id="prev" style="width:auto;flex:1">◀ Aurrekoa</button><span class="pill" style="font-variant-numeric:tabular-nums">${RV.i+1} / ${RV.cards.length}</span><button class="btn ghost" id="next" style="width:auto;flex:1">Hurrengoa ▶</button></div>
@@ -338,8 +390,11 @@ function renderExercise(){
 }
 function showSheet(ok,e){
   const sh=document.getElementById("sheet"); sh.className="sheet show "+(ok?"ok":"bad");
-  document.getElementById("sh-title").textContent= ok ? ["Oso ondo!","Ederki!","Primeran!","Bikain!","Txapeldun!"][Math.floor(Math.random()*5)] : "Ia-ia. La respuesta correcta:";
-  document.getElementById("sh-body").textContent= ok ? (e.type==="choice"?`${e.q} = ${e.a}`:e.a) : e.a;
+  const ph=(ok?GOOD:BAD)[Math.floor(Math.random()*(ok?GOOD:BAD).length)];
+  document.getElementById("sh-olen").innerHTML=OLEN(ok?"happy":"sad",64);
+  document.getElementById("sh-title").textContent=ph[0];
+  document.getElementById("sh-sub").textContent=ph[1];
+  document.getElementById("sh-body").textContent= ok ? (e.type==="choice"?`${e.q} = ${e.a}`:e.a) : "Erantzun zuzena · correcta: "+e.a;
   const next=document.getElementById("sh-next");
   next.onclick=()=>{ sh.className="sheet"; SES.i++; if(SES.i<SES.ex.length) renderExercise(); else finish(); };
   next.focus();
@@ -352,6 +407,7 @@ async function finish(){
     <p class="eyebrow">Txanda amaituta · ronda terminada</p>
     <h1 style="margin-top:6px">${acc===100?"Bikain!":acc>=70?"Ondo egin!":"Segi aurrera!"}</h1>
     <p class="big" style="color:var(--cream);margin-top:10px">+${gained} XP</p>
+    <div style="display:flex;justify-content:center;margin:12px 0 -20px;position:relative;z-index:2">${OLEN(acc>=70?"happy":"sad",110)}</div>
    </div>${HILLS}
    <div class="stack pad" style="padding-top:18px;text-align:center">
     <div class="stats"><div class="stat"><b>${SES.ok}/${SES.ex.length}</b><span>asmatuak · aciertos</span></div><div class="stat"><b>🔥 ${P.streak}</b><span>egunak · racha</span></div></div>
