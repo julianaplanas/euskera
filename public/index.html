@@ -213,7 +213,7 @@ async function api(path, body){
   if(!r.ok) throw Object.assign(new Error(data.error||"Error"), data);
   return data;
 }
-let P = null, TAB = "praktika";
+let P = null, TAB = "praktika", RIVAL = null;
 
 function header(sub, mood="wave"){
   return `<header class="head pad"><div class="lb">${LAUBURU}</div><div class="mascot">${OLEN(mood,84)}</div>
@@ -256,12 +256,14 @@ function renderLogin(mode="login", prefill={}){
 async function renderHome(){
   app.innerHTML = header(P.practicedToday?"Gaur praktikatu duzu · hoy ya has practicado":"Gaur oraindik ez · una ronda mantiene la racha")+`
    <div class="stack pad" style="padding-top:18px">
+    ${(()=>{ const d=loadSes(); if(!d) return ""; const what=d.weak?"ronda de difíciles":d.review?"repaso general":(d.lessons[0]?d.lessons[0].title:"ronda"); return `<button class="btn" id="resume">▶ Jarraitu · continuar ${esc(what)} (${d.i}/${d.ex.length})</button>`; })()}
     <p class="eyebrow">Ikasgaiak · Lecciones</p>
     ${LESSONS.map((l,i)=>{ const st=P.lessons[l.id]||{rounds:0,best:0}; const pct=Math.min(100,Math.round(st.rounds/3*100)); return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n" style="--p:${pct}%"><b>${i+1}</b></span><span class="t"><strong>${esc(l.title)}</strong><small>${esc(l.desc)}${st.rounds?` · ${st.rounds} ${st.rounds===1?"ronda":"rondas"} · mejor ${st.best}/${ROUND}`:""}</small></span><span class="pill g">${pct>=100?"✓":pct+"%"}</span></button>`; }).join("")}
     <div class="card board" id="board"><p class="eyebrow" style="border:0;padding:0 0 6px">Sailkapena · Ranking</p></div>
     <button class="link" id="logout" style="align-self:center">Salir</button>
    </div>`;
   document.getElementById("logout").onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
+  const rs=document.getElementById("resume"); if(rs) rs.onclick=()=>{ const d=loadSes(); if(d) resumeSession(d); else renderHome(); };
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(LESSONS.find(l=>l.id===b.dataset.l)));
   try{ const board=await api("board"); const el=document.getElementById("board"); if(el) el.insertAdjacentHTML("beforeend", board.map(u=>`<p><span>${esc(u.name)}</span><b>${u.xp} XP</b></p>`).join("")); }catch(e){}
 }
@@ -282,7 +284,9 @@ function renderLesson(l){
    </div>
    <div class="bottom pad"><button class="btn red" id="go">Praktikatu · Practicar</button></div>`;
   document.getElementById("back").onclick=()=>setTab("praktika");
-  document.getElementById("go").onclick=()=>startSession({lessons:[l]});
+  const pend=loadSes(); const samePend=pend && !pend.weak && !pend.review && pend.lessons.length===1 && pend.lessons[0].id===l.id;
+  if(samePend) document.getElementById("go").textContent=`▶ Jarraitu · continuar (${pend.i}/${pend.ex.length})`;
+  document.getElementById("go").onclick=()=>samePend?resumeSession(pend):startSession({lessons:[l]});
   window.scrollTo(0,0);
 }
 
@@ -324,11 +328,12 @@ async function renderStats(){
   app.innerHTML = header("Norgehiagoka · a ver quién practica más")+`<div class="stack pad" style="padding-top:18px"><p class="muted">Kargatzen…</p></div>`;
   let data; try{ data=await api("stats"); }catch(e){ app.querySelector(".stack").innerHTML=`<p class="err">No se pudieron cargar las estadísticas.</p>`; return; }
   const me=data.users.find(u=>u.me); const others=data.users.filter(u=>!u.me);
-  const rival=others[0]; // la rival es quien más XP tiene aparte de ti
+  const rival=others.find(u=>u.name===RIVAL)||others[0]; // por defecto, quien más XP tiene aparte de ti
   const dayLabel=d=>["Ig","Al","Ar","Az","Og","Ol","Lr"][new Date(d+"T12:00:00").getDay()];
   const row=(lab,a,b,fmt=x=>x)=>`<div class="cmp"><span class="l ${a>b?"win":""}"><b>${fmt(a)}</b></span><span class="lab">${lab}</span><span class="${b>a?"win":""}"><b>${fmt(b)}</b></span></div>`;
   const mx=Math.max(1,...me.perDay,...(rival?rival.perDay:[0]));
   app.querySelector(".stack").innerHTML = `
+    ${others.length>1?`<p class="eyebrow">Aukeratu aurkaria · elige rival</p><div class="chips">${others.map(u=>`<button class="chip ${u===rival?"on":""}" data-r="${esc(u.name)}">${esc(u.name)}</button>`).join("")}</div>`:""}
     ${rival?`<div class="vs"><div class="who me"><div class="av">${esc(me.name[0].toUpperCase())}</div><b>${esc(me.name)}</b></div><div class="mid">vs</div><div class="who"><div class="av">${esc(rival.name[0].toUpperCase())}</div><b>${esc(rival.name)}</b></div></div>
     <div class="card">
       ${row("XP astea · semana",me.weekXp,rival.weekXp)}
@@ -345,8 +350,9 @@ async function renderStats(){
       <div class="legend" style="margin-top:10px"><span><i></i>${esc(me.name)}</span>${rival?`<span><i class="o"></i>${esc(rival.name)}</span>`:""}</div>
     </div>
     <div class="stats"><div class="stat"><b>${me.rounds}</b><span>rondas</span></div><div class="stat"><b>${me.accuracy}%</b><span>acierto</span></div></div>
-    ${others.length>1?`<div class="card board"><p class="eyebrow" style="border:0;padding:0 0 6px">Sailkapena</p>${data.users.map(u=>`<p><span>${esc(u.name)}${u.me?" (tú)":""}</span><b>${u.xp} XP</b></p>`).join("")}</div>`:""}
+    ${data.users.length>1?`<p class="eyebrow">Asteko sailkapena · ranking de la semana</p><div class="card board">${data.users.slice().sort((a,b)=>b.weekXp-a.weekXp).map((u,i)=>`<p><span>${["🥇","🥈","🥉"][i]||(i+1)+"."} ${esc(u.name)}${u.me?" (tú)":""}${u.practicedToday?" ·🔥":""}</span><b>${u.weekXp} XP <span class="muted" style="font-weight:600;font-size:14px">/ ${u.xp} total</span></b></p>`).join("")}</div>`:""}
   `;
+  app.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{ RIVAL=b.dataset.r; renderStats(); });
 }
 
 // ---------- EJERCICIOS ----------
@@ -376,7 +382,21 @@ function buildExercises(opts){
   return shuffle(ex).slice(0,ROUND);
 }
 let SES=null;
-function startSession(opts){ tabs.hidden=true; document.body.classList.add("notabs"); SES={...opts,ex:buildExercises(opts),i:0,ok:0,wrong:[]}; if(!SES.ex.length){ setTab(TAB); return; } renderExercise(); }
+const sesKey=()=>"euskara.ses."+(P?P.name:"");
+function saveSes(){ try{ if(SES) localStorage.setItem(sesKey(), JSON.stringify({...SES, lessons:SES.lessons.map(l=>l.id), lessonIds:undefined})); }catch(e){} }
+function clearSes(){ SES=null; try{ localStorage.removeItem(sesKey()); }catch(e){} }
+function loadSes(){ try{ const raw=localStorage.getItem(sesKey()); if(!raw) return null; const d=JSON.parse(raw); d.lessons=(d.lessons||[]).map(id=>LESSONS.find(l=>l.id===id)).filter(Boolean); if(!d.ex||!d.ex.length||d.i>=d.ex.length) return null; return d; }catch(e){ return null; } }
+function startSession(opts){
+  tabs.hidden=true; document.body.classList.add("notabs");
+  // en una ronda de lección, mete primero (hasta 3) las palabras difíciles de esa lección
+  let ex=buildExercises(opts);
+  if(!opts.weak && !opts.review && opts.lessons.length===1){
+    const L=opts.lessons[0]; const mine=P.weak.filter(w=>L.pairs.some(p=>norm(p[0])===norm(w[0])));
+    if(mine.length){ const extra=buildExercises({weak:true,pairs:mine,lessons:[L]}).slice(0,3); ex=shuffle([...extra,...ex.filter(e=>!extra.some(x=>norm(x.pair[0])===norm(e.pair[0])))]).slice(0,ROUND); }
+  }
+  SES={...opts,ex,i:0,ok:0,wrong:[],retried:0}; if(!SES.ex.length){ clearSes(); setTab(TAB); return; } saveSes(); renderExercise();
+}
+function resumeSession(d){ tabs.hidden=true; document.body.classList.add("notabs"); SES=d; renderExercise(); }
 function renderExercise(){
   const e=SES.ex[SES.i]; const pct=Math.round(SES.i/SES.ex.length*100);
   let body="";
@@ -385,7 +405,7 @@ function renderExercise(){
   else if(e.type==="tiles") body=`<p class="eyebrow">Ordenatu · Ordena las fichas</p><p class="prompt">${esc(e.q)}</p><div class="tiles" id="answer" aria-label="Tu respuesta"></div><div class="tiles bank" id="bank">${e.tiles.map((t,k)=>`<button class="tile" data-k="${k}">${esc(t)}</button>`).join("")}</div>`;
   else body=`<p class="eyebrow">Idatzi euskaraz · Escríbelo en euskera</p><p class="prompt">${esc(e.q)}</p><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Escribe aquí…"><p class="hint">No importan tildes ni signos de puntuación.</p>`;
   app.innerHTML=`<div class="top pad"><button id="quit" aria-label="Salir" style="font-size:22px;color:var(--muted)">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="pill g">${SES.ok*XP_OK} XP</span></div>
-   <div class="stack pad" style="flex:1">${body}</div>
+   <div class="stack pad" style="flex:1">${e.retry?`<p class="pill" style="align-self:flex-start">🔁 Berriro · otra vez esta</p>`:""}${body}</div>
    <div class="bottom pad"><button class="btn" id="check" disabled>Egiaztatu · Comprobar</button></div>`;
   document.getElementById("quit").onclick=()=>setTab(TAB);
   const check=document.getElementById("check"); let picked=null; const chosen=[];
@@ -405,7 +425,8 @@ function renderExercise(){
     check.disabled=true;
     const key=norm(e.pair[0]);
     if(ok){ SES.ok++; if(SES.weak||SES.review) P.weak=P.weak.filter(w=>norm(w[0])!==key); }
-    else { SES.wrong.push(e); if(!P.weak.some(w=>norm(w[0])===key)) P.weak.unshift(e.pair); }
+    else { SES.wrong.push(e); if(!P.weak.some(w=>norm(w[0])===key)) P.weak.unshift(e.pair); if(!e.retry && SES.retried<4){ SES.ex.push({...e,retry:true}); SES.retried++; } }
+    saveSes();
     showSheet(ok,e);
   };
 }
@@ -421,6 +442,7 @@ function showSheet(ok,e){
   next.focus();
 }
 async function finish(){
+  try{ localStorage.removeItem(sesKey()); }catch(e){}
   const acc=Math.round(SES.ok/SES.ex.length*100);
   let gained=SES.ok*XP_OK, saved=true; const weakNow=P.weak;
   try{ const r=await api("round",{lessonId:(SES.weak||SES.review)?null:SES.lessons[0].id, ok:SES.ok, total:SES.ex.length}); gained=r.gained; P=r; P.weak=weakNow; await api("weak",{weak:P.weak}); }catch(e){ saved=false; }
