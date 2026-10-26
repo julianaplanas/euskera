@@ -113,6 +113,7 @@ function renderLogin(mode="login", prefill={}){
     <form id="f" class="stack">
       <input class="ans" id="name" placeholder="Nombre" autocomplete="username" autocapitalize="none" value="${esc(prefill.name||"")}">
       <input class="ans" id="pin" placeholder="PIN" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="${reg?"new-password":"current-password"}" value="${esc(prefill.pin||"")}">
+      ${reg?`<input class="ans" id="invite" placeholder="Código de invitación" autocomplete="off" autocapitalize="none">`:""}
       <p class="err" id="err"></p>
       <button class="btn" type="submit">${reg?"Crear cuenta":"Entrar"}</button>
     </form>
@@ -120,8 +121,8 @@ function renderLogin(mode="login", prefill={}){
    </div>`;
   document.getElementById("swap").onclick=()=>renderLogin(reg?"login":"register");
   document.getElementById("f").onsubmit=async e=>{
-    e.preventDefault(); const name=document.getElementById("name").value, pin=document.getElementById("pin").value; const err=document.getElementById("err"); err.textContent="";
-    try{ P = await api(reg?"register":"login",{name,pin}); renderHome(); }
+    e.preventDefault(); const name=document.getElementById("name").value, pin=document.getElementById("pin").value, invite=(document.getElementById("invite")||{}).value||""; const err=document.getElementById("err"); err.textContent="";
+    try{ P = await api(reg?"register":"login",{name,pin,invite}); renderHome(); }
     catch(ex){ if(ex.unknown){ renderLogin("register",{name,pin}); document.getElementById("err").textContent="No existe ese usuario. ¿Quieres crearlo?"; } else err.textContent=ex.message; }
   };
 }
