@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs><clipPath id="c"><rect width="512" height="512" rx="110"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <rect width="512" height="512" fill="#1E3A2F"/>
+    <!-- montes -->
+    <path d="M-20 420 L90 300 L170 370 L260 250 L350 360 L420 290 L540 420 Z" fill="#2A7A4F"/>
+    <path d="M-20 470 L120 380 L230 440 L330 390 L430 450 L540 400 L540 520 L-20 520 Z" fill="#3F9A63"/>
+    <!-- estrellas -->
+    <circle cx="80" cy="90" r="4" fill="#F7F1E3"/><circle cx="430" cy="70" r="3" fill="#F7F1E3"/><circle cx="380" cy="140" r="2.5" fill="#F7F1E3"/><circle cx="140" cy="160" r="2.5" fill="#F7F1E3"/>
+    <!-- cuerpo: kaiku rojo -->
+    <path d="M150 512 L150 360 Q150 300 256 300 Q362 300 362 360 L362 512 Z" fill="#B8281F"/>
+    <path d="M232 300 L256 512 L280 300 Z" fill="#F7F1E3" opacity=".9"/>
+    <circle cx="256" cy="360" r="7" fill="#26211B"/><circle cx="256" cy="410" r="7" fill="#26211B"/>
+    <!-- saco de carbón -->
+    <path d="M330 420 Q400 400 420 470 Q425 512 400 512 L340 512 Q320 470 330 420 Z" fill="#6B5A44"/>
+    <!-- cabeza -->
+    <circle cx="256" cy="215" r="80" fill="#E9B98B"/>
+    <!-- barba -->
+    <path d="M186 225 Q190 320 256 330 Q322 320 326 225 Q300 265 256 262 Q212 265 186 225 Z" fill="#D9D4CA"/>
+    <path d="M226 243 Q256 262 286 243 Q275 258 256 258 Q237 258 226 243 Z" fill="#B8281F"/>
+    <!-- mejillas -->
+    <circle cx="216" cy="228" r="12" fill="#E07A6A" opacity=".7"/><circle cx="296" cy="228" r="12" fill="#E07A6A" opacity=".7"/>
+    <!-- ojos y cejas -->
+    <circle cx="228" cy="208" r="7" fill="#26211B"/><circle cx="284" cy="208" r="7" fill="#26211B"/>
+    <path d="M212 190 Q228 182 244 190" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <path d="M268 190 Q284 182 300 190" stroke="#26211B" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <!-- txapela -->
+    <path d="M160 170 Q170 100 256 95 Q342 100 352 170 Q256 150 160 170 Z" fill="#1A1816"/>
+    <ellipse cx="256" cy="168" rx="100" ry="18" fill="#1A1816"/>
+    <circle cx="258" cy="96" r="7" fill="#1A1816"/>
+  </g>
+</svg>

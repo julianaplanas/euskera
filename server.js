@@ -45,6 +45,8 @@ db.exec(`
   );
 `);
 
+try { db.exec("ALTER TABLE users ADD COLUMN weak TEXT NOT NULL DEFAULT '[]'"); } catch (e) {}
+
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString("hex");
 const norm = (s) => String(s || "").trim().toLowerCase();
 const madridDay = (offsetDays = 0) => {
@@ -84,7 +86,8 @@ function profile(user) {
   for (const p of db.prepare("SELECT lesson_id, rounds, best FROM progress WHERE user_id = ?").all(user.id)) {
     lessons[p.lesson_id] = { rounds: p.rounds, best: p.best };
   }
-  return { name: user.name, xp: user.xp, streak, practicedToday: user.last_day === today, lessons };
+  let weak = []; try { weak = JSON.parse(user.weak || "[]"); } catch (e) {}
+  return { name: user.name, xp: user.xp, streak, practicedToday: user.last_day === today, lessons, weak };
 }
 
 app.post("/api/register", (req, res) => {
@@ -135,6 +138,13 @@ app.post("/api/round", auth, (req, res) => {
   });
   tx();
   res.json({ gained, ...profile(db.prepare("SELECT * FROM users WHERE id = ?").get(u.id)) });
+});
+
+// Palabras difíciles: lista de [euskera, castellano] que el cliente mantiene (falladas recientemente)
+app.post("/api/weak", auth, (req, res) => {
+  const weak = Array.isArray(req.body.weak) ? req.body.weak.filter(w => Array.isArray(w) && w.length === 2).slice(0, 200) : [];
+  db.prepare("UPDATE users SET weak = ? WHERE id = ?").run(JSON.stringify(weak), req.user.id);
+  res.json({ ok: true, weak });
 });
 
 // Ranking sencillo entre los usuarios de la app

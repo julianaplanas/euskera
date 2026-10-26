@@ -4,184 +4,267 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Euskara Praktika</title>
-<meta name="theme-color" content="#1F5F4A">
+<meta name="theme-color" content="#B8281F">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Euskara">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="icon" href="olentzero.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Domine:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Nunito+Sans:wght@400;600;700;800&display=swap">
 <style>
+/* Paleta: ikurriña suavizada sobre crema de caserío. Display: slab pesado, eco de la letra vasca tallada en piedra. */
 :root{
-  --bg:#F3F5F0; --card:#FFFFFF; --ink:#1A2430; --muted:#5B6878; --line:#D9DED3;
-  --green:#1F5F4A; --green-soft:#DCEFE5; --red:#C8402A; --red-soft:#F9DEDA; --gold:#E0A526; --gold-soft:#FBEFD0;
-  --display:'Domine',Georgia,serif; --body:'Nunito Sans',system-ui,-apple-system,sans-serif; --r:16px; color-scheme:light;
+  --bg:#F7F1E3; --card:#FFFDF8; --ink:#26211B; --muted:#6E655A; --line:#E3D9C6;
+  --red:#B8281F; --red-deep:#8F1D16; --red-soft:#F6DDD8; --green:#2A7A4F; --green-deep:#1E5A3A; --green-soft:#D9EBDD;
+  --ochre:#D9A441; --ochre-soft:#F6E7C4; --cream:#F7F1E3;
+  --display:'Alfa Slab One',Georgia,serif; --body:'Nunito Sans',system-ui,-apple-system,sans-serif; --r:18px; color-scheme:light;
 }
-@media (prefers-color-scheme:dark){ :root{ --bg:#121A1C; --card:#1C2628; --ink:#EEF2EC; --muted:#A3B0A9; --line:#2F3D3E; --green:#5FBF93; --green-soft:#1E3A30; --red:#F07A62; --red-soft:#4A241E; --gold:#F0BF4A; --gold-soft:#443619; color-scheme:dark } }
+@media (prefers-color-scheme:dark){ :root{ --bg:#1B1A17; --card:#26241F; --ink:#F3EEE3; --muted:#B3AA9B; --line:#3B372F; --red:#E05545; --red-deep:#B8281F; --red-soft:#4A2320; --green:#5FBF8C; --green-deep:#2A7A4F; --green-soft:#1F3A2C; --ochre:#E9B85A; --ochre-soft:#4A3A1A; --cream:#F7F1E3; color-scheme:dark } }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.4;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0px)}
-.app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 24px}
-h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.15}
-h1{font-size:30px} h2{font-size:24px} h3{font-size:19px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.4;-webkit-font-smoothing:antialiased}
+.app{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+.pad{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;text-wrap:balance;line-height:1.1;letter-spacing:.01em}
+h1{font-size:34px} h2{font-size:24px} h3{font-size:18px}
 p{margin:0}
 button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.btn{display:block;width:100%;padding:16px;border-radius:14px;font-weight:800;font-size:18px;text-align:center;background:var(--green);color:#fff}
-.btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green)}
-.btn:disabled{opacity:.4}
-.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+.btn{display:block;width:100%;padding:16px;border-radius:14px;font-weight:800;font-size:18px;text-align:center;background:var(--green);color:#fff;box-shadow:0 4px 0 var(--green-deep)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--green-deep)}
+.btn.red{background:var(--red);box-shadow:0 4px 0 var(--red-deep)}
+.btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green);box-shadow:none}
+.btn:disabled{opacity:.4;box-shadow:none}
+.eyebrow{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
 .muted{color:var(--muted)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px}
 .stack{display:flex;flex-direction:column;gap:14px}
 .row{display:flex;align-items:center;gap:12px}
 .spacer{flex:1}
 .err{color:var(--red);font-weight:700;min-height:1.4em}
-.top{display:flex;align-items:center;gap:12px;padding-block:8px 16px}
+/* cabecera roja con lauburu */
+.head{position:relative;overflow:hidden;background:var(--red);color:var(--cream);padding-top:calc(14px + env(safe-area-inset-top,0px));padding-bottom:18px}
+.head .lb{position:absolute;right:-40px;top:-30px;width:190px;height:190px;color:#fff;opacity:.12}
+.head .lb svg{width:100%;height:100%}
+.head .eyebrow{color:#F6C9C2}
+.head .pill{background:rgba(255,255,255,.18);color:var(--cream)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-weight:800;font-size:14px;background:var(--ochre-soft);color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill.g{background:var(--green-soft)}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--cream);color:var(--red);display:grid;place-items:center;font-family:var(--display);font-size:20px;flex:none}
+/* montes */
+.hills{display:block;width:100%;height:auto;margin-top:-1px}
+/* pestañas */
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr}
+.tab{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0 8px;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-top:3px solid transparent}
+.tab.on{color:var(--red);border-top-color:var(--red)}
+.tab svg{width:26px;height:26px}
+/* lecciones */
+.lesson{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--green);border-radius:var(--r);padding:16px}
+.lesson.done{border-left-color:var(--ochre)}
+.lesson .n{width:48px;height:48px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--display);font-size:20px;color:var(--green);background:conic-gradient(var(--green) var(--p,0%),var(--line) 0)}
+.lesson .n b{width:38px;height:38px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:400}
+.lesson.done .n{color:var(--ink);background:var(--ochre)} .lesson.done .n b{background:var(--ochre)}
+.lesson .t{flex:1;min-width:0}
+.lesson .t strong{display:block;font-size:18px}
+.lesson .t small{display:block;color:var(--muted);font-size:14px}
+/* ejercicio */
+.top{display:flex;align-items:center;gap:12px;padding-top:calc(10px + env(safe-area-inset-top,0px));padding-bottom:14px}
 .top .bar{flex:1;height:12px;background:var(--line);border-radius:999px;overflow:hidden}
 .top .bar i{display:block;height:100%;width:0;background:var(--green);border-radius:999px;transition:width .3s}
-.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-weight:800;font-size:14px;background:var(--gold-soft);color:var(--ink);white-space:nowrap}
-.pill.g{background:var(--green-soft)}
-.lesson{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px}
-.lesson .n{width:44px;height:44px;border-radius:50%;background:var(--green-soft);color:var(--green);font-family:var(--display);font-weight:700;font-size:20px;display:grid;place-items:center;flex:none}
-.lesson .n.done{background:var(--green);color:#fff}
-.lesson .t{flex:1;min-width:0}
-.lesson .t small{display:block;color:var(--muted);font-size:14px}
-.lesson .mini{display:block;height:6px;background:var(--line);border-radius:999px;margin-top:8px;overflow:hidden}
-.lesson .mini i{display:block;height:100%;background:var(--green);width:0}
 .prompt{font-size:26px;font-weight:800;line-height:1.25}
-.prompt.eu{font-family:var(--display);font-weight:700}
+.prompt.eu{font-family:var(--display);font-weight:400;color:var(--red)}
 .opts{display:grid;gap:10px}
-.opt{text-align:left;padding:16px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-size:18px;font-weight:600}
+.opt{text-align:left;padding:16px;border-radius:14px;border:2px solid var(--line);background:var(--card);font-size:18px;font-weight:600;box-shadow:0 3px 0 var(--line)}
 .opt[aria-pressed="true"]{border-color:var(--green);background:var(--green-soft)}
 .opt.ok{border-color:var(--green);background:var(--green-soft)}
 .opt.bad{border-color:var(--red);background:var(--red-soft)}
-.tiles{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:10px;border-bottom:2px solid var(--line)}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:10px;border-bottom:2px dashed var(--line)}
 .tiles.bank{border:0;padding-top:16px}
-.tile{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:18px;font-weight:600;box-shadow:0 2px 0 var(--line)}
+.tile{padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:18px;font-weight:600;box-shadow:0 3px 0 var(--line)}
 .tile.used{opacity:.25;pointer-events:none}
 input.ans{width:100%;font:inherit;font-size:20px;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
 .hint{font-size:14px;color:var(--muted)}
-.sheet{position:fixed;left:0;right:0;bottom:0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));z-index:20;transform:translateY(110%);transition:transform .25s}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:20;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .25s;border-radius:24px 24px 0 0}
 .sheet.show{transform:none}
 .sheet .in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 .sheet.ok{background:var(--green-soft)} .sheet.bad{background:var(--red-soft)}
 .sheet h3{font-family:var(--body);font-weight:800;font-size:20px}
 .sheet.ok h3{color:var(--green)} .sheet.bad h3{color:var(--red)}
-.sheet.bad .btn{background:var(--red)}
-.bottom{position:sticky;bottom:0;padding-block:12px calc(8px + env(safe-area-inset-bottom,0px));background:var(--bg)}
-.big{font-family:var(--display);font-size:56px;font-weight:700;line-height:1;color:var(--green);font-variant-numeric:tabular-nums}
+.sheet.bad .btn{background:var(--red);box-shadow:0 4px 0 var(--red-deep)}
+.bottom{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));padding-block:12px 8px;background:var(--bg)}
+.big{font-family:var(--display);font-size:60px;line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center}
-.stat b{display:block;font-family:var(--display);font-size:28px;font-variant-numeric:tabular-nums}
-.stat span{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
-.avatar{width:44px;height:44px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:20px;flex:none}
+.stat b{display:block;font-family:var(--display);font-weight:400;font-size:28px;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.1em}
 .link{color:var(--green);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .board p{display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--line)}
-@media (prefers-reduced-motion:reduce){ .sheet,.top .bar i{transition:none} }
+/* repaso */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;border:2px solid var(--line);background:var(--card);font-weight:700;font-size:15px}
+.chip.on{border-color:var(--red);background:var(--red);color:#fff}
+.flash{perspective:1200px;min-height:230px}
+.flash .face{position:relative;width:100%;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;border-radius:24px;text-align:center;transition:transform .45s;transform-style:preserve-3d;background:var(--card);border:1px solid var(--line);box-shadow:0 6px 0 var(--line)}
+.flash.flip .face{transform:rotateY(180deg)}
+.flash .side{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:28px;backface-visibility:hidden;border-radius:24px}
+.flash .back{transform:rotateY(180deg);background:var(--green);color:#fff}
+.flash .back .eyebrow{color:#CFE8D6}
+.flash .eu{font-family:var(--display);font-size:30px;color:var(--red);line-height:1.15}
+.flash .es{font-size:26px;font-weight:800}
+.nav{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.weak{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.weak b{color:var(--red)}
+.weak button{color:var(--muted);font-weight:700;font-size:14px}
+.olen{width:96px;height:96px;border-radius:24px;flex:none}
+@media (prefers-reduced-motion:reduce){ .sheet,.top .bar i,.flash .face{transition:none} }
 </style>
 </head>
 <body>
 <div class="app" id="app"></div>
-<div class="sheet" id="sheet"><div class="in"><h3 id="sh-title"></h3><p id="sh-body"></p><button class="btn" id="sh-next">Continuar</button></div></div>
+<div class="sheet" id="sheet"><div class="in"><h3 id="sh-title"></h3><p id="sh-body"></p><button class="btn" id="sh-next">Jarraitu · Continuar</button></div></div>
+<nav class="tabs" id="tabs" hidden><div class="in">
+ <button class="tab" data-tab="praktika"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20 L9 9 L13 15 L16 11 L21 20 Z"/><path d="M8 5a1 1 0 1 0 2 0a1 1 0 1 0-2 0"/></svg>Praktika</button>
+ <button class="tab" data-tab="errepasoa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="M7 5V3h14v14h-2"/></svg>Errepasoa</button>
+</div></nav>
 
 <script src="lessons.js"></script>
 <script>
 const ROUND = 10, XP_OK = 10;
-const app = document.getElementById("app");
+const app = document.getElementById("app"), tabs = document.getElementById("tabs");
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 const norm = s => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[¿?¡!.,]/g,"").replace(/\s+/g," ").trim();
 const words = s => s.replace(/[¿?¡!.,]/g,"").split(/\s+/).filter(Boolean);
+const LAUBURU = `<svg viewBox="0 0 100 100"><g fill="currentColor"><path d="M50 50 A25 25 0 0 1 50 0 A12.5 12.5 0 0 1 50 25 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 100 50 A12.5 12.5 0 0 1 75 50 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 50 100 A12.5 12.5 0 0 1 50 75 A12.5 12.5 0 0 0 50 50Z"/><path d="M50 50 A25 25 0 0 1 0 50 A12.5 12.5 0 0 1 25 50 A12.5 12.5 0 0 0 50 50Z"/></g></svg>`;
+const HILLS = `<svg class="hills" viewBox="0 0 560 70" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0 H560 V70 H0 Z" fill="var(--red)"/><path d="M0 70 L0 40 L90 18 L170 44 L260 10 L350 38 L430 22 L560 48 L560 70 Z" fill="var(--green-deep)"/><path d="M0 70 L0 56 L120 34 L230 60 L330 42 L450 62 L560 44 L560 70 Z" fill="var(--green)"/></svg>`;
 async function api(path, body){
   const r = await fetch("/api/"+path, body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {});
   const data = await r.json().catch(()=>({error:"Error de red."}));
   if(!r.ok) throw Object.assign(new Error(data.error||"Error"), data);
   return data;
 }
-let P = null; // perfil actual
+let P = null, TAB = "praktika";
+
+function header(sub){
+  return `<header class="head pad"><div class="lb">${LAUBURU}</div>
+    <div class="row"><span class="avatar">${esc(P.name[0].toUpperCase())}</span>
+    <div style="min-width:0"><p class="eyebrow">Kaixo</p><h1 style="font-size:28px">${esc(P.name)}</h1></div>
+    <span class="spacer"></span><span class="pill">🔥 ${P.streak}</span><span class="pill">${P.xp} XP</span></div>
+    ${sub?`<p style="margin-top:12px;color:#F6C9C2;font-weight:600">${sub}</p>`:""}
+   </header>${HILLS}`;
+}
+function setTab(t){ TAB=t; tabs.hidden=false; tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); t==="praktika"?renderHome():renderReview(); }
+tabs.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 
 // ---------- LOGIN ----------
 function renderLogin(mode="login", prefill={}){
-  const reg = mode==="register";
+  tabs.hidden=true; const reg = mode==="register";
   app.innerHTML = `
-   <div class="stack" style="padding-top:48px">
-    <p class="eyebrow">Euskara praktika</p>
-    <h1>${reg?"Crea tu cuenta":"Nor zara?"}</h1>
-    <p class="muted">${reg?"Elige un nombre y un PIN de 4 cifras. Lo usarás en cualquier teléfono.":"¿Quién eres? Entra con tu nombre y tu PIN."}</p>
+   <div class="head pad" style="padding-bottom:30px"><div class="lb">${LAUBURU}</div>
+     <div class="row" style="gap:18px"><img class="olen" src="icon-192.png" alt="Olentzero"><div><p class="eyebrow">Euskara praktika</p><h1>${reg?"Sortu kontua":"Nor zara?"}</h1><p style="color:#F6C9C2;font-weight:600">${reg?"Crea tu cuenta":"¿Quién eres?"}</p></div></div>
+   </div>${HILLS}
+   <div class="stack pad" style="padding-top:22px">
+    <p class="muted">${reg?"Elige un nombre, un PIN de 4 cifras y el código de invitación. Vale en cualquier teléfono.":"Entra con tu nombre y tu PIN."}</p>
     <form id="f" class="stack">
       <input class="ans" id="name" placeholder="Nombre" autocomplete="username" autocapitalize="none" value="${esc(prefill.name||"")}">
       <input class="ans" id="pin" placeholder="PIN" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="${reg?"new-password":"current-password"}" value="${esc(prefill.pin||"")}">
       ${reg?`<input class="ans" id="invite" placeholder="Código de invitación" autocomplete="off" autocapitalize="none">`:""}
       <p class="err" id="err"></p>
-      <button class="btn" type="submit">${reg?"Crear cuenta":"Entrar"}</button>
+      <button class="btn red" type="submit">${reg?"Crear cuenta":"Sartu · Entrar"}</button>
     </form>
     <button class="link" id="swap">${reg?"Ya tengo cuenta":"Crear una cuenta nueva"}</button>
    </div>`;
   document.getElementById("swap").onclick=()=>renderLogin(reg?"login":"register");
   document.getElementById("f").onsubmit=async e=>{
     e.preventDefault(); const name=document.getElementById("name").value, pin=document.getElementById("pin").value, invite=(document.getElementById("invite")||{}).value||""; const err=document.getElementById("err"); err.textContent="";
-    try{ P = await api(reg?"register":"login",{name,pin,invite}); renderHome(); }
+    try{ P = await api(reg?"register":"login",{name,pin,invite}); setTab("praktika"); }
     catch(ex){ if(ex.unknown){ renderLogin("register",{name,pin}); document.getElementById("err").textContent="No existe ese usuario. ¿Quieres crearlo?"; } else err.textContent=ex.message; }
   };
 }
 
-// ---------- INICIO ----------
+// ---------- PRAKTIKA ----------
 async function renderHome(){
-  const learned = LESSONS.filter(l=>(P.lessons[l.id]||{}).rounds>0);
-  app.innerHTML = `
-   <div class="stack">
-    <div class="row" style="padding-block:8px">
-     <span class="avatar">${esc(P.name[0].toUpperCase())}</span>
-     <div style="min-width:0"><h2 style="font-size:22px">Kaixo, ${esc(P.name)}!</h2><button class="link" id="logout" style="font-size:14px">Salir</button></div>
-     <span class="spacer"></span>
-     <span class="pill" title="Racha de días">🔥 ${P.streak}</span>
-     <span class="pill g">${P.xp} XP</span>
-    </div>
-    ${P.practicedToday?"":`<p class="hint">Hoy todavía no has practicado. Una ronda mantiene la racha.</p>`}
-    <p class="eyebrow">Lecciones</p>
-    ${LESSONS.map((l,i)=>{ const st=P.lessons[l.id]||{rounds:0,best:0}; const pct=Math.min(100,Math.round(st.rounds/3*100)); return `<button class="lesson" data-l="${l.id}"><span class="n ${pct>=100?"done":""}">${i+1}</span><span class="t"><b>${esc(l.title)}</b><small>${esc(l.desc)}${st.rounds?` · ${st.rounds} ${st.rounds===1?"ronda":"rondas"} · mejor ${st.best}/${ROUND}`:""}</small><span class="mini"><i style="width:${pct}%"></i></span></span></button>`; }).join("")}
-    <p class="eyebrow" style="margin-top:8px">Repaso</p>
-    <button class="btn ghost" id="review" ${learned.length<1?"disabled":""}>Repasar todo lo visto${learned.length?` (${learned.length} ${learned.length===1?"lección":"lecciones"})`:""}</button>
-    <div class="card board" id="board"><p class="eyebrow" style="border:0;padding:0 0 6px">Ranking</p></div>
+  app.innerHTML = header(P.practicedToday?"Gaur praktikatu duzu · hoy ya has practicado":"Gaur oraindik ez · una ronda mantiene la racha")+`
+   <div class="stack pad" style="padding-top:18px">
+    <p class="eyebrow">Ikasgaiak · Lecciones</p>
+    ${LESSONS.map((l,i)=>{ const st=P.lessons[l.id]||{rounds:0,best:0}; const pct=Math.min(100,Math.round(st.rounds/3*100)); return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n" style="--p:${pct}%"><b>${i+1}</b></span><span class="t"><strong>${esc(l.title)}</strong><small>${esc(l.desc)}${st.rounds?` · ${st.rounds} ${st.rounds===1?"ronda":"rondas"} · mejor ${st.best}/${ROUND}`:""}</small></span><span class="pill g">${pct>=100?"✓":pct+"%"}</span></button>`; }).join("")}
+    <div class="card board" id="board"><p class="eyebrow" style="border:0;padding:0 0 6px">Sailkapena · Ranking</p></div>
+    <button class="link" id="logout" style="align-self:center">Salir</button>
    </div>`;
   document.getElementById("logout").onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
-  app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>startSession([LESSONS.find(l=>l.id===b.dataset.l)]));
-  document.getElementById("review").onclick=()=>startSession(learned,true);
-  try{ const board=await api("board"); document.getElementById("board").insertAdjacentHTML("beforeend", board.map(u=>`<p><span>${esc(u.name)}</span><b>${u.xp} XP</b></p>`).join("")); }catch(e){}
+  app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>startSession({lessons:[LESSONS.find(l=>l.id===b.dataset.l)]}));
+  try{ const board=await api("board"); const el=document.getElementById("board"); if(el) el.insertAdjacentHTML("beforeend", board.map(u=>`<p><span>${esc(u.name)}</span><b>${u.xp} XP</b></p>`).join("")); }catch(e){}
+}
+
+// ---------- ERREPASOA ----------
+let RV={lesson:null,i:0,cards:[]};
+function renderReview(){
+  const learned = LESSONS.filter(l=>(P.lessons[l.id]||{}).rounds>0);
+  if(!RV.lesson || !LESSONS.find(l=>l.id===RV.lesson)) RV.lesson=LESSONS[0].id;
+  const L=LESSONS.find(l=>l.id===RV.lesson); RV.cards=[...L.pairs,...L.sentences]; RV.i=Math.min(RV.i,RV.cards.length-1);
+  const c=RV.cards[RV.i];
+  app.innerHTML = header("Txartelak eta hitz zailak · tarjetas y palabras difíciles")+`
+   <div class="stack pad" style="padding-top:18px">
+    <p class="eyebrow">Txartelak · Tarjetas</p>
+    <div class="chips">${LESSONS.map(l=>`<button class="chip ${l.id===RV.lesson?"on":""}" data-c="${l.id}">${esc(l.title)}</button>`).join("")}</div>
+    <div class="flash" id="flash"><div class="face">
+      <div class="side front"><p class="eyebrow">Euskara</p><p class="eu">${esc(c[0])}</p><p class="hint">Toca para ver la traducción</p></div>
+      <div class="side back"><p class="eyebrow">Castellano</p><p class="es">${esc(c[1])}</p></div>
+    </div></div>
+    <div class="row"><button class="btn ghost" id="prev" style="width:auto;flex:1">◀ Aurrekoa</button><span class="pill" style="font-variant-numeric:tabular-nums">${RV.i+1} / ${RV.cards.length}</span><button class="btn ghost" id="next" style="width:auto;flex:1">Hurrengoa ▶</button></div>
+    <p class="eyebrow" style="margin-top:10px">Hitz zailak · Palabras difíciles <span class="pill" style="margin-left:6px">${P.weak.length}</span></p>
+    ${P.weak.length?`<div class="card">${P.weak.slice(0,8).map((w,i)=>`<div class="weak"><span><b>${esc(w[0])}</b><br><span class="muted">${esc(w[1])}</span></span><button data-w="${i}" aria-label="Quitar">✕</button></div>`).join("")}${P.weak.length>8?`<p class="hint" style="padding-top:8px">y ${P.weak.length-8} más</p>`:""}</div>`:`<p class="hint">Las palabras que falles en Praktika aparecen aquí hasta que las aciertes en un repaso.</p>`}
+    <div class="nav">
+      <button class="btn red" id="weakround" ${P.weak.length<3?"disabled":""}>Ronda de difíciles</button>
+      <button class="btn" id="allround" ${learned.length<1?"disabled":""}>Repaso general</button>
+    </div>
+    <p class="hint">La ronda de difíciles mezcla tus fallos (mínimo 3). El repaso general saca de todas las lecciones que ya empezaste.</p>
+   </div>`;
+  const flash=document.getElementById("flash"); flash.onclick=()=>flash.classList.toggle("flip");
+  app.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{ RV.lesson=b.dataset.c; RV.i=0; renderReview(); });
+  document.getElementById("prev").onclick=()=>{ RV.i=(RV.i-1+RV.cards.length)%RV.cards.length; renderReview(); };
+  document.getElementById("next").onclick=()=>{ RV.i=(RV.i+1)%RV.cards.length; renderReview(); };
+  app.querySelectorAll("[data-w]").forEach(b=>b.onclick=async()=>{ P.weak.splice(+b.dataset.w,1); renderReview(); try{ await api("weak",{weak:P.weak}); }catch(e){} });
+  document.getElementById("weakround").onclick=()=>startSession({weak:true,pairs:P.weak,lessons:learned.length?learned:LESSONS});
+  document.getElementById("allround").onclick=()=>startSession({review:true,lessons:learned});
 }
 
 // ---------- EJERCICIOS ----------
-function buildExercises(lessons){
-  const pool=[]; const allPairs=lessons.flatMap(l=>l.pairs); const allSent=lessons.flatMap(l=>l.sentences);
+function buildExercises(opts){
+  const lessons=opts.lessons; const pool=[];
+  const basePairs=lessons.flatMap(l=>l.pairs); const allSent=lessons.flatMap(l=>l.sentences);
+  const srcPairs = opts.weak ? opts.pairs : basePairs;
   const allEuWords=[...new Set(allSent.flatMap(s=>words(s[0])))];
-  for(const [eu,es] of allPairs){
-    pool.push({type:"choice",dir:"eu-es",q:eu,a:es,opts:shuffle([es,...shuffle(allPairs.filter(p=>p[1]!==es).map(p=>p[1])).slice(0,3)])});
-    pool.push({type:"choice",dir:"es-eu",q:es,a:eu,opts:shuffle([eu,...shuffle(allPairs.filter(p=>p[0]!==eu).map(p=>p[0])).slice(0,3)])});
+  const distr=(list,ex)=>shuffle(list.filter(x=>x!==ex)).slice(0,3);
+  for(const [eu,es] of srcPairs){
+    pool.push({type:"choice",dir:"eu-es",q:eu,a:es,pair:[eu,es],opts:shuffle([es,...distr([...new Set(basePairs.map(p=>p[1]))],es)])});
+    pool.push({type:"choice",dir:"es-eu",q:es,a:eu,pair:[eu,es],opts:shuffle([eu,...distr([...new Set(basePairs.map(p=>p[0]))],eu)])});
+    if(words(eu).length>=2) pool.push({type:"type",q:es,a:eu,pair:[eu,es]});
   }
-  for(const [eu,es] of allSent){
-    const w=words(eu); const distract=shuffle(allEuWords.filter(x=>!w.includes(x))).slice(0,3);
-    pool.push({type:"tiles",q:es,a:eu,tiles:shuffle([...w,...distract])});
-    pool.push({type:"type",q:es,a:eu});
+  if(!opts.weak) for(const [eu,es] of allSent){
+    const w=words(eu); pool.push({type:"tiles",q:es,a:eu,pair:[eu,es],tiles:shuffle([...w,...shuffle(allEuWords.filter(x=>!w.includes(x))).slice(0,3)])});
+    pool.push({type:"type",q:es,a:eu,pair:[eu,es]});
   }
   const take=(t,n)=>shuffle(pool.filter(x=>x.type===t)).slice(0,n);
-  let ex=[...take("choice",5),...take("tiles",3),...take("type",2)];
+  let ex=opts.weak?[...take("choice",7),...take("type",3)]:[...take("choice",5),...take("tiles",3),...take("type",2)];
   if(ex.length<ROUND) ex=ex.concat(shuffle(pool.filter(x=>!ex.includes(x))).slice(0,ROUND-ex.length));
   return shuffle(ex).slice(0,ROUND);
 }
 let SES=null;
-function startSession(lessons, review=false){ SES={lessons,review,ex:buildExercises(lessons),i:0,ok:0,wrong:[]}; renderExercise(); }
+function startSession(opts){ tabs.hidden=true; SES={...opts,ex:buildExercises(opts),i:0,ok:0,wrong:[]}; if(!SES.ex.length){ setTab(TAB); return; } renderExercise(); }
 function renderExercise(){
   const e=SES.ex[SES.i]; const pct=Math.round(SES.i/SES.ex.length*100);
   let body="";
-  if(e.type==="choice") body=`<p class="eyebrow">${e.dir==="eu-es"?"¿Qué significa?":"¿Cómo se dice en euskera?"}</p><p class="prompt ${e.dir==="eu-es"?"eu":""}">${esc(e.q)}</p><div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
-  else if(e.type==="tiles") body=`<p class="eyebrow">Ordena las fichas</p><p class="prompt">${esc(e.q)}</p><div class="tiles" id="answer" aria-label="Tu respuesta"></div><div class="tiles bank" id="bank">${e.tiles.map((t,k)=>`<button class="tile" data-k="${k}">${esc(t)}</button>`).join("")}</div>`;
-  else body=`<p class="eyebrow">Escríbelo en euskera</p><p class="prompt">${esc(e.q)}</p><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Escribe aquí…"><p class="hint">No importan tildes ni signos de puntuación.</p>`;
-  app.innerHTML=`<div class="top"><button id="quit" aria-label="Salir" style="font-size:22px;color:var(--muted)">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="pill g">${SES.ok*XP_OK} XP</span></div>
-   <div class="stack" style="flex:1">${body}</div>
-   <div class="bottom"><button class="btn" id="check" disabled>Comprobar</button></div>`;
-  document.getElementById("quit").onclick=()=>renderHome();
+  if(e.type==="choice") body=`<p class="eyebrow">${e.dir==="eu-es"?"Zer esan nahi du? · ¿Qué significa?":"Nola esaten da euskaraz? · ¿Cómo se dice?"}</p><p class="prompt ${e.dir==="eu-es"?"eu":""}">${esc(e.q)}</p><div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
+  else if(e.type==="tiles") body=`<p class="eyebrow">Ordenatu · Ordena las fichas</p><p class="prompt">${esc(e.q)}</p><div class="tiles" id="answer" aria-label="Tu respuesta"></div><div class="tiles bank" id="bank">${e.tiles.map((t,k)=>`<button class="tile" data-k="${k}">${esc(t)}</button>`).join("")}</div>`;
+  else body=`<p class="eyebrow">Idatzi euskaraz · Escríbelo en euskera</p><p class="prompt">${esc(e.q)}</p><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Escribe aquí…"><p class="hint">No importan tildes ni signos de puntuación.</p>`;
+  app.innerHTML=`<div class="top pad"><button id="quit" aria-label="Salir" style="font-size:22px;color:var(--muted)">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="pill g">${SES.ok*XP_OK} XP</span></div>
+   <div class="stack pad" style="flex:1">${body}</div>
+   <div class="bottom pad"><button class="btn" id="check" disabled>Egiaztatu · Comprobar</button></div>`;
+  document.getElementById("quit").onclick=()=>setTab(TAB);
   const check=document.getElementById("check"); let picked=null; const chosen=[];
   if(e.type==="choice"){
     app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ app.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); b.setAttribute("aria-pressed","true"); picked=e.opts[+b.dataset.k]; check.disabled=false; });
@@ -196,13 +279,16 @@ function renderExercise(){
     let given; if(e.type==="choice") given=picked; else if(e.type==="tiles") given=chosen.map(k=>e.tiles[k]).join(" "); else given=document.getElementById("typed").value;
     const ok = norm(given)===norm(e.a);
     if(e.type==="choice") app.querySelectorAll(".opt").forEach(b=>{ const v=e.opts[+b.dataset.k]; if(v===e.a) b.classList.add("ok"); else if(v===picked&&!ok) b.classList.add("bad"); });
-    check.disabled=true; if(ok) SES.ok++; else SES.wrong.push(e);
+    check.disabled=true;
+    const key=norm(e.pair[0]);
+    if(ok){ SES.ok++; if(SES.weak||SES.review) P.weak=P.weak.filter(w=>norm(w[0])!==key); }
+    else { SES.wrong.push(e); if(!P.weak.some(w=>norm(w[0])===key)) P.weak.unshift(e.pair); }
     showSheet(ok,e);
   };
 }
 function showSheet(ok,e){
   const sh=document.getElementById("sheet"); sh.className="sheet show "+(ok?"ok":"bad");
-  document.getElementById("sh-title").textContent= ok ? ["Oso ondo!","Ederki!","Primeran!","Bikain!"][Math.floor(Math.random()*4)] : "Casi. La respuesta correcta:";
+  document.getElementById("sh-title").textContent= ok ? ["Oso ondo!","Ederki!","Primeran!","Bikain!","Txapeldun!"][Math.floor(Math.random()*5)] : "Ia-ia. La respuesta correcta:";
   document.getElementById("sh-body").textContent= ok ? (e.type==="choice"?`${e.q} = ${e.a}`:e.a) : e.a;
   const next=document.getElementById("sh-next");
   next.onclick=()=>{ sh.className="sheet"; SES.i++; if(SES.i<SES.ex.length) renderExercise(); else finish(); };
@@ -210,24 +296,25 @@ function showSheet(ok,e){
 }
 async function finish(){
   const acc=Math.round(SES.ok/SES.ex.length*100);
-  let gained=SES.ok*XP_OK, saved=true;
-  try{ const r=await api("round",{lessonId:SES.review?null:SES.lessons[0].id, ok:SES.ok, total:SES.ex.length}); gained=r.gained; P=r; }catch(e){ saved=false; }
-  app.innerHTML=`<div class="stack" style="padding-top:40px;text-align:center">
-    <p class="eyebrow">Ronda terminada</p>
-    <h1>${acc===100?"Bikain!":acc>=70?"Ondo egin!":"Segi aurrera!"}</h1>
-    <p class="big">+${gained} XP</p>
-    <div class="stats"><div class="stat"><b>${SES.ok}/${SES.ex.length}</b><span>aciertos</span></div><div class="stat"><b>🔥 ${P.streak}</b><span>racha (días)</span></div></div>
+  let gained=SES.ok*XP_OK, saved=true; const weakNow=P.weak;
+  try{ const r=await api("round",{lessonId:(SES.weak||SES.review)?null:SES.lessons[0].id, ok:SES.ok, total:SES.ex.length}); gained=r.gained; P=r; P.weak=weakNow; await api("weak",{weak:P.weak}); }catch(e){ saved=false; }
+  app.innerHTML=`<div class="head pad" style="padding-bottom:28px;text-align:center"><div class="lb">${LAUBURU}</div>
+    <p class="eyebrow">Txanda amaituta · ronda terminada</p>
+    <h1 style="margin-top:6px">${acc===100?"Bikain!":acc>=70?"Ondo egin!":"Segi aurrera!"}</h1>
+    <p class="big" style="color:var(--cream);margin-top:10px">+${gained} XP</p>
+   </div>${HILLS}
+   <div class="stack pad" style="padding-top:18px;text-align:center">
+    <div class="stats"><div class="stat"><b>${SES.ok}/${SES.ex.length}</b><span>asmatuak · aciertos</span></div><div class="stat"><b>🔥 ${P.streak}</b><span>egunak · racha</span></div></div>
     ${saved?"":`<p class="err">No se pudo guardar la ronda (sin conexión). Vuelve a entrar y repítela.</p>`}
-    ${SES.wrong.length?`<div class="card" style="text-align:left"><p class="eyebrow" style="margin-bottom:8px">Para repasar</p>${SES.wrong.map(w=>`<p style="padding:6px 0;border-top:1px solid var(--line)"><b>${esc(w.a)}</b><br><span class="muted">${esc(w.q)}</span></p>`).join("")}</div>`:""}
-    <button class="btn" id="again">${SES.wrong.length?"Otra ronda para afianzar":"Otra ronda"}</button>
-    <button class="btn ghost" id="home">Volver al inicio</button>
+    ${SES.wrong.length?`<div class="card" style="text-align:left"><p class="eyebrow" style="margin-bottom:8px">Errepasatzeko · para repasar</p>${SES.wrong.map(w=>`<p style="padding:6px 0;border-top:1px solid var(--line)"><b style="color:var(--red)">${esc(w.a)}</b><br><span class="muted">${esc(w.q)}</span></p>`).join("")}</div>`:""}
+    <button class="btn" id="again">${SES.wrong.length?"Beste txanda bat · otra ronda":"Beste txanda bat"}</button>
+    <button class="btn ghost" id="home">Itzuli · Volver</button>
    </div>`;
-  document.getElementById("again").onclick=()=>startSession(SES.lessons,SES.review);
-  document.getElementById("home").onclick=renderHome;
+  document.getElementById("again").onclick=()=>startSession({...SES,weak:SES.weak,pairs:P.weak,review:SES.review,lessons:SES.lessons});
+  document.getElementById("home").onclick=()=>setTab(TAB);
 }
 
-// arranque: ¿hay sesión?
-api("me").then(p=>{ P=p; renderHome(); }).catch(()=>renderLogin());
+api("me").then(p=>{ P=p; setTab("praktika"); }).catch(()=>renderLogin());
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
