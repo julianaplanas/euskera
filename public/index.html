@@ -95,7 +95,8 @@ input.ans{width:100%;font:inherit;font-size:20px;padding:14px 16px;border-radius
 .sheet h3{font-family:var(--body);font-weight:800;font-size:20px}
 .sheet.ok h3{color:var(--green)} .sheet.bad h3{color:var(--red)}
 .sheet.bad .btn{background:var(--red);box-shadow:0 4px 0 var(--red-deep)}
-.bottom{position:sticky;bottom:calc(84px + env(safe-area-inset-bottom,0px));padding-block:12px 8px;background:var(--bg)}
+.bottom{position:sticky;bottom:0;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -12px 12px -8px var(--bg)}
+body.notabs .app{padding-bottom:0}
 .big{font-family:var(--display);font-size:60px;line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center}
@@ -222,12 +223,12 @@ function header(sub, mood="wave"){
     ${sub?`<p style="margin-top:12px;color:#F6C9C2;font-weight:600;max-width:70%">${sub}</p>`:""}
    </header>${HILLS}`;
 }
-function setTab(t){ TAB=t; tabs.hidden=false; tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); ({praktika:renderHome,errepasoa:renderReview,estatistikak:renderStats})[t](); }
+function setTab(t){ TAB=t; tabs.hidden=false; document.body.classList.remove("notabs"); tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); ({praktika:renderHome,errepasoa:renderReview,estatistikak:renderStats})[t](); }
 tabs.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 
 // ---------- LOGIN ----------
 function renderLogin(mode="login", prefill={}){
-  tabs.hidden=true; const reg = mode==="register";
+  tabs.hidden=true; document.body.classList.add("notabs"); const reg = mode==="register";
   app.innerHTML = `
    <div class="head pad" style="padding-bottom:30px"><div class="lb">${LAUBURU}</div>
      <div class="row" style="gap:18px"><div class="olen">${OLEN("wave",80)}</div><div><p class="eyebrow">Euskara praktika</p><h1>${reg?"Sortu kontua":"Nor zara?"}</h1><p style="color:#F6C9C2;font-weight:600">${reg?"Crea tu cuenta":"¿Quién eres?"}</p></div></div>
@@ -267,7 +268,7 @@ async function renderHome(){
 
 // ---------- IKASGAIA (página visual de la lección) ----------
 function renderLesson(l){
-  tabs.hidden=true;
+  tabs.hidden=true; document.body.classList.add("notabs");
   const st=P.lessons[l.id]||{rounds:0,best:0};
   app.innerHTML=`<div class="top pad"><button id="back" aria-label="Volver" style="font-size:22px;color:var(--muted)">‹</button><div style="flex:1;min-width:0"><p class="eyebrow">Ikasgaia ${LESSONS.indexOf(l)+1}</p><h2>${esc(l.emoji||"")} ${esc(l.title)}</h2></div><span class="pill g">${st.rounds}/3</span></div>
    <div class="stack pad" style="flex:1;gap:18px">
@@ -375,7 +376,7 @@ function buildExercises(opts){
   return shuffle(ex).slice(0,ROUND);
 }
 let SES=null;
-function startSession(opts){ tabs.hidden=true; SES={...opts,ex:buildExercises(opts),i:0,ok:0,wrong:[]}; if(!SES.ex.length){ setTab(TAB); return; } renderExercise(); }
+function startSession(opts){ tabs.hidden=true; document.body.classList.add("notabs"); SES={...opts,ex:buildExercises(opts),i:0,ok:0,wrong:[]}; if(!SES.ex.length){ setTab(TAB); return; } renderExercise(); }
 function renderExercise(){
   const e=SES.ex[SES.i]; const pct=Math.round(SES.i/SES.ex.length*100);
   let body="";
