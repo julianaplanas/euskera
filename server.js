@@ -204,4 +204,41 @@ app.get("/api/stats", auth, (req, res) => {
 });
 app.get("/api/board", auth, (req, res) => res.json(db.prepare("SELECT name, xp FROM users ORDER BY xp DESC LIMIT 10").all()));
 
+// ---------- audio en euskera (generado una vez por frase y guardado en disco) ----------
+const AUDIO_DIR = path.join(path.dirname(DB_PATH), "audio");
+fs.mkdirSync(AUDIO_DIR, { recursive: true });
+const VOICE = process.env.TTS_VOICE || "eu-ES-AinhoaNeural";
+const ttsProvider = process.env.AZURE_TTS_KEY ? "azure" : "edge";
+const ssml = (text) => `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="eu-ES"><voice name="${VOICE}"><prosody rate="-10%">${text.replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]))}</prosody></voice></speak>`;
+async function synthAzure(text) {
+  const region = process.env.AZURE_TTS_REGION || "westeurope";
+  const r = await fetch(`https://${region}.tts.speech.microsoft.com/cognitiveservices/v1`, { method: "POST", headers: { "Ocp-Apim-Subscription-Key": process.env.AZURE_TTS_KEY, "Content-Type": "application/ssml+xml", "X-Microsoft-OutputFormat": "audio-24khz-48kbitrate-mono-mp3", "User-Agent": "euskara-praktika" }, body: ssml(text) });
+  if (!r.ok) throw new Error("Azure TTS " + r.status + " " + (await r.text()).slice(0, 200));
+  return Buffer.from(await r.arrayBuffer());
+}
+let edgeTTS = null;
+async function synthEdge(text) {
+  const { MsEdgeTTS, OUTPUT_FORMAT } = require("msedge-tts");
+  if (!edgeTTS) { edgeTTS = new MsEdgeTTS(); await edgeTTS.setMetadata(VOICE, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3); }
+  const chunks = [];
+  await new Promise((resolve, reject) => { const st = edgeTTS.toStream(text, { rate: 0.9 }); st.on("data", d => chunks.push(d)); st.on("end", resolve); st.on("close", resolve); st.on("error", reject); });
+  if (!chunks.length) { edgeTTS = null; throw new Error("Edge TTS devolvió audio vacío"); }
+  return Buffer.concat(chunks);
+}
+const inflight = new Map();
+let ttsBroken = false;
+app.get("/api/tts/status", (req, res) => res.json({ ok: !ttsBroken, provider: ttsProvider, voice: VOICE }));
+app.get("/api/tts", async (req, res) => {
+  const text = String(req.query.text || "").trim().slice(0, 200);
+  if (!text) return res.status(400).end();
+  const file = path.join(AUDIO_DIR, crypto.createHash("sha1").update(VOICE + "|" + text).digest("hex") + ".mp3");
+  res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+  if (fs.existsSync(file)) return res.sendFile(file);
+  try {
+    if (!inflight.has(file)) inflight.set(file, (ttsProvider === "azure" ? synthAzure(text) : synthEdge(text)).then(buf => { fs.writeFileSync(file, buf); return buf; }).finally(() => inflight.delete(file)));
+    const buf = await inflight.get(file);
+    ttsBroken = false; res.type("audio/mpeg").send(buf);
+  } catch (e) { ttsBroken = true; console.error("TTS error:", e.message); res.status(503).json({ error: "Audio no disponible ahora mismo." }); }
+});
+
 app.listen(PORT, () => console.log(`Euskara praktika en http://localhost:${PORT} (db: ${DB_PATH})`));

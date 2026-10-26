@@ -210,11 +210,12 @@ const U=["","bat","bi","hiru","lau","bost","sei","zazpi","zortzi","bederatzi","h
 function numEu(n){ if(n<20) return U[n]; const t=Math.floor(n/20), r=n%20; const base=["","hogei","berrogei","hirurogei","laurogei"][t]; return r? base+"ta "+U[r] : base; }
 const todayStr=()=>P&&P.today||new Date().toISOString().slice(0,10);
 
-// ---------- voz ----------
-let VOICE=null;
-function findVoice(){ try{ const vs=speechSynthesis.getVoices(); VOICE=vs.find(v=>/^eu/i.test(v.lang))||null; }catch(e){ VOICE=null; } return VOICE; }
-if("speechSynthesis" in window){ findVoice(); speechSynthesis.onvoiceschanged=findVoice; }
-function speak(text){ if(!VOICE) return false; try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.voice=VOICE; u.lang=VOICE.lang; u.rate=.85; speechSynthesis.speak(u); return true; }catch(e){ return false; } }
+// ---------- voz (mp3 generados en el servidor) ----------
+let VOICE=false, AUDIO=null;
+async function checkVoice(){ try{ const r=await fetch("/api/tts/status"); const d=await r.json(); VOICE=!!d.ok; }catch(e){ VOICE=false; } }
+function speak(text, onEnd){ if(!VOICE) return false; try{ if(AUDIO){ AUDIO.pause(); AUDIO.onended=null; } AUDIO=new Audio("/api/tts?text="+encodeURIComponent(text)); if(onEnd) AUDIO.onended=onEnd; AUDIO.onerror=()=>{ VOICE=false; toast("Audio no disponible"); }; AUDIO.play().catch(()=>{}); return true; }catch(e){ return false; } }
+function speakSeq(list){ let k=0; const go=()=>{ if(k<list.length) speak(list[k++],()=>setTimeout(go,450)); }; go(); }
+function preload(texts){ if(!VOICE) return; for(const t of texts.slice(0,12)) fetch("/api/tts?text="+encodeURIComponent(t)).catch(()=>{}); }
 const spkBtn=(t,cls="")=>VOICE?`<button class="speak ${cls}" data-say="${esc(t)}" aria-label="Escuchar">${SPK}</button>`:"";
 function wireSpeak(root=app){ root.querySelectorAll("[data-say]").forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); speak(b.dataset.say); }); }
 
@@ -269,7 +270,7 @@ function renderLogin(mode="login",prefill={}){
     <button class="link" id="swap">${reg?"Ya tengo cuenta":"Crear una cuenta nueva"}</button></div>`;
   document.getElementById("swap").onclick=()=>renderLogin(reg?"login":"register");
   document.getElementById("f").onsubmit=async e=>{ e.preventDefault(); const name=document.getElementById("name").value,pin=document.getElementById("pin").value,invite=(document.getElementById("invite")||{}).value||""; const err=document.getElementById("err"); err.textContent="";
-    try{ P=await api(reg?"register":"login",{name,pin,invite}); await loadItems(); if(!P.profile.gender) renderProfile(true); else setTab("gaur"); }
+    try{ P=await api(reg?"register":"login",{name,pin,invite}); await Promise.all([loadItems(),checkVoice()]); if(!P.profile.gender) renderProfile(true); else setTab("gaur"); }
     catch(ex){ if(ex.unknown){ renderLogin("register",{name,pin}); document.getElementById("err").textContent="No existe ese usuario. ¿Quieres crearlo?"; } else err.textContent=ex.message; } };
 }
 
@@ -284,7 +285,7 @@ function renderProfile(first=false){
     <p class="eyebrow">Zenbat urte dituzu?</p><input class="ans" id="age" type="number" inputmode="numeric" min="1" max="119" placeholder="Edad" value="${pr.age||""}">
     <p class="eyebrow">Anai-arrebak · hermanos</p>
     <div class="row"><label style="flex:1">Hermanos<input class="ans" id="nebak" type="number" inputmode="numeric" min="0" max="9" value="${pr.nebak||0}"></label><label style="flex:1">Hermanas<input class="ans" id="ahizpak" type="number" inputmode="numeric" min="0" max="9" value="${pr.ahizpak||0}"></label></div>
-    <p class="hint">${VOICE?"🔊 Voz en euskera disponible: habrá dictados.":"🔇 Tu móvil no tiene voz en euskera instalada; los dictados se omiten. En iPhone: Ajustes › Accesibilidad › Contenido leído › Voces › Euskera."}</p>
+    <p class="hint">${VOICE?"🔊 Audio en euskera activo: habrá dictados y cada frase se puede escuchar.":"🔇 El audio no está disponible ahora mismo; los dictados se omiten."}</p>
    </div>
    <div class="bottom pad"><button class="btn red" id="save">Gorde · Guardar</button></div>`;
   let g=pr.gender||null;
@@ -355,7 +356,7 @@ function startSession(opts){
   noTabs(); const pool=opts.items.length>=4?opts.items:[...opts.items,...catalog()];
   const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""}); ex.push(buildEx(it,pool)); }
   SES={label:opts.label,free:!!opts.free,ex,i:0,good:0,total:opts.items.length,xp:0,wrong:[],retried:0,lessonId:opts.lessonId||null,challenge:opts.challenge||null,answers:[]};
-  if(!ex.length){ setTab(TAB); return; } saveSes(); renderExercise();
+  if(!ex.length){ setTab(TAB); return; } saveSes(); preload(opts.items.map(i=>i.eu)); renderExercise();
 }
 function resumeSession(d){ noTabs(); SES=d; renderExercise(); }
 function hintFor(eu){ return words(eu).map(w=>w[0]+"·".repeat(Math.max(1,w.length-1))).join("  "); }
@@ -458,7 +459,8 @@ function renderLesson(l){
    <div class="bottom pad stack" style="gap:8px">${fresh.length?`<button class="btn red" id="learn">Ikasi · aprender ${fresh.length} nuevas</button>`:""}<button class="btn ${fresh.length?"ghost":""}" id="go">Praktikatu · practicar esta lección</button></div>`;
   wireSpeak();
   document.getElementById("back").onclick=()=>setTab("ikasgaiak");
-  const pd=document.getElementById("playdlg"); if(pd) pd.onclick=()=>{ let k=0; const seq=l.dialogue.map(d=>d[1]); const go=()=>{ if(k>=seq.length) return; const u=new SpeechSynthesisUtterance(seq[k++]); u.voice=VOICE; u.lang=VOICE.lang; u.rate=.85; u.onend=()=>setTimeout(go,500); speechSynthesis.speak(u); }; speechSynthesis.cancel(); go(); };
+  const pd=document.getElementById("playdlg"); if(pd) pd.onclick=()=>speakSeq(l.dialogue.map(d=>d[1]));
+  preload(its.map(i=>i.eu));
   const lb=document.getElementById("learn"); if(lb) lb.onclick=async()=>{ const n=fresh.slice(0,6); try{ await api("items/introduce",{items:n}); await loadItems(); }catch(e){} startSession({items:n.map(i=>({...i,isNew:true})),label:l.title,lessonId:l.id}); };
   document.getElementById("go").onclick=()=>{ const mm=imap(); const known=its.filter(x=>mm[x.key]); startSession({items:shuffle(known.length?known:its).slice(0,10),label:l.title,lessonId:l.id,free:true}); };
   window.scrollTo(0,0);
@@ -540,7 +542,7 @@ async function renderStats(){
 }
 
 // arranque
-api("me").then(async p=>{ P=p; await loadItems(); if(!P.profile.gender) renderProfile(true); else setTab("gaur"); }).catch(()=>renderLogin());
+api("me").then(async p=>{ P=p; await Promise.all([loadItems(),checkVoice()]); if(!P.profile.gender) renderProfile(true); else setTab("gaur"); }).catch(()=>renderLogin());
 if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
