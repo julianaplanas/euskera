@@ -114,13 +114,14 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
 .sheet h3{font-family:var(--display);font-size:30px;text-transform:uppercase;color:inherit}
 .sheet .hint{color:var(--on-color)} .sheet.info .hint{color:#5A5A5A}
 .sheet .eyebrow{color:inherit} .sheet .eyebrow::after{color:var(--on-color)} .sheet.info .eyebrow::after{color:#5A5A5A}
-.sheet .btn{background:var(--ink);color:var(--cream);border-color:var(--ink)} .sheet.info .btn{background:#141414;border-color:#141414}
+.sheet .btn{background:#141414;color:#FFF9EC;border-color:#141414} .sheet.info .btn{background:#141414;border-color:#141414}
 .sheet .btn small{color:#B8B8B8}
-.sheet input.ans{border-color:var(--ink);background:var(--cream);color:#141414}
-.sheet .speak{background:var(--ochre);color:#141414;border-color:var(--ink)}
+.sheet .btn:disabled{opacity:.45}
+.sheet input.ans{border-color:#141414;background:#FFF9EC;color:#141414}
+.sheet .speak{background:var(--ochre);color:#141414;border-color:#141414}
 .sh-olen{flex:none;width:60px;height:88px;overflow:hidden}
-.note{border:var(--bw) solid var(--ink);border-left-width:12px;border-left-color:var(--ochre);background:var(--cream);color:#141414;padding:10px 12px;font-size:14px;font-weight:600}
-.answer-box{background:var(--cream);color:#141414;border:var(--bw) solid var(--ink);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.note{border:var(--bw) solid #141414;border-left-width:12px;border-left-color:var(--ochre);background:#FFF9EC;color:#141414;padding:10px 12px;font-size:14px;font-weight:600}
+.answer-box{background:#FFF9EC;color:#141414;border:var(--bw) solid #141414;padding:12px 14px;display:flex;align-items:center;gap:10px}
 .answer-box b{font-family:var(--display);font-weight:400;font-size:22px;line-height:1.05}
 .bottom{position:sticky;bottom:0;z-index:5;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:var(--bw) solid var(--line);margin-top:14px}
 .big{font-family:var(--display);font-size:64px;line-height:1;color:var(--cream);font-variant-numeric:tabular-nums}
