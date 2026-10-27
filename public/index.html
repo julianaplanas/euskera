@@ -469,8 +469,12 @@ async function finish(){
 function renderLessons(){
   const m=imap();
   app.innerHTML=header("Ikasgaiak · lee, escucha, luego practica")+`<div class="stack pad" style="padding-top:18px"><p class="eyebrow">Ikasgaiak · Lecciones</p>
-   ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n" style="--p:${pct}%"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
-   <p class="hint">Barra: <span style="color:var(--green)">■</span> firmes 🌳 · <span style="color:var(--ochre)">■</span> en estudio 🌿 · gris: aún no vistas 🌱. El anillo es el % de firmes.</p></div>`;
+   ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
+   <div class="card legend3"><p class="eyebrow" style="margin-bottom:8px">Zer da barra · qué es la barra</p>
+     <div class="lg"><i style="background:var(--green)"></i><span>🌳 <b>Firmes</b>: recordadas varias veces con días entre medias</span></div>
+     <div class="lg"><i style="background:var(--ochre)"></i><span>🌿 <b>En estudio</b>: ya vistas, aún volviendo a menudo</span></div>
+     <div class="lg"><i style="background:var(--line)"></i><span>🌱 <b>Por ver</b>: todavía no te han salido</span></div>
+   </div></div>`;
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(lessonOf(b.dataset.l)));
 }
 function renderLesson(l){
