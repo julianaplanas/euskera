@@ -78,3 +78,72 @@ window.NOTES = [
   { m: /eskerrik asko/i, t: "eskerrik asko = gracias (literalmente «muchas gracias»)." },
   { m: /eta zu\??$/i, t: "Eta zu? = ¿y tú? Devuelve la pregunta para seguir la conversación." }
 ];
+
+// Fichas de gramática. Cada una: patrón con piezas, ejemplos de las lecciones y un ejercicio de transformación.
+// pieces: [{t: texto, k: tipo}] tipo = "subj" | "obj" | "verb" | "neg" | "num" | "q"
+// drills: [{from, to, instr}] -> el usuario transforma `from` según `instr`; se corrige contra `to`
+window.GRAMMAR = [
+  {
+    id: "g-naiz", title: "Ser: naiz / da", lessons: ["l2", "l6"], emoji: "🧩",
+    summary: "El verbo va al FINAL. naiz = soy, da = es, zara = eres.",
+    pieces: [{ t: "Ni", k: "subj" }, { t: "Ane", k: "obj" }, { t: "naiz", k: "verb" }],
+    table: { cols: ["euskera", "castellano"], rows: [["ni … naiz", "yo soy"], ["zu … zara", "tú eres"], ["hura … da", "él/ella es"]] },
+    examples: [["Ni Mikel naiz.", "Yo soy Mikel."], ["Nire izena Ane da.", "Mi nombre es Ane."], ["Ni neska naiz.", "Yo soy chica."]],
+    drills: [{ from: "Ni Ane naiz.", to: "Zu Ane zara.", instr: "Cámbialo a «tú»" }, { from: "Ni Mikel naiz.", to: "Nire izena Mikel da.", instr: "Dilo con «nire izena … da»" }, { from: "Zu Jon zara.", to: "Ni Jon naiz.", instr: "Cámbialo a «yo»" }]
+  },
+  {
+    id: "g-nago", title: "Estar: nago", lessons: ["l3"], emoji: "📍",
+    summary: "Estados y ánimo van con nago (estoy), zaude (estás), dago (está). El adjetivo delante.",
+    pieces: [{ t: "Oso", k: "q" }, { t: "ondo", k: "obj" }, { t: "nago", k: "verb" }],
+    table: { cols: ["euskera", "castellano"], rows: [["… nago", "estoy"], ["… zaude", "estás"], ["… dago", "está"]] },
+    examples: [["Ondo nago.", "Estoy bien."], ["Nekatuta nago.", "Estoy cansado/a."], ["Zer moduz zaude?", "¿Cómo estás?"]],
+    drills: [{ from: "Ondo nago.", to: "Ondo zaude.", instr: "Cámbialo a «tú»" }, { from: "Nekatuta nago.", to: "Oso nekatuta nago.", instr: "Añade «muy»" }, { from: "Gaizki zaude.", to: "Gaizki nago.", instr: "Cámbialo a «yo»" }]
+  },
+  {
+    id: "g-dut", title: "Tener: dut / ditut", lessons: ["l4", "l6"], emoji: "✋",
+    summary: "dut = tengo UNA cosa. ditut = tengo VARIAS. El número va detrás del nombre: ahizpa bat, neba bi.",
+    pieces: [{ t: "neba", k: "obj" }, { t: "bi", k: "num" }, { t: "ditut", k: "verb" }],
+    table: { cols: ["singular", "plural"], rows: [["dut (tengo)", "ditut (tengo)"], ["duzu (tienes)", "dituzu (tienes)"], ["du (tiene)", "ditu (tiene)"]] },
+    examples: [["Ahizpa bat dut.", "Tengo una hermana."], ["Hogei urte ditut.", "Tengo veinte años."], ["Zenbat urte dituzu?", "¿Cuántos años tienes?"]],
+    drills: [{ from: "Ahizpa bat dut.", to: "Ahizpa bi ditut.", instr: "Ahora son dos" }, { from: "Neba bi ditut.", to: "Neba bat dut.", instr: "Ahora es uno" }, { from: "Hogei urte ditut.", to: "Hogei urte ditu.", instr: "Dilo de otra persona (él/ella)" }, { from: "Hamar urte ditu.", to: "Hamar urte dituzu.", instr: "Pregunta/di «tú tienes»" }]
+  },
+  {
+    id: "g-zait", title: "Gustar: zait / zaizkit", lessons: ["l5"], emoji: "❤️",
+    summary: "Como en castellano, lo que gusta es el sujeto: zait si es UNA cosa, zaizkit si son VARIAS (-k = plural).",
+    pieces: [{ t: "Liburuak", k: "obj" }, { t: "gustatzen", k: "verb" }, { t: "zaizkit", k: "verb" }],
+    table: { cols: ["una cosa", "varias"], rows: [["gustatzen zait", "gustatzen zaizkit"], ["(me gusta)", "(me gustan)"], ["gustatzen zaizu", "gustatzen zaizkizu"], ["(te gusta)", "(te gustan)"]] },
+    examples: [["Musika gustatzen zait.", "Me gusta la música."], ["Pintxoak gustatzen zaizkit.", "Me gustan los pintxos."], ["Zer gustatzen zaizu?", "¿Qué te gusta?"]],
+    drills: [{ from: "Liburua gustatzen zait.", to: "Liburuak gustatzen zaizkit.", instr: "Ponlo en plural" }, { from: "Pintxoak gustatzen zaizkit.", to: "Pintxoa gustatzen zait.", instr: "Ponlo en singular" }, { from: "Musika gustatzen zait.", to: "Musika gustatzen zaizu.", instr: "Dilo de «tú» (te gusta)" }]
+  },
+  {
+    id: "g-ez", title: "Negación: ez", lessons: ["l5", "l6"], emoji: "🚫",
+    summary: "ez va delante del verbo auxiliar, y el resto de la frase se mueve detrás.",
+    pieces: [{ t: "Ez", k: "neg" }, { t: "zait", k: "verb" }, { t: "gustatzen", k: "verb" }, { t: "hotza", k: "obj" }],
+    examples: [["Ez zait gustatzen hotza.", "No me gusta el frío."], ["Ez dut anai-arrebarik.", "No tengo hermanos."], ["Ez zaizkit gustatzen goizak.", "No me gustan las mañanas."]],
+    drills: [{ from: "Hotza gustatzen zait.", to: "Ez zait gustatzen hotza.", instr: "Ponlo en negativo" }, { from: "Kirola gustatzen zait.", to: "Ez zait gustatzen kirola.", instr: "Ponlo en negativo" }, { from: "Ez zait gustatzen zinema.", to: "Zinema gustatzen zait.", instr: "Ponlo en afirmativo" }]
+  },
+  {
+    id: "g-plural", title: "Plural: -k", lessons: ["l5", "l6"], emoji: "👥",
+    summary: "El plural se marca con -k al final (y -ak si la palabra acaba en consonante). Hace cambiar el verbo: zait→zaizkit, dut→ditut.",
+    pieces: [{ t: "liburu", k: "obj" }, { t: "-ak", k: "num" }],
+    table: { cols: ["singular", "plural"], rows: [["liburua (el libro)", "liburuak (los libros)"], ["pintxoa", "pintxoak"], ["neba", "nebak"], ["ahizpa", "ahizpak"]] },
+    examples: [["Liburuak gustatzen zaizkit.", "Me gustan los libros."], ["Neba-arrebak ditut.", "Tengo hermanos (dice ella)."]],
+    drills: [{ from: "neba", to: "nebak", instr: "Plural" }, { from: "pintxoa", to: "pintxoak", instr: "Plural" }, { from: "ahizpak", to: "ahizpa", instr: "Singular" }]
+  },
+  {
+    id: "g-hogei", title: "Números de 20 en 20", lessons: ["l4"], emoji: "🔢",
+    summary: "El euskera cuenta en base 20: 30 = hogeita hamar (20 y 10), 42 = berrogeita bi (40 y 2). «-ta» une la veintena con el resto.",
+    pieces: [{ t: "berrogei", k: "num" }, { t: "ta", k: "neg" }, { t: "bi", k: "num" }],
+    table: { cols: ["veintena", "ejemplo"], rows: [["hogei (20)", "hogeita bost = 25"], ["berrogei (40)", "berrogeita hamar = 50"], ["hirurogei (60)", "hirurogeita bat = 61"], ["laurogei (80)", "laurogeita bi = 82"]] },
+    examples: [["Hogeita hamar urte ditut.", "Tengo treinta años."], ["Berrogeita bi.", "Cuarenta y dos."]],
+    drills: [{ from: "hogeita bi", to: "hogeita hiru", instr: "Suma uno (23)" }, { from: "hogeita hamar", to: "berrogeita hamar", instr: "Suma veinte (50)" }, { from: "berrogei", to: "hirurogei", instr: "Suma veinte (60)" }, { from: "hamabost", to: "hogeita hamabost", instr: "Suma veinte (35)" }]
+  },
+  {
+    id: "g-galdera", title: "Preguntas: zer, nola, zenbat", lessons: ["l2", "l3", "l4", "l5"], emoji: "❓",
+    summary: "La palabra interrogativa va al principio y el verbo justo detrás: Zer moduz? Nola duzu izena? Zenbat urte dituzu?",
+    pieces: [{ t: "Zenbat", k: "q" }, { t: "urte", k: "obj" }, { t: "dituzu", k: "verb" }],
+    table: { cols: ["palabra", "significa"], rows: [["zer", "qué"], ["nola", "cómo"], ["zenbat", "cuánto/s"], ["zein", "cuál"], ["nor", "quién"]] },
+    examples: [["Zer gustatzen zaizu?", "¿Qué te gusta?"], ["Nola duzu izena?", "¿Cómo te llamas?"], ["Zenbat urte dituzu?", "¿Cuántos años tienes?"], ["Nor zara?", "¿Quién eres?"]],
+    drills: [{ from: "Hogei urte ditut.", to: "Zenbat urte dituzu?", instr: "Haz la pregunta que provoca esta respuesta" }, { from: "Musika gustatzen zait.", to: "Zer gustatzen zaizu?", instr: "Haz la pregunta" }, { from: "Ni Ane naiz.", to: "Nor zara?", instr: "Haz la pregunta con «nor»" }]
+  }
+];

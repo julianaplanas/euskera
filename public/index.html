@@ -185,6 +185,17 @@ input.ans.ok{border-color:var(--green)} input.ans.bad{border-color:var(--red)}
 .list .it:first-child{border-top:0}
 .list .it .em{font-size:20px;width:28px;text-align:center}
 .list .it .tx{flex:1;min-width:0} .list .it .tx b{color:var(--red)} .list .it .tx small{display:block;color:var(--muted);font-size:13px}
+.gcard{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-left:6px solid var(--blue);border-radius:var(--r);padding:14px 16px}
+.gcard .em{font-size:28px;line-height:1;flex:none}
+.gcard .t{flex:1;min-width:0} .gcard .t strong{display:block;font-size:17px} .gcard .t small{display:block;color:var(--muted);font-size:14px}
+.pieces{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pc{padding:10px 14px;border-radius:12px;font-family:var(--display);font-size:22px;line-height:1;color:#fff}
+.pc.subj{background:var(--blue)} .pc.obj{background:var(--ochre);color:var(--ink)} .pc.verb{background:var(--red)} .pc.neg{background:var(--ink);color:var(--bg)} .pc.num{background:var(--green)} .pc.q{background:#8E4A9E}
+.pclegend{display:flex;flex-wrap:wrap;gap:10px;font-size:13px;font-weight:700;color:var(--muted)}
+.pclegend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.drill{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
+.drill .from{font-family:var(--display);font-size:24px;color:var(--ink)}
+.drill .instr{font-weight:800;color:var(--blue)}
 .olen{flex:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;z-index:30}
 @media (prefers-reduced-motion:reduce){ .sheet,.top .bar i{transition:none} }
@@ -470,12 +481,58 @@ function renderLessons(){
   const m=imap();
   app.innerHTML=header("Ikasgaiak · lee, escucha, luego practica")+`<div class="stack pad" style="padding-top:18px"><p class="eyebrow">Ikasgaiak · Lecciones</p>
    ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
+   <p class="eyebrow" style="margin-top:10px">Gramatika · estructuras</p>
+   ${GRAMMAR.map(g=>{ const seen=g.lessons.some(id=>lessonItems(lessonOf(id)||{pairs:[],sentences:[]}).some(x=>m[x.key])); const done=gramDone(g.id); return `<button class="gcard" data-g="${g.id}" style="${seen?"":"opacity:.6"}"><span class="em">${esc(g.emoji)}</span><span class="t"><strong>${esc(g.title)}</strong><small>${esc(g.summary.split(".")[0])}.${seen?"":" · Se desbloquea con sus lecciones"}</small></span><span class="pill ${done>=g.drills.length?"g":""}">${done}/${g.drills.length}</span></button>`; }).join("")}
    <div class="card legend3"><p class="eyebrow" style="margin-bottom:8px">Zer da barra · qué es la barra</p>
      <div class="lg"><i style="background:var(--green)"></i><span>🌳 <b>Firmes</b>: recordadas varias veces con días entre medias</span></div>
      <div class="lg"><i style="background:var(--ochre)"></i><span>🌿 <b>En estudio</b>: ya vistas, aún volviendo a menudo</span></div>
      <div class="lg"><i style="background:var(--line)"></i><span>🌱 <b>Por ver</b>: todavía no te han salido</span></div>
    </div></div>`;
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(lessonOf(b.dataset.l)));
+  app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>renderGrammar(GRAMMAR.find(g=>g.id===b.dataset.g)));
+}
+// progreso de drills por teléfono (ligero; no va al calendario)
+function gramDone(id){ try{ return (JSON.parse(localStorage.getItem("euskara.gram."+(P?P.name:""))||"{}")[id]||0); }catch(e){ return 0; } }
+function gramSet(id,n){ try{ const k="euskara.gram."+(P?P.name:""); const d=JSON.parse(localStorage.getItem(k)||"{}"); d[id]=Math.max(d[id]||0,n); localStorage.setItem(k,JSON.stringify(d)); }catch(e){} }
+const PK={subj:"sujeto",obj:"nombre / adjetivo",verb:"verbo",neg:"negación / unión",num:"número / plural",q:"interrogativo"};
+function renderGrammar(g){
+  noTabs();
+  const lessonsTxt=g.lessons.map(id=>(lessonOf(id)||{}).title).filter(Boolean).join(", ");
+  const kinds=[...new Set(g.pieces.map(p=>p.k))];
+  app.innerHTML=`<div class="top pad"><button id="back" aria-label="Volver" style="font-size:22px;color:var(--muted)">‹</button><div style="flex:1;min-width:0"><p class="eyebrow">Gramatika</p><h2>${esc(g.emoji)} ${esc(g.title)}</h2></div></div>
+   <div class="stack pad" style="flex:1;gap:18px">
+    <p style="font-size:17px">${esc(g.summary)}</p>
+    <p class="eyebrow">Egitura · cómo se arma</p>
+    <div class="card stack" style="gap:12px"><div class="pieces">${g.pieces.map(p=>`<span class="pc ${p.k}">${esc(p.t)}</span>`).join("")}</div><div class="pclegend">${kinds.map(k=>`<span><i class="pc ${k}" style="padding:0"></i>${PK[k]}</span>`).join("")}</div></div>
+    ${g.table?`<table class="gtab"><tr>${g.table.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${g.table.rows.map(r=>`<tr>${r.map((c,i)=>`<td class="${i===0?"lab":""}">${i===0?esc(c):`<b>${esc(c)}</b>`}</td>`).join("")}</tr>`).join("")}</table>`:""}
+    <p class="eyebrow">Adibideak · ejemplos (de ${esc(lessonsTxt)})</p>
+    <div class="card list">${g.examples.map(([eu,es])=>`<div class="it"><span class="tx"><b>${esc(eu)}</b><small>${esc(es)}</small></span>${spkBtn(eu)}</div>`).join("")}</div>
+    <p class="eyebrow">Eraldatu · transforma (${g.drills.length})</p>
+    <p class="hint">Escribe la frase transformada según la instrucción. Aquí se practica la regla, no la memoria: no afecta al calendario.</p>
+    <div id="drill"></div>
+   </div>
+   <div class="bottom pad"><button class="btn" id="back2">Itzuli · Volver</button></div>`;
+  wireSpeak();
+  document.getElementById("back").onclick=document.getElementById("back2").onclick=()=>setTab("ikasgaiak");
+  let i=gramDone(g.id)>=g.drills.length?0:gramDone(g.id), ok=0;
+  const box=document.getElementById("drill");
+  const show=()=>{
+    if(i>=g.drills.length){ box.innerHTML=`<div class="drill" style="text-align:center"><p style="font-size:36px">${OLEN("happy",70)}</p><p style="font-weight:800">Bikain! Has completado las ${g.drills.length} transformaciones.</p><button class="btn ghost sm" id="again">Berriro · otra vez</button></div>`; box.querySelector("#again").onclick=()=>{ i=0; show(); }; return; }
+    const d=g.drills[i];
+    box.innerHTML=`<div class="drill"><div class="row"><span class="pill b">${i+1} / ${g.drills.length}</span><span class="instr">${esc(d.instr)}</span></div><p class="from">${esc(d.from)} ${spkBtn(d.from)}</p><input class="ans" id="dans" autocomplete="off" autocapitalize="sentences" placeholder="Escribe la frase transformada…"><div id="dfb"></div><button class="btn sm" id="dchk" disabled>Egiaztatu</button></div>`;
+    wireSpeak(box);
+    const inp=box.querySelector("#dans"), chk=box.querySelector("#dchk"), fb=box.querySelector("#dfb");
+    inp.oninput=()=>chk.disabled=!inp.value.trim(); inp.onkeydown=ev=>{ if(ev.key==="Enter"&&!chk.disabled) chk.click(); }; setTimeout(()=>inp.focus(),80);
+    chk.onclick=()=>{
+      const a=norm(inp.value), t=norm(d.to); const good=a===t||(a.length>=5&&lev(a,t)<=1);
+      inp.classList.add(good?"ok":"bad"); chk.disabled=true;
+      const note=noteFor(d.to);
+      fb.innerHTML=`<div class="note" style="border-color:${good?"var(--green)":"var(--red)"}"><b>${good?pick(GOOD)[0]:"Ia-ia."}</b> ${esc(d.to)} ${spkBtn(d.to)}${!good&&note?`<br><span class="hint">💡 ${esc(note)}</span>`:""}</div><button class="btn sm" id="dnext" style="margin-top:8px">${i+1<g.drills.length?"Hurrengoa →":"Amaitu"}</button>`;
+      wireSpeak(fb); if(VOICE) speak(d.to);
+      i++; gramSet(g.id,i); fb.querySelector("#dnext").onclick=show; fb.querySelector("#dnext").focus();
+    };
+  };
+  show(); window.scrollTo(0,0);
 }
 function renderLesson(l){
   noTabs(); const m=imap(); const its=lessonItems(l); const fresh=its.filter(x=>!m[x.key]);
