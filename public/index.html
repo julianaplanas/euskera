@@ -481,15 +481,24 @@ function renderLessons(){
   const m=imap();
   app.innerHTML=header("Ikasgaiak · lee, escucha, luego practica")+`<div class="stack pad" style="padding-top:18px"><p class="eyebrow">Ikasgaiak · Lecciones</p>
    ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
-   <p class="eyebrow" style="margin-top:10px">Gramatika · estructuras</p>
-   ${GRAMMAR.map(g=>{ const seen=g.lessons.some(id=>lessonItems(lessonOf(id)||{pairs:[],sentences:[]}).some(x=>m[x.key])); const done=gramDone(g.id); return `<button class="gcard" data-g="${g.id}" style="${seen?"":"opacity:.6"}"><span class="em">${esc(g.emoji)}</span><span class="t"><strong>${esc(g.title)}</strong><small>${esc(g.summary.split(".")[0])}.${seen?"":" · Se desbloquea con sus lecciones"}</small></span><span class="pill ${done>=g.drills.length?"g":""}">${done}/${g.drills.length}</span></button>`; }).join("")}
+   ${(()=>{ const total=GRAMMAR.reduce((a,g)=>a+g.drills.length,0), done=GRAMMAR.reduce((a,g)=>a+Math.min(g.drills.length,gramDone(g.id)),0); return `<button class="gcard" id="togram" style="margin-top:10px"><span class="em">🧩</span><span class="t"><strong>Gramatika · estructuras</strong><small>${GRAMMAR.length} fichas: ser, estar, tener, gustar, negación, plural, números, preguntas</small></span><span class="pill ${done>=total?"g":""}">${done}/${total}</span><span style="color:var(--muted);font-size:22px">›</span></button>`; })()}
    <div class="card legend3"><p class="eyebrow" style="margin-bottom:8px">Zer da barra · qué es la barra</p>
      <div class="lg"><i style="background:var(--green)"></i><span>🌳 <b>Firmes</b>: recordadas varias veces con días entre medias</span></div>
      <div class="lg"><i style="background:var(--ochre)"></i><span>🌿 <b>En estudio</b>: ya vistas, aún volviendo a menudo</span></div>
      <div class="lg"><i style="background:var(--line)"></i><span>🌱 <b>Por ver</b>: todavía no te han salido</span></div>
    </div></div>`;
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(lessonOf(b.dataset.l)));
+  document.getElementById("togram").onclick=renderGrammarList;
+}
+function renderGrammarList(){
+  const m=imap();
+  app.innerHTML=header("Gramatika · las reglas detrás de las frases")+`<div class="stack pad" style="padding-top:18px"><button class="link" id="back" style="align-self:flex-start">‹ Ikasgaiak</button>
+   ${GRAMMAR.map(g=>{ const seen=g.lessons.some(id=>lessonItems(lessonOf(id)||{pairs:[],sentences:[]}).some(x=>m[x.key])); const done=gramDone(g.id); return `<button class="gcard" data-g="${g.id}" style="${seen?"":"opacity:.6"}"><span class="em">${esc(g.emoji)}</span><span class="t"><strong>${esc(g.title)}</strong><small>${esc(g.summary.split(".")[0])}.${seen?"":" · Se desbloquea con sus lecciones"}</small></span><span class="pill ${done>=g.drills.length?"g":""}">${done}/${g.drills.length}</span></button>`; }).join("")}
+   <p class="hint">Cada ficha: la regla, las piezas en color, ejemplos de tus lecciones y ejercicios de transformación.</p></div>`;
+  document.getElementById("back").onclick=()=>setTab("ikasgaiak");
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>renderGrammar(GRAMMAR.find(g=>g.id===b.dataset.g)));
+  const av=document.getElementById("avbtn"); if(av) av.onclick=()=>renderProfile();
+  window.scrollTo(0,0);
 }
 // progreso de drills por teléfono (ligero; no va al calendario)
 function gramDone(id){ try{ return (JSON.parse(localStorage.getItem("euskara.gram."+(P?P.name:""))||"{}")[id]||0); }catch(e){ return 0; } }
@@ -513,7 +522,7 @@ function renderGrammar(g){
    </div>
    <div class="bottom pad"><button class="btn" id="back2">Itzuli · Volver</button></div>`;
   wireSpeak();
-  document.getElementById("back").onclick=document.getElementById("back2").onclick=()=>setTab("ikasgaiak");
+  document.getElementById("back").onclick=document.getElementById("back2").onclick=()=>{ tabs.hidden=false; document.body.classList.remove("notabs"); renderGrammarList(); };
   let i=gramDone(g.id)>=g.drills.length?0:gramDone(g.id), ok=0;
   const box=document.getElementById("drill");
   const show=()=>{
