@@ -231,11 +231,16 @@ const todayStr=()=>P&&P.today||new Date().toISOString().slice(0,10);
 // ---------- voz (mp3 generados en el servidor) ----------
 let VOICE=false, AUDIO=null;
 async function checkVoice(){ try{ const r=await fetch("/api/tts/status"); const d=await r.json(); VOICE=!!d.ok; }catch(e){ VOICE=false; } }
-function speak(text, onEnd){ if(!VOICE) return false; try{ if(AUDIO){ AUDIO.pause(); AUDIO.onended=null; } AUDIO=new Audio("/api/tts?text="+encodeURIComponent(text)); if(onEnd) AUDIO.onended=onEnd; AUDIO.onerror=()=>{ VOICE=false; toast("Audio no disponible"); }; AUDIO.play().catch(()=>{}); return true; }catch(e){ return false; } }
-function speakSeq(list){ let k=0; const go=()=>{ if(k<list.length) speak(list[k++],()=>setTimeout(go,450)); }; go(); }
+let SLOW=false; try{ SLOW=localStorage.getItem("euskara.slow")==="1"; }catch(e){}
+function speak(text, onEnd, slow){ if(!VOICE) return false; try{ if(AUDIO){ AUDIO.pause(); AUDIO.onended=null; } AUDIO=new Audio("/api/tts?text="+encodeURIComponent(text)); const rate=(slow===undefined?SLOW:slow)?0.7:1; AUDIO.preservesPitch=true; AUDIO.mozPreservesPitch=true; AUDIO.webkitPreservesPitch=true; AUDIO.playbackRate=rate; if(onEnd) AUDIO.onended=onEnd; AUDIO.onerror=()=>{ VOICE=false; toast("Audio no disponible"); }; AUDIO.play().then(()=>{ AUDIO.playbackRate=rate; }).catch(()=>{}); return true; }catch(e){ return false; } }
+function speakSeq(list,slow){ let k=0; const go=()=>{ if(k<list.length) speak(list[k++],()=>setTimeout(go,450),slow); }; go(); }
 function preload(texts){ if(!VOICE) return; for(const t of texts.slice(0,12)) fetch("/api/tts?text="+encodeURIComponent(t)).catch(()=>{}); }
 const spkBtn=(t,cls="")=>VOICE?`<button class="speak ${cls}" data-say="${esc(t)}" aria-label="Escuchar">${SPK}</button>`:"";
-function wireSpeak(root=app){ root.querySelectorAll("[data-say]").forEach(b=>b.onclick=ev=>{ ev.stopPropagation(); speak(b.dataset.say); }); }
+// toque: velocidad normal (o la del ajuste) · mantener pulsado: lento 🐢
+function wireSpeak(root=app){ root.querySelectorAll("[data-say]").forEach(b=>{ let timer=null, held=false;
+  const down=()=>{ held=false; timer=setTimeout(()=>{ held=true; speak(b.dataset.say,null,true); toast("🐢 Poliki · despacio"); },450); };
+  const up=ev=>{ clearTimeout(timer); if(!held){ ev.preventDefault(); speak(b.dataset.say); } };
+  b.onpointerdown=down; b.onpointerup=up; b.onpointerleave=()=>clearTimeout(timer); b.oncontextmenu=ev=>ev.preventDefault(); b.onclick=ev=>ev.stopPropagation(); }); }
 
 // ---------- API y estado ----------
 async function api(path,body){ const r=await fetch("/api/"+path, body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{}); const d=await r.json().catch(()=>({error:"Error de red."})); if(!r.ok) throw Object.assign(new Error(d.error||"Error"),d); return d; }
@@ -303,11 +308,14 @@ function renderProfile(first=false){
     <p class="eyebrow">Zenbat urte dituzu?</p><input class="ans" id="age" type="number" inputmode="numeric" min="1" max="119" placeholder="Edad" value="${pr.age||""}">
     <p class="eyebrow">Anai-arrebak · hermanos</p>
     <div class="row"><label style="flex:1">Hermanos<input class="ans" id="nebak" type="number" inputmode="numeric" min="0" max="9" value="${pr.nebak||0}"></label><label style="flex:1">Hermanas<input class="ans" id="ahizpak" type="number" inputmode="numeric" min="0" max="9" value="${pr.ahizpak||0}"></label></div>
-    <p class="hint">${VOICE?"🔊 Audio en euskera activo: habrá dictados y cada frase se puede escuchar.":"🔇 El audio no está disponible ahora mismo; los dictados se omiten."}</p>
+    <p class="eyebrow">Audioa</p>
+    <div class="opts" style="grid-template-columns:1fr 1fr"><button class="opt" data-sp="0" aria-pressed="${!SLOW}">🔊 Normal</button><button class="opt" data-sp="1" aria-pressed="${SLOW}">🐢 Poliki · lento</button></div>
+    <p class="hint">${VOICE?"En cualquier altavoz, mantén pulsado para oírlo despacio aunque esté en normal.":"🔇 El audio no está disponible ahora mismo; los dictados se omiten."}</p>
     ${first?"":`<button class="link" id="logout" style="align-self:center">Salir de la cuenta</button>`}
    </div>
    <div class="bottom pad"><button class="btn red" id="save">Gorde · Guardar</button></div>`;
   const lo=document.getElementById("logout"); if(lo) lo.onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
+  app.querySelectorAll("[data-sp]").forEach(b=>b.onclick=()=>{ SLOW=b.dataset.sp==="1"; try{ localStorage.setItem("euskara.slow",SLOW?"1":"0"); }catch(e){} app.querySelectorAll("[data-sp]").forEach(x=>x.setAttribute("aria-pressed",(x.dataset.sp==="1")===SLOW)); if(VOICE) speak("Kaixo, zer moduz?"); });
   let g=pr.gender||null;
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ g=b.dataset.g; app.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.g===g)); });
   document.getElementById("back").onclick=()=>first?null:setTab("gaur");
@@ -388,7 +396,7 @@ function renderExercise(){
   if(e.mode==="learn"){
     body=`<p class="eyebrow">Berria · nuevo</p><div class="learn">${e.visual?`<p class="em" style="font-size:30px;letter-spacing:-2px">${esc(e.visual)}</p>`:e.emoji?`<p class="em">${esc(e.emoji)}</p>`:""}<p class="eu">${esc(e.eu)}</p><p class="es">${esc(e.es)}</p>${spkBtn(e.eu,"big")}<p class="hint">Léelo en voz alta dos veces. Luego te lo pediré sin mirar.</p></div>`;
   } else if(e.mode==="listen"){
-    body=`<p class="eyebrow">Entzun eta idatzi · escucha y escribe</p><div style="text-align:center">${spkBtn(e.eu,"big")}<p class="hint">Toca para escuchar las veces que quieras</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Lo que has oído, en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
+    body=`<p class="eyebrow">Entzun eta idatzi · escucha y escribe</p><div style="text-align:center">${spkBtn(e.eu,"big")}<p class="hint">Toca para repetir · mantén pulsado para oírlo despacio 🐢</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Lo que has oído, en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="count"){
     body=`<p class="eyebrow">Zenbat daude? · ¿cuántos hay? Escríbelo en euskera</p><div class="count">${esc(e.visual)}</div><input class="ans" id="typed" autocomplete="off" autocapitalize="none" placeholder="Número en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="meaning"){
