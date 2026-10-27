@@ -96,7 +96,7 @@ input.ans.ok{border-color:var(--green)} input.ans.bad{border-color:var(--red)}
 .sheet.bad .btn{background:var(--red);box-shadow:0 4px 0 var(--red-deep)}
 .sh-olen{flex:none;width:64px;height:94px;overflow:hidden}
 .note{border-left:5px solid var(--ochre);background:var(--card);border-radius:0 14px 14px 0;padding:10px 12px;font-size:15px}
-.bottom{position:sticky;bottom:0;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -12px 12px -8px var(--bg)}
+.bottom{position:sticky;bottom:0;z-index:5;padding-block:12px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);box-shadow:0 -12px 12px -8px var(--bg)}
 .big{font-family:var(--display);font-size:60px;line-height:1;color:var(--red);font-variant-numeric:tabular-nums}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center}
@@ -120,7 +120,7 @@ input.ans.ok{border-color:var(--green)} input.ans.bad{border-color:var(--red)}
 .v .st.new{background:var(--ochre)} .v .st.ok{background:var(--green)}
 .tip{border-left:5px solid var(--ochre);background:var(--ochre-soft);border-radius:0 var(--r) var(--r) 0;padding:12px 14px}
 .tip b{display:block;margin-bottom:4px} .tip p{font-size:15px}
-.dlg{display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.dlg{display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden;isolation:isolate}
 .scene{display:flex;align-items:center;gap:10px;margin:-4px 0 6px;font-weight:800;color:var(--muted)}
 .scene span{font-size:34px;line-height:1}
 .dlg::after{content:"";position:absolute;right:-10px;bottom:-14px;width:120px;height:120px;background:var(--ochre-soft);border-radius:50%;opacity:.6;z-index:0}
@@ -486,7 +486,7 @@ function renderLesson(l){
     ${l.grid?`<p class="eyebrow">${esc(l.grid.title)}</p><table class="gtab"><tr><th></th>${l.grid.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${l.grid.rows.map(r=>`<tr><td class="lab">${esc(r[0])}</td>${r.slice(1).map(c=>`<td><b>${esc(c)}</b></td>`).join("")}</tr>`).join("")}</table>`:""}
     <p class="eyebrow">Hiztegia eta esaldiak · ${VOICE?"toca una tarjeta para oírla":"vocabulario y frases"}</p>
     <div class="vocab">${its.map(it=>{ const q=it.count?qty(it.count,it.countEm):""; const sg=stage(m[it.key]); return `<button class="v ${sg.k}" data-say="${esc(it.eu)}"><span class="tag">${sg.em}</span><span class="em ${q?"q":""}">${esc(q||it.emoji||(it.chunk?"💬":"•"))}</span><b>${esc(it.eu)}</b><small>${esc(it.es)}</small>${m[it.key]?`<span class="due">${dueLabel(m[it.key])}${m[it.key].lapses?` · ${m[it.key].lapses} fallos`:""}</span>`:`<span class="due">aún no vista</span>`}</button>`; }).join("")}</div>
-    <p class="hint">🌱 aún no vista · 🌿 en estudio (borde ámbar) · 🌳 firme (fondo verde). Debajo de cada una, cuándo vuelve a salir.</p>
+    <p class="hint">Cada tarjeta muestra su etapa (🌱 🌿 🌳) y cuándo vuelve a salir.</p>
     ${l.tips&&l.tips.length?`<p class="eyebrow">Nola funtzionatzen du · cómo funciona</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
     ${l.dialogue&&l.dialogue.length?`<p class="eyebrow">Elkarrizketa · diálogo</p><div class="card dlg">${l.scene?`<div class="scene"><span>${esc(l.scene.emoji)}</span><p>${esc(l.scene.title)}</p></div>`:""}${VOICE?`<button class="btn ghost sm" id="playdlg" style="align-self:center;position:relative;z-index:1">🔊 Entzun osorik · escuchar entero</button>`:""}${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><div><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>${spkBtn(eu)}</div>`).join("")}</div>`:""}
    </div>
