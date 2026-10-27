@@ -235,11 +235,16 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
   body{font-size:17px}
   .app{max-width:none;margin:0;padding-bottom:0;padding-left:232px;min-height:100vh}
   body.notabs .app{padding-left:0}
-  .pad{padding-left:40px;padding-right:40px}
-  .head{padding-top:32px;padding-bottom:26px}
+  .pad{padding-left:40px;padding-right:40px;max-width:1040px;margin-left:auto;margin-right:auto;width:100%}
+  .head{padding-top:32px;padding-bottom:26px;max-width:none}
+  .head>*{max-width:960px;margin-left:auto;margin-right:auto}
+  .head .lb{right:max(-60px,calc(50% - 600px))}
+  .head .mascot{right:max(40px,calc(50% - 540px))}
+  .lessons-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .lesson{align-items:flex-start}
   .head h1{font-size:44px}
   .head .lb{width:300px;height:300px;right:-60px;top:-20px}
-  .head .mascot{bottom:-22px;right:40px}
+  .head .mascot{bottom:-22px}
   .head .mascot svg{width:110px;height:auto}
   .head .row{padding-right:150px}
   .tabs{top:0;bottom:0;right:auto;width:232px;border-top:0;border-right:var(--bw) solid var(--line);padding:0}
@@ -269,7 +274,7 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
   .keys{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-weight:600}
   .keys kbd{display:inline-block;border:2px solid var(--line);padding:1px 6px;font-family:var(--body);font-weight:700;margin-right:4px;background:var(--card)}
 }
-@media (max-width:899px){ .keys{display:none} .cols>.col{display:contents} }
+@media (max-width:899px){ .keys{display:none} .cols>.col{display:contents} .lessons-grid{display:contents} }
 </style>
 </head>
 <body>
@@ -564,7 +569,7 @@ async function finish(){
 function renderLessons(){
   const m=imap();
   app.innerHTML=header("Ikasgaiak · lee, escucha, luego practica")+`<div class="stack pad" style="padding-top:18px"><p class="eyebrow" data-es="Lecciones">Ikasgaiak</p>
-   ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
+   <div class="lessons-grid">${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}</div>
    ${(()=>{ const total=GRAMMAR.reduce((a,g)=>a+g.drills.length,0), done=GRAMMAR.reduce((a,g)=>a+Math.min(g.drills.length,gramDone(g.id)),0); return `<button class="gcard" id="togram" style="margin-top:10px"><span class="em">🧩</span><span class="t"><strong>Gramatika · estructuras</strong><small>${GRAMMAR.length} fichas: ser, estar, tener, gustar, negación, plural, números, preguntas</small></span><span class="pill ${done>=total?"g":""}">${done}/${total}</span><span style="color:var(--muted);font-size:22px">›</span></button>`; })()}
    <div class="card legend3"><p class="eyebrow" style="margin-bottom:8px" data-es="qué es la barra">Zer da barra</p>
      <div class="lg"><i style="background:var(--green)"></i><span>🌳 <b>Firmes</b>: recordadas varias veces con días entre medias</span></div>
