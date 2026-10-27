@@ -466,14 +466,14 @@ function transformsFor(eu){ return TR[norm(eu)]||[]; }
 function buildEx(it, pool){
   const opts=list=>shuffle([it.eu,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>x!==it.eu))]).slice(0,3)]);
   const ex={key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",opts:opts(),mode:"produce"};
-  if(it.count){ ex.mode="count"; ex.visual=qty(it.count,it.countEm||"🍎"); ex.opts=shuffle([it.eu,...shuffle(pool.filter(p=>p.count&&p.eu!==it.eu).map(p=>p.eu)).slice(0,3)]); }
+  if(it.count){ ex.mode="count"; ex.visual=qty(it.count,it.countEm||"🍎"); const nums=[...new Set(catalog().filter(p=>p.count&&p.eu!==it.eu).sort((a,b)=>Math.abs(a.count-it.count)-Math.abs(b.count-it.count)).slice(0,8).map(p=>p.eu))]; ex.opts=shuffle([it.eu,...shuffle(nums).slice(0,3)]); }
   else if(!it.isNew && it.reps>=1 && transformsFor(it.eu).length && Math.random()<0.35){ const tr=pick(transformsFor(it.eu)); ex.mode="transform"; ex.from=it.eu; ex.instr=tr.i; ex.to=tr.to; ex.opts=shuffle([tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)]); }
   else if(VOICE && words(it.eu).length>=2 && Math.random()<0.3) ex.mode="listen";
   else if(Math.random()<0.15 && words(it.es).length<=4) { ex.mode="meaning"; ex.opts=shuffle([it.es,...shuffle([...new Set(pool.map(p=>p.es).filter(x=>x!==it.es))]).slice(0,3)]); }
   return ex;
 }
 function startSession(opts){
-  noTabs(); const pool=opts.items.length>=4?opts.items:[...opts.items,...catalog()];
+  noTabs(); const pool=[...opts.items,...catalog()];
   const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""});
     if(opts.forceTransform&&it.tr){ ex.push({key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",mode:"transform",from:it.eu,instr:it.tr.i,to:it.tr.to,opts:shuffle([it.tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(it.tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)])}); }
     else ex.push(buildEx(it,pool)); }
