@@ -230,6 +230,46 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
 .three span{display:block;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
 .three .t{background:var(--green);color:var(--cream)} .three .s{background:var(--ochre);color:#141414} .three .n{background:var(--card);color:var(--ink)}
 @media (prefers-reduced-motion:reduce){ .sheet,.top .bar i{transition:none} }
+/* ---------- escritorio (≥ 900px): barra lateral y dos columnas ---------- */
+@media (min-width:900px){
+  body{font-size:17px}
+  .app{max-width:none;margin:0;padding-bottom:0;padding-left:232px;min-height:100vh}
+  body.notabs .app{padding-left:0}
+  .pad{padding-left:40px;padding-right:40px}
+  .head{padding-top:32px;padding-bottom:26px}
+  .head h1{font-size:44px}
+  .head .lb{width:300px;height:300px;right:-60px;top:-20px}
+  .head .mascot{bottom:-22px;right:40px}
+  .head .mascot svg{width:110px;height:auto}
+  .head .row{padding-right:150px}
+  .tabs{top:0;bottom:0;right:auto;width:232px;border-top:0;border-right:var(--bw) solid var(--line);padding:0}
+  .tabs .in{display:flex;flex-direction:column;padding:28px 0 0;gap:4px;height:100%}
+  .tabs .in::before{content:"Euskara praktika";display:block;padding:0 22px 18px;font-family:var(--display);font-size:22px;letter-spacing:.04em;text-transform:uppercase;color:#FFF9EC;line-height:1.05;border-bottom:3px solid #FFF9EC;margin-bottom:10px}
+  .tab{flex-direction:column;align-items:flex-start;padding:12px 22px;border-left:6px solid transparent}
+  .tab.on{border-left-color:var(--ochre)}
+  .tab .eu{font-size:20px} .tab .es{font-size:11px}
+  .tab .badge{right:auto;left:150px;top:12px}
+  .stack{gap:16px}
+  /* dos columnas en inicio, datos y equipo */
+  .stack.cols{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:28px;align-items:start}
+  .cols>.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+  .vocab{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}
+  .three b{font-size:40px}
+  .btn{font-size:24px}
+  .prompt{font-size:34px}
+  .drill .from{font-size:30px}
+  .learn .eu{font-size:44px}
+  .top{padding-top:22px}
+  .bottom{position:static;border-top:0;margin-top:10px;padding-bottom:24px}
+  .exercise-wrap{max-width:720px;margin:0 auto;width:100%}
+  .sheet{left:232px}
+  .sheet .in{max-width:720px}
+  body.notabs .sheet{left:0}
+  .toast{bottom:32px}
+  .keys{display:flex;gap:10px;flex-wrap:wrap;font-size:12px;color:var(--muted);font-weight:600}
+  .keys kbd{display:inline-block;border:2px solid var(--line);padding:1px 6px;font-family:var(--body);font-weight:700;margin-right:4px;background:var(--card)}
+}
+@media (max-width:899px){ .keys{display:none} .cols>.col{display:contents} }
 </style>
 </head>
 <body>
@@ -322,7 +362,7 @@ function header(sub,mood="wave"){
     <span class="pill" title="Firmes"><span style="display:inline-flex;width:14px;height:14px">${LAUBURU}</span>${P.items.consolidated}</span><span class="pill">${P.xp} XP</span></div>
     ${sub?`<p class="sub">${sub}</p>`:""}</header>`;
 }
-function setTab(t){ TAB=t; tabs.hidden=false; document.body.classList.remove("notabs"); tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); const bd=document.getElementById("tbadge"); bd.hidden=!(P&&P.pendingChallenges); bd.textContent=P?P.pendingChallenges:""; ({gaur:renderToday,ikasgaiak:renderLessons,taldea:renderTeam,datuak:renderStats})[t](); const av=document.getElementById("avbtn"); if(av) av.onclick=()=>renderProfile(); window.scrollTo(0,0); }
+function setTab(t){ document.onkeydown=null; TAB=t; tabs.hidden=false; document.body.classList.remove("notabs"); tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); const bd=document.getElementById("tbadge"); bd.hidden=!(P&&P.pendingChallenges); bd.textContent=P?P.pendingChallenges:""; ({gaur:renderToday,ikasgaiak:renderLessons,taldea:renderTeam,datuak:renderStats})[t](); const av=document.getElementById("avbtn"); if(av) av.onclick=()=>renderProfile(); window.scrollTo(0,0); }
 tabs.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 function noTabs(){ tabs.hidden=true; document.body.classList.add("notabs"); }
 
@@ -389,7 +429,7 @@ async function renderToday(){
   const doneToday=ITEMS.filter(i=>i.last===t); const upcoming=ITEMS.filter(i=>i.due>t).sort((a,b)=>a.due<b.due?-1:1);
   const sub = pend?"Txanda bat erdizka · tienes una ronda a medias" : total?`Gaur: ${due.length} para repasar${nNew?` eta ${nNew} berri`:""}` : "Gaurkoa eginda · lo de hoy está hecho";
   app.innerHTML=header(sub)+`
-   <div class="stack pad" style="padding-top:18px">
+   <div class="stack pad cols" style="padding-top:18px"><div class="col">
     ${pend?`<button class="btn red" id="resume">▶ Jarraitu<small>continuar (${pend.i}/${pend.ex.length})</small></button>`
       : total?`<button class="btn red" id="start">Hasi<small>Empezar la ronda de hoy (${total})</small></button><p class="hint">${due.length?`${due.length} frases que toca repasar hoy`:""}${due.length&&nNew?" y ":""}${nNew?`${nNew} nuevas de «${esc(nextL.title)}»`:""}.</p>`
       : `<button class="btn red" id="free" ${ITEMS.length<4?"disabled":""}>Txanda librea<small>Ronda libre · 10 frases</small></button><p class="hint">Lo de hoy está hecho${upcoming.length?`; lo siguiente vuelve ${dueLabel(upcoming[0]).replace("vuelve ","")}`:""}. La ronda libre repasa 10 frases al azar sin tocar el calendario.</p>`}
@@ -398,7 +438,7 @@ async function renderToday(){
     <div class="three"><div class="t"><b>${LAUBURU}${P.items.consolidated}</b><span>Sendoak · firmes</span></div><div class="s"><b>🌿 ${ITEMS.length-P.items.consolidated}</b><span>Ikasten · estudio</span></div><div class="n"><b>🌱 ${cat.length-ITEMS.length}</b><span>Haziak · por ver</span></div></div>
     ${stageBar(cat,imap()).replace('class="sbar"','class="sbar" style="margin-top:-3px;border-top:0"')}${doneToday.length?`<p class="hint">Gaur ${doneToday.length} esaldi · hoy has repasado ${doneToday.length} frases.</p>`:""}
     <button class="link" id="how" style="align-self:center;font-size:14px">¿Cómo funciona?</button>
-   </div>`;
+   </div></div>`;
   const rs=document.getElementById("resume"); if(rs) rs.onclick=()=>{ const d=loadSes(); d?resumeSession(d):renderToday(); };
   const st=document.getElementById("start"); if(st) st.onclick=async()=>{
     let items=shuffle(due).slice(0,12).map(i=>({...i,...(catMap[i.key]||{})}));
@@ -455,9 +495,12 @@ function renderExercise(){
     body=`<p class="eyebrow" data-es="escríbelo en euskera">Nola esaten da euskaraz?</p>${prompt}<input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="En euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   }
   app.innerHTML=`<div class="top pad"><button id="quit" aria-label="Salir" style="font-size:22px;color:var(--muted)">✕</button><div class="bar"><i style="width:${pct}%"></i></div><span class="pill g">+${SES.xp} XP</span></div>
-   <div class="stack pad" style="flex:1">${e.retry?`<p class="pill" style="align-self:flex-start">🔁 Berriro · otra vez esta</p>`:""}${body}</div>
-   <div class="bottom pad"><button class="btn" id="check" ${e.mode==="learn"?"":"disabled"}>${e.mode==="learn"?"Ulertu dut<small>Siguiente</small>":"Egiaztatu<small>Comprobar</small>"}</button></div>`;
+   <div class="exercise-wrap"><div class="stack pad" style="flex:1">${e.retry?`<p class="pill" style="align-self:flex-start">🔁 Berriro · otra vez esta</p>`:""}${body}${e.mode!=="learn"?`<div class="keys"><span><kbd>↵</kbd>comprobar</span><span><kbd>H</kbd>pista</span><span><kbd>O</kbd>opciones</span><span><kbd>1</kbd>–<kbd>4</kbd>elegir</span><span><kbd>S</kbd>escuchar</span><span class="muted">(con el campo vacío, o con Alt)</span></div>`:""}</div>
+   <div class="bottom pad"><button class="btn" id="check" ${e.mode==="learn"?"":"disabled"}>${e.mode==="learn"?"Ulertu dut<small>Siguiente</small>":"Egiaztatu<small>Comprobar</small>"}</button></div></div>`;
   wireSpeak();
+  document.onkeydown=ev=>{ if(document.getElementById("sheet").classList.contains("show")) return; const tag=(ev.target.tagName||"").toLowerCase(); const inInput=tag==="input"&&ev.target.id==="typed"; const k=ev.key.toLowerCase(); const empty=inInput&&!ev.target.value.trim();
+    if(!inInput||ev.altKey||(empty&&/^[hos1-4]$/.test(k))){ if(k==="h"){ ev.preventDefault(); const b=app.querySelector('.help[data-h="hint"]'); b&&b.click(); } else if(k==="o"){ ev.preventDefault(); const b=app.querySelector('.help[data-h="opts"]'); b&&b.click(); } else if(k==="s"){ ev.preventDefault(); const b=app.querySelector("[data-say]"); b&&speak(b.dataset.say); } else if(/^[1-4]$/.test(k)){ const o=app.querySelectorAll(".opt")[+k-1]; if(o){ ev.preventDefault(); o.click(); } } else if(k==="enter"&&e.mode==="learn"){ document.getElementById("check").click(); } }
+    if(ev.key==="Escape"){ document.getElementById("quit").click(); } };
   document.getElementById("quit").onclick=()=>{ saveSes(); setTab(TAB); };
   const check=document.getElementById("check");
   if(e.mode==="learn"){ check.onclick=()=>{ SES.i++; saveSes(); SES.i<SES.ex.length?renderExercise():finish(); }; if(VOICE) setTimeout(()=>speak(e.eu),300); return; }
@@ -496,6 +539,7 @@ function showSheet(ok,grade,e,given,near){
   wireSpeak(inn);
   const next=document.getElementById("sh-next"), cp=document.getElementById("copy");
   if(cp){ cp.oninput=()=>{ next.disabled=norm(cp.value)!==norm(target); if(!next.disabled) cp.classList.add("ok"); }; cp.onkeydown=ev=>{ if(ev.key==="Enter"&&!next.disabled) next.click(); }; setTimeout(()=>cp.focus(),100); }
+  sh.onkeydown=ev=>{ if(ev.key==="Enter"&&!next.disabled&&ev.target.id!=="copy") next.click(); };
   if(ok&&VOICE) speak(e.mode==="transform"?e.to:e.eu);
   next.onclick=()=>{ sh.className="sheet"; SES.i++; saveSes(); SES.i<SES.ex.length?renderExercise():finish(); };
   if(!cp) next.focus();
@@ -623,7 +667,8 @@ async function renderTeam(){
   const toConfirm=chs.filter(c=>c.kind==="task"&&c.forMe&&!c.toResult);
   const m=imap(); const learnedLessons=new Set(ITEMS.map(i=>i.lesson_id));
   const tasks=TASKS.filter(t=>learnedLessons.has(t.need));
-  app.querySelector(".stack").innerHTML=`
+  app.querySelector(".stack").classList.add("cols");
+  app.querySelector(".stack").innerHTML=`<div class="col">
     ${!users.length?`<div class="card"><p class="eyebrow" data-es="Todavía sin compañía">Oraindik bakarrik</p><p style="margin-top:6px">Cuando alguien más entre con el código de invitación podrás retarle aquí.</p></div>`:`
     <p class="eyebrow" data-es="reto de 6 frases">Erronka</p>
     <div class="card stack" style="gap:10px"><p class="hint">Los dos respondéis las mismas 6 frases escribiendo. Gana quien acierte más a la primera.</p><div class="row"><select class="ans" id="duelTo" style="flex:1">${users.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join("")}</select></div><div class="row"><button class="btn red sm" id="duel" style="flex:1">Erronka!<small>Retar · escribir 6 frases</small></button><button class="btn sm" id="duelT" style="flex:1">Eraldatu!<small>Retar · transformar 6</small></button></div></div>
@@ -670,17 +715,19 @@ async function renderStats(){
   const maxC=Math.max(1,...users.map(u=>u.learned)); const mx=Math.max(1,...users.flatMap(u=>u.perDay));
   const best=k=>Math.max(...users.map(u=>u[k])); const cell=(u,k,f=x=>x)=>`<td class="${u[k]===best(k)&&u[k]>0?"win":""}">${f(u[k])}</td>`;
   const m=imap(); const soon=ITEMS.filter(i=>i.due>data.days[6]).length;
-  app.querySelector(".stack").innerHTML=`
+  app.querySelector(".stack").classList.add("cols");
+  app.querySelector(".stack").innerHTML=`<div class="col">
     <div class="stats"><div class="stat g"><b style="display:flex;justify-content:center;align-items:center;gap:6px"><span style="display:inline-flex;width:22px;height:22px">${LAUBURU}</span>${me.consolidated}</b><span>Sendoak · firmes</span></div><div class="stat"><b>${me.learned}</b><span>Ikasten · en estudio</span></div><div class="stat"><b>🔥 ${me.streak}</b><span>Egunak · seguidos</span></div><div class="stat"><b>${me.accuracy}%</b><span>Lehenengoan · a la primera</span></div></div>
     <p class="hint">Firme = la has acertado tantas veces que no vuelve hasta dentro de una semana o más. ${soon?`${soon} frases programadas para más adelante.`:""}</p>
     <p class="eyebrow" data-es="firmes por persona">Taldea</p>
     <div class="card lb-list">${users.map((u,i)=>`<div class="lbrow ${u.me?"me":""}"><span class="rank">${["🥇","🥈","🥉"][i]||(i+1)}</span><span class="av" style="background:${u.color}">${esc(u.name[0].toUpperCase())}</span><span class="who"><b>${esc(u.name)}${u.me?" (tú)":""}</b>${u.practicedToday?" <span class='muted' style='font-size:13px'>· gaur 🔥</span>":""}<i class="wbar"><i style="width:${Math.round(u.learned/maxC*100)}%;background:${u.color};opacity:.4"></i></i><i class="wbar" style="margin-top:-6px;background:transparent"><i style="width:${Math.round(u.consolidated/maxC*100)}%;background:${u.color}"></i></i></span><b class="num">${u.consolidated}<span class="muted" style="font-size:13px;font-family:var(--body)"> / ${u.learned}</span></b></div>`).join("")}</div>
     <p class="hint">Barra clara: frases en estudio. Barra oscura: firmes.</p>
+    </div><div class="col">
     <p class="eyebrow" data-es="XP por día">Azken 7 egunak</p>
     <div class="card"><div class="chart">${data.days.map((d,i)=>`<div class="d"><div class="bars">${active.map(u=>`<i style="height:${Math.round(u.perDay[i]/mx*100)}%;background:${u.color}" title="${esc(u.name)}: ${u.perDay[i]} XP"></i>`).join("")}</div><small>${dayLabel(d)}</small></div>`).join("")}</div><div class="legend" style="margin-top:10px">${active.map(u=>`<span><i style="background:${u.color}"></i>${esc(u.name)}</span>`).join("")}</div></div>
     <p class="eyebrow" data-es="todos">Denak</p>
     <div class="tabwrap"><table class="stab"><tr><th></th><th title="Firmes">Sendo</th><th title="En estudio">Ikast</th><th title="XP semana">Astea</th><th title="XP total">Guzt</th><th>🔥</th><th>%</th></tr>${users.map(u=>`<tr class="${u.me?"me":""}"><td class="lab"><span class="dot" style="background:${u.color}"></span>${esc(u.name)}</td>${cell(u,"consolidated")}${cell(u,"learned")}${cell(u,"weekXp")}${cell(u,"xp")}${cell(u,"streak")}${cell(u,"accuracy",x=>x+"%")}</tr>`).join("")}</table></div>
-    <p class="hint">Sendo = firmes · Ikast = en estudio · Astea = XP de la semana · Guzt = XP total · 🔥 = racha · % = aciertos a la primera.</p>`;
+    <p class="hint">Sendo = firmes · Ikast = en estudio · Astea = XP de la semana · Guzt = XP total · 🔥 = racha · % = aciertos a la primera.</p></div>`;
 }
 
 // arranque
