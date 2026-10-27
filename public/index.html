@@ -271,11 +271,11 @@ function lessonOf(id){ return LESSONS.find(l=>l.id===id); }
 
 function header(sub,mood="wave"){
   return `<header class="head pad"><div class="lb">${LAUBURU}</div><div class="mascot">${OLEN(mood,84)}</div>
-    <div class="row"><span class="avatar">${esc(P.name[0].toUpperCase())}</span><div style="min-width:0"><p class="eyebrow">Kaixo</p><h1 style="font-size:28px">${esc(P.name)}</h1></div>
+    <div class="row"><button class="avatar" id="avbtn" aria-label="Perfil">${esc(P.name[0].toUpperCase())}</button><div style="min-width:0"><p class="eyebrow">Kaixo</p><h1 style="font-size:28px">${esc(P.name)}</h1></div>
     <span class="spacer"></span><span class="pill" title="Ítems consolidados">🌳 ${P.items.consolidated}</span><span class="pill">${P.xp} XP</span></div>
     ${sub?`<p style="margin-top:12px;color:#F6C9C2;font-weight:600;max-width:70%">${sub}</p>`:""}</header>${HILLS}`;
 }
-function setTab(t){ TAB=t; tabs.hidden=false; document.body.classList.remove("notabs"); tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); const bd=document.getElementById("tbadge"); bd.hidden=!(P&&P.pendingChallenges); bd.textContent=P?P.pendingChallenges:""; ({gaur:renderToday,ikasgaiak:renderLessons,taldea:renderTeam,datuak:renderStats})[t](); window.scrollTo(0,0); }
+function setTab(t){ TAB=t; tabs.hidden=false; document.body.classList.remove("notabs"); tabs.querySelectorAll(".tab").forEach(b=>b.classList.toggle("on",b.dataset.tab===t)); const bd=document.getElementById("tbadge"); bd.hidden=!(P&&P.pendingChallenges); bd.textContent=P?P.pendingChallenges:""; ({gaur:renderToday,ikasgaiak:renderLessons,taldea:renderTeam,datuak:renderStats})[t](); const av=document.getElementById("avbtn"); if(av) av.onclick=()=>renderProfile(); window.scrollTo(0,0); }
 tabs.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
 function noTabs(){ tabs.hidden=true; document.body.classList.add("notabs"); }
 
@@ -304,8 +304,10 @@ function renderProfile(first=false){
     <p class="eyebrow">Anai-arrebak · hermanos</p>
     <div class="row"><label style="flex:1">Hermanos<input class="ans" id="nebak" type="number" inputmode="numeric" min="0" max="9" value="${pr.nebak||0}"></label><label style="flex:1">Hermanas<input class="ans" id="ahizpak" type="number" inputmode="numeric" min="0" max="9" value="${pr.ahizpak||0}"></label></div>
     <p class="hint">${VOICE?"🔊 Audio en euskera activo: habrá dictados y cada frase se puede escuchar.":"🔇 El audio no está disponible ahora mismo; los dictados se omiten."}</p>
+    ${first?"":`<button class="link" id="logout" style="align-self:center">Salir de la cuenta</button>`}
    </div>
    <div class="bottom pad"><button class="btn red" id="save">Gorde · Guardar</button></div>`;
+  const lo=document.getElementById("logout"); if(lo) lo.onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
   let g=pr.gender||null;
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ g=b.dataset.g; app.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.g===g)); });
   document.getElementById("back").onclick=()=>first?null:setTab("gaur");
@@ -332,40 +334,29 @@ async function renderToday(){
   const due=dueToday(); const cat=catalog(); const catMap=Object.fromEntries(cat.map(i=>[i.key,i]));
   const hard=ITEMS.filter(i=>i.lapses>=2).slice(0,6);
   const newAvail=nextNew(5); const nextL=newAvail[0]?lessonOf(newAvail[0].lesson_id):null;
-  const total=due.length+(due.length<8?Math.min(newAvail.length,due.length<4?5:3):0);
-  const pend=loadSes();
-  app.innerHTML=header(P.practicedToday?"Gaur praktikatu duzu · hoy ya has practicado":"Gaurko txanda prest · tu ronda de hoy está lista")+`
+  const nNew=newAvail.length&&due.length<8?Math.min(newAvail.length,due.length<4?5:3):0;
+  const total=due.length+nNew; const pend=loadSes(); const t=todayStr();
+  const doneToday=ITEMS.filter(i=>i.last===t); const upcoming=ITEMS.filter(i=>i.due>t).sort((a,b)=>a.due<b.due?-1:1);
+  const sub = pend?"Txanda bat erdizka · tienes una ronda a medias" : total?`Gaur: ${due.length} para repasar${nNew?` eta ${nNew} berri`:""}` : "Gaurkoa eginda · lo de hoy está hecho";
+  app.innerHTML=header(sub)+`
    <div class="stack pad" style="padding-top:18px">
-    ${pend?`<button class="btn" id="resume">▶ Jarraitu · continuar la ronda (${pend.i}/${pend.ex.length})</button>`:""}
-    ${(()=>{ const t=todayStr(); const doneToday=ITEMS.filter(i=>i.last===t); const nNew=newAvail.length&&due.length<8?Math.min(newAvail.length,due.length<4?5:3):0; const upcoming=ITEMS.filter(i=>i.due>t).sort((a,b)=>a.due<b.due?-1:1);
-      return `<div class="today">
-        <div class="box ${due.length?"hot":"done"}"><b>${due.length}</b><span>vencen hoy</span></div>
-        <div class="box"><b>${nNew}</b><span>🌱 nuevas</span></div>
-        <div class="box ${doneToday.length?"done":""}"><b>${doneToday.length}</b><span>hechas hoy</span></div>
-      </div>
-      <button class="btn red" id="start" ${total?"":"disabled"}>${total?`Hasi · Empezar (${total})`:"Gaurkoa eginda · hoy ya está"}</button>
-      ${!total?`<p class="hint">Nada vence hoy${upcoming.length?`; la próxima vuelve ${dueLabel(upcoming[0]).replace("vuelve ","")} (${esc(upcoming[0].eu)})`:""}. Puedes adelantar una lección en Ikasgaiak o hacer una ronda libre.</p>`:""}
-      <div class="row"><button class="btn ghost sm" id="free">Txanda librea · ronda libre</button><button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailak (${hard.length})</button><span class="spacer"></span><button class="link" id="prof" style="font-size:14px">Perfil</button></div>
-      <p class="eyebrow">Zure baratzea · tu huerto</p>
-      <div class="card"><div class="grow"><span>🌱 ${catalog().length-ITEMS.length} por ver</span><span>🌿 ${ITEMS.length-P.items.consolidated} en estudio</span><span>🌳 ${P.items.consolidated} firmes</span></div>${stageBar(catalog(),imap())}</div>
-      ${due.length?`<p class="eyebrow">Gaur vencen · ${due.length}</p><div class="card list">${due.slice(0,8).map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${i.lapses?`${i.lapses} fallos`:`${i.reps} repasos`}</small></span>${spkBtn(i.eu)}</div>`).join("")}${due.length>8?`<p class="hint" style="padding-top:8px">y ${due.length-8} más</p>`:""}</div>`:""}
-      ${doneToday.length?`<p class="eyebrow">Gaur eginak · hechas hoy</p><div class="card list">${doneToday.slice(0,8).map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${dueLabel(i)}</small></span>${spkBtn(i.eu)}</div>`).join("")}${doneToday.length>8?`<p class="hint" style="padding-top:8px">y ${doneToday.length-8} más</p>`:""}</div>`:""}
-      ${hard.length?`<p class="eyebrow">Zailenak · las que más se te resisten</p><div class="card list">${hard.map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${i.lapses} fallos · ${dueLabel(i)}</small></span>${spkBtn(i.eu)}</div>`).join("")}</div>`:""}`; })()}
-    <p class="eyebrow">Nola funtzionatzen du</p>
-    <div class="card stack" style="gap:8px;font-size:15px"><p><b>Escribes antes de elegir.</b> Las pistas y las opciones están, pero puntúan menos.</p><p><b>Cada frase tiene su fecha.</b> Si la aciertas, vuelve más tarde (1, 3, 7, 16 días…). Si fallas, vuelve mañana.</p><p><b>🌱 → 🌿 → 🌳.</b> Una frase nace como semilla (no vista), pasa a brote cuando la estudias y se hace árbol cuando la has recordado varias veces con días de separación (intervalo de 7+ días). Si la fallas, vuelve a brote.</p></div>
-    <button class="link" id="logout" style="align-self:center">Salir</button>
+    ${pend?`<button class="btn red" id="resume">▶ Jarraitu · continuar (${pend.i}/${pend.ex.length})</button>`
+      : total?`<button class="btn red" id="start">Hasi · Empezar la ronda de hoy (${total})</button><p class="hint">${due.length?`${due.length} frases que toca repasar hoy`:""}${due.length&&nNew?" y ":""}${nNew?`${nNew} nuevas de «${esc(nextL.title)}»`:""}.</p>`
+      : `<div class="card" style="text-align:center"><p style="font-size:40px;line-height:1">🌳</p><p style="font-weight:800;margin-top:6px">Hoy no toca repasar nada</p><p class="hint">${upcoming.length?`Lo siguiente vuelve ${dueLabel(upcoming[0]).replace("vuelve ","")}.`:""} Si quieres más, haz una ronda libre o adelanta una lección.</p></div>`}
+    <div class="row" style="justify-content:center;flex-wrap:wrap"><button class="btn ghost sm" id="free" ${ITEMS.length<4?"disabled":""}>Txanda librea · ronda libre</button><button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailenak (${hard.length})</button></div>
+    <p class="eyebrow">Zure baratzea · tu huerto</p>
+    <div class="card"><div class="grow"><span>🌳 ${P.items.consolidated} firmes</span><span>🌿 ${ITEMS.length-P.items.consolidated} en estudio</span><span>🌱 ${cat.length-ITEMS.length} por ver</span></div>${stageBar(cat,imap())}${doneToday.length?`<p class="hint" style="margin-top:8px">Hoy has repasado ${doneToday.length} frases.</p>`:""}</div>
+    <button class="link" id="how" style="align-self:center;font-size:14px">¿Cómo funciona?</button>
    </div>`;
-  wireSpeak();
-  document.getElementById("logout").onclick=async()=>{ await api("logout",{}); P=null; renderLogin(); };
-  document.getElementById("prof").onclick=()=>renderProfile();
   const rs=document.getElementById("resume"); if(rs) rs.onclick=()=>{ const d=loadSes(); d?resumeSession(d):renderToday(); };
-  document.getElementById("start").onclick=async()=>{
+  const st=document.getElementById("start"); if(st) st.onclick=async()=>{
     let items=shuffle(due).slice(0,12).map(i=>({...i,...(catMap[i.key]||{})}));
-    if(due.length<8 && newAvail.length){ const n=newAvail.slice(0,due.length<4?5:3); try{ await api("items/introduce",{items:n}); await loadItems(); }catch(e){} items=[...n.map(i=>({...i,isNew:true})),...items]; }
+    if(nNew){ const n=newAvail.slice(0,nNew); try{ await api("items/introduce",{items:n}); await loadItems(); }catch(e){} items=[...n.map(i=>({...i,isNew:true})),...items]; }
     startSession({items,label:"Gaurko txanda"});
   };
   document.getElementById("free").onclick=()=>{ const learned=ITEMS.map(i=>({...i,...(catMap[i.key]||{})})); startSession({items:shuffle(learned).slice(0,10),label:"Txanda librea",free:true}); };
-  document.getElementById("hardb").onclick=()=>startSession({items:shuffle(hard.map(i=>({...i,...(catMap[i.key]||{})}))),label:"Zailak",free:true});
+  document.getElementById("hardb").onclick=()=>startSession({items:shuffle(hard.map(i=>({...i,...(catMap[i.key]||{})}))),label:"Zailenak",free:true});
+  document.getElementById("how").onclick=()=>{ const sh=document.getElementById("sheet"), inn=document.getElementById("sh-in"); sh.className="sheet show info"; inn.innerHTML=`<h3>Nola funtzionatzen du</h3><div class="stack" style="gap:8px;font-size:15px"><p><b>Ronda de hoy.</b> La app decide qué frases toca repasar (las que estás a punto de olvidar) y añade unas pocas nuevas. Una al día basta.</p><p><b>Escribes antes de elegir.</b> Pista y opciones están ahí, pero cuentan menos.</p><p><b>🌱 → 🌿 → 🌳.</b> Una frase nueva es semilla; al estudiarla, brote; cuando la has recordado varias veces con días entre medias, árbol (firme). Si la fallas, vuelve a brote y sale mañana.</p><p><b>Ronda libre.</b> 10 frases al azar de las que ya conoces, sin tocar el calendario. Para cuando quieres más.</p><p><b>Zailenak.</b> Solo las que has fallado dos veces o más.</p></div><button class="btn" id="sh-close">Ulertu dut</button>`; document.getElementById("sh-close").onclick=()=>sh.className="sheet"; };
 }
 
 // ---------- SESIÓN ----------
