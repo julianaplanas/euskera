@@ -105,7 +105,7 @@ app.post("/api/profile", auth, (req, res) => {
 app.get("/api/users", auth, (req, res) => res.json(db.prepare("SELECT name FROM users WHERE id != ? ORDER BY name").all(req.user.id).map(u => u.name)));
 
 // ---------- repetición espaciada ----------
-app.get("/api/items", auth, (req, res) => res.json(db.prepare("SELECT key, eu, es, lesson_id, interval, ease, due, reps, lapses FROM items WHERE user_id = ?").all(req.user.id)));
+app.get("/api/items", auth, (req, res) => res.json(db.prepare("SELECT key, eu, es, lesson_id, interval, ease, due, reps, lapses, last FROM items WHERE user_id = ?").all(req.user.id)));
 app.post("/api/items/introduce", auth, (req, res) => {
   const today = madridDay();
   const ins = db.prepare("INSERT OR IGNORE INTO items (user_id, key, eu, es, lesson_id, due) VALUES (?, ?, ?, ?, ?, ?)");

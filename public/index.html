@@ -167,6 +167,24 @@ input.ans.ok{border-color:var(--green)} input.ans.bad{border-color:var(--red)}
 .learn .em{font-size:52px;line-height:1}
 .learn .eu{font-family:var(--display);font-size:32px;color:var(--red);line-height:1.15}
 .learn .es{font-size:22px;font-weight:700}
+.sbar{display:flex;height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px}
+.sbar i{display:block;height:100%} .sbar i.t{background:var(--green)} .sbar i.s{background:var(--ochre)}
+.slegend{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-top:4px}
+.v .tag{position:absolute;top:8px;right:8px;font-size:14px;line-height:1}
+.v.seed{opacity:.8;border-style:dashed} .v.tree{border-color:var(--green);background:var(--green-soft)} .v.sprout{border-color:var(--ochre)}
+.v .due{font-size:11px;color:var(--muted);font-weight:700}
+.today{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.today .box{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 8px;text-align:center}
+.today .box b{display:block;font-family:var(--display);font-weight:400;font-size:26px;font-variant-numeric:tabular-nums}
+.today .box span{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.today .box.hot{border-color:var(--red);background:var(--red-soft)} .today .box.hot b{color:var(--red)}
+.today .box.done{border-color:var(--green)} .today .box.done b{color:var(--green)}
+.grow{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:700;color:var(--muted);flex-wrap:wrap}
+.grow span{display:inline-flex;align-items:center;gap:4px}
+.list .it{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.list .it:first-child{border-top:0}
+.list .it .em{font-size:20px;width:28px;text-align:center}
+.list .it .tx{flex:1;min-width:0} .list .it .tx b{color:var(--red)} .list .it .tx small{display:block;color:var(--muted);font-size:13px}
 .olen{flex:none;filter:drop-shadow(0 4px 0 rgba(0,0,0,.25))}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:700;z-index:30}
 @media (prefers-reduced-motion:reduce){ .sheet,.top .bar i{transition:none} }
@@ -297,6 +315,12 @@ function renderProfile(first=false){
   };
 }
 
+// Etapa de una frase: 🌱 nueva (no introducida) · 🌿 en estudio · 🌳 firme (intervalo ≥ 7 días)
+function stage(it){ if(!it) return {k:"seed",em:"🌱",t:"nueva"}; if(it.interval>=7) return {k:"tree",em:"🌳",t:"firme"}; return {k:"sprout",em:"🌿",t:"en estudio"}; }
+function daysUntil(due){ const a=new Date(todayStr()+"T12:00:00"), b=new Date(due+"T12:00:00"); return Math.round((b-a)/86400000); }
+function dueLabel(it){ const d=daysUntil(it.due); return d<=0?"vence hoy":d===1?"vuelve mañana":`vuelve en ${d} días`; }
+function stageBar(items,m){ const c={seed:0,sprout:0,tree:0}; for(const it of items) c[stage(m[it.key]).k]++; const n=items.length||1; return `<div class="sbar" title="🌳 ${c.tree} · 🌿 ${c.sprout} · 🌱 ${c.seed}"><i class="t" style="width:${c.tree/n*100}%"></i><i class="s" style="width:${c.sprout/n*100}%"></i></div><small class="slegend">🌳 ${c.tree} · 🌿 ${c.sprout} · 🌱 ${c.seed}</small>`; }
+
 // ---------- GAUR (ronda diaria por repetición espaciada) ----------
 function dueToday(){ const t=todayStr(); return ITEMS.filter(i=>i.due<=t).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.lapses-a.lapses); }
 function nextNew(n){
@@ -313,16 +337,22 @@ async function renderToday(){
   app.innerHTML=header(P.practicedToday?"Gaur praktikatu duzu · hoy ya has practicado":"Gaurko txanda prest · tu ronda de hoy está lista")+`
    <div class="stack pad" style="padding-top:18px">
     ${pend?`<button class="btn" id="resume">▶ Jarraitu · continuar la ronda (${pend.i}/${pend.ex.length})</button>`:""}
-    <div class="card" style="display:flex;gap:14px;align-items:center">
-      <div style="flex:1"><p class="eyebrow">Gaurko txanda · hoy</p><p style="font-size:22px;font-weight:800;margin-top:4px">${due.length} para repasar${newAvail.length&&due.length<8?` · ${Math.min(newAvail.length,due.length<4?5:3)} nuevas`:""}</p><p class="hint">${due.length?`Vence lo que estás a punto de olvidar.`:"Nada pendiente de repaso."} ${nextL&&due.length<8?`Lo nuevo viene de «${esc(nextL.title)}».`:""}</p></div>
-      <div class="stat" style="padding:10px 14px"><b>${P.items.consolidated}</b><span>🌳 firmes</span></div>
-    </div>
-    <button class="btn red" id="start" ${total?"":"disabled"}>Hasi · Empezar (${total})</button>
-    ${!total?`<p class="hint">Todo al día. Puedes adelantar una lección en Ikasgaiak o hacer una ronda libre.</p>`:""}
-    <div class="row"><button class="btn ghost sm" id="free">Txanda librea · ronda libre</button><button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailak (${hard.length})</button><span class="spacer"></span><button class="link" id="prof" style="font-size:14px">Perfil</button></div>
-    ${hard.length?`<p class="eyebrow">Zailenak · las que más se te resisten</p><div class="card">${hard.map(i=>`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)"><span style="flex:1;min-width:0"><b style="color:var(--red)">${esc(i.eu)}</b><br><span class="muted" style="font-size:14px">${esc(i.es)}</span></span><span class="pill">${i.lapses} fallos</span>${spkBtn(i.eu)}</div>`).join("")}</div>`:""}
+    ${(()=>{ const t=todayStr(); const doneToday=ITEMS.filter(i=>i.last===t); const nNew=newAvail.length&&due.length<8?Math.min(newAvail.length,due.length<4?5:3):0; const upcoming=ITEMS.filter(i=>i.due>t).sort((a,b)=>a.due<b.due?-1:1);
+      return `<div class="today">
+        <div class="box ${due.length?"hot":"done"}"><b>${due.length}</b><span>vencen hoy</span></div>
+        <div class="box"><b>${nNew}</b><span>🌱 nuevas</span></div>
+        <div class="box ${doneToday.length?"done":""}"><b>${doneToday.length}</b><span>hechas hoy</span></div>
+      </div>
+      <button class="btn red" id="start" ${total?"":"disabled"}>${total?`Hasi · Empezar (${total})`:"Gaurkoa eginda · hoy ya está"}</button>
+      ${!total?`<p class="hint">Nada vence hoy${upcoming.length?`; la próxima vuelve ${dueLabel(upcoming[0]).replace("vuelve ","")} (${esc(upcoming[0].eu)})`:""}. Puedes adelantar una lección en Ikasgaiak o hacer una ronda libre.</p>`:""}
+      <div class="row"><button class="btn ghost sm" id="free">Txanda librea · ronda libre</button><button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailak (${hard.length})</button><span class="spacer"></span><button class="link" id="prof" style="font-size:14px">Perfil</button></div>
+      <p class="eyebrow">Zure baratzea · tu huerto</p>
+      <div class="card"><div class="grow"><span>🌱 ${catalog().length-ITEMS.length} por ver</span><span>🌿 ${ITEMS.length-P.items.consolidated} en estudio</span><span>🌳 ${P.items.consolidated} firmes</span></div>${stageBar(catalog(),imap())}</div>
+      ${due.length?`<p class="eyebrow">Gaur vencen · ${due.length}</p><div class="card list">${due.slice(0,8).map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${i.lapses?`${i.lapses} fallos`:`${i.reps} repasos`}</small></span>${spkBtn(i.eu)}</div>`).join("")}${due.length>8?`<p class="hint" style="padding-top:8px">y ${due.length-8} más</p>`:""}</div>`:""}
+      ${doneToday.length?`<p class="eyebrow">Gaur eginak · hechas hoy</p><div class="card list">${doneToday.slice(0,8).map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${dueLabel(i)}</small></span>${spkBtn(i.eu)}</div>`).join("")}${doneToday.length>8?`<p class="hint" style="padding-top:8px">y ${doneToday.length-8} más</p>`:""}</div>`:""}
+      ${hard.length?`<p class="eyebrow">Zailenak · las que más se te resisten</p><div class="card list">${hard.map(i=>`<div class="it"><span class="em">${stage(i).em}</span><span class="tx"><b>${esc(i.eu)}</b><small>${esc(i.es)} · ${i.lapses} fallos · ${dueLabel(i)}</small></span>${spkBtn(i.eu)}</div>`).join("")}</div>`:""}`; })()}
     <p class="eyebrow">Nola funtzionatzen du</p>
-    <div class="card stack" style="gap:8px;font-size:15px"><p><b>Escribes antes de elegir.</b> Las pistas y las opciones están, pero puntúan menos.</p><p><b>Cada frase tiene su fecha.</b> Si la aciertas, vuelve más tarde (1, 3, 7, 16 días…). Si fallas, vuelve mañana.</p><p><b>🌳 Firmes</b> son las que han superado una semana de intervalo. Esa es la cifra que importa, más que los XP.</p></div>
+    <div class="card stack" style="gap:8px;font-size:15px"><p><b>Escribes antes de elegir.</b> Las pistas y las opciones están, pero puntúan menos.</p><p><b>Cada frase tiene su fecha.</b> Si la aciertas, vuelve más tarde (1, 3, 7, 16 días…). Si fallas, vuelve mañana.</p><p><b>🌱 → 🌿 → 🌳.</b> Una frase nace como semilla (no vista), pasa a brote cuando la estudias y se hace árbol cuando la has recordado varias veces con días de separación (intervalo de 7+ días). Si la fallas, vuelve a brote.</p></div>
     <button class="link" id="logout" style="align-self:center">Salir</button>
    </div>`;
   wireSpeak();
@@ -399,7 +429,7 @@ function renderExercise(){
     let grade = !ok?0 : (help||near||e.retry)?1 : 2;
     SES.answers.push({key:e.key,ok,grade,retry:!!e.retry});
     if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ SES.ex.push({...e,retry:true,mode:e.mode==="listen"?"produce":e.mode}); SES.retried++; } }
-    if(!e.retry && !SES.challenge){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses}); }catch(err){} }
+    if(!e.retry && !SES.challenge){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses,last:todayStr()}); SES.results=SES.results||{}; SES.results[e.key]={interval:r.interval,due:r.due}; }catch(err){} }
     saveSes();
     showSheet(ok,grade,e,given,near);
   };
@@ -430,6 +460,7 @@ async function finish(){
   app.innerHTML=`<div class="head pad" style="padding-bottom:28px;text-align:center"><div class="lb">${LAUBURU}</div><p class="eyebrow">${esc(SES.label)} amaituta</p><h1 style="margin-top:6px">${acc===100?"Bikain!":acc>=70?"Ondo egin!":"Segi aurrera!"}</h1><p class="big" style="color:var(--cream);margin-top:10px">+${SES.xp} XP</p><div style="display:flex;justify-content:center;margin:12px 0 -20px;position:relative;z-index:2">${OLEN(acc>=70?"happy":"sad",110)}</div></div>${HILLS}
    <div class="stack pad" style="padding-top:18px;text-align:center">
     <div class="stats"><div class="stat"><b>${okFirst}/${first.length}</b><span>asmatuak · aciertos</span></div><div class="stat"><b>🌳 ${P.items.consolidated}</b><span>firmes · de ${P.items.learned}</span></div></div>
+    ${(()=>{ const r=SES.results||{}; const keys=Object.keys(r); if(!keys.length) return ""; const m=imap(); const rows=keys.map(k=>{ const it=m[k]||{}; const ex=SES.ex.find(x=>x.key===k)||{}; const sg=stage({interval:r[k].interval}); return {k,eu:ex.eu||it.eu||k,sg,d:daysUntil(r[k].due)}; }).sort((a,b)=>b.d-a.d); return `<div class="card" style="text-align:left"><p class="eyebrow" style="margin-bottom:8px">Nora doaz · a dónde va cada una</p><div class="list">${rows.map(x=>`<div class="it"><span class="em">${x.sg.em}</span><span class="tx"><b>${esc(x.eu)}</b><small>${x.d<=0?"vuelve mañana (fallada)":x.d===1?"vuelve mañana":`vuelve en ${x.d} días`}${x.sg.k==="tree"?" · ¡firme!":""}</small></span></div>`).join("")}</div></div>`; })()}
     ${SES.wrong.length?`<div class="card" style="text-align:left"><p class="eyebrow" style="margin-bottom:8px">Bihar itzuliko dira · vuelven mañana</p>${[...new Map(SES.wrong.map(w=>[w.key,w])).values()].map(w=>`<p style="padding:6px 0;border-top:1px solid var(--line)"><b style="color:var(--red)">${esc(w.eu)}</b> ${spkBtn(w.eu)}<br><span class="muted">${esc(w.es)}</span></p>`).join("")}</div>`:`<p class="hint">Sin fallos. Lo de hoy se aleja en el calendario.</p>`}
     <button class="btn" id="home">Itzuli · Volver</button></div>`;
   wireSpeak(); document.getElementById("home").onclick=()=>setTab(TAB);
@@ -439,8 +470,8 @@ async function finish(){
 function renderLessons(){
   const m=imap();
   app.innerHTML=header("Ikasgaiak · lee, escucha, luego practica")+`<div class="stack pad" style="padding-top:18px"><p class="eyebrow">Ikasgaiak · Lecciones</p>
-   ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n" style="--p:${pct}%"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${esc(l.desc)} · ${learned}/${its.length} vistas · ${firm} firmes</small></span></button>`; }).join("")}
-   <p class="hint">El anillo se llena con las frases firmes (🌳) de cada lección, no con rondas jugadas.</p></div>`;
+   ${LESSONS.map((l,i)=>{ const its=lessonItems(l); const learned=its.filter(x=>m[x.key]).length; const firm=its.filter(x=>m[x.key]&&m[x.key].interval>=7).length; const pct=Math.round(firm/its.length*100); const dueN=its.filter(x=>m[x.key]&&m[x.key].due<=todayStr()).length; return `<button class="lesson ${pct>=100?"done":""}" data-l="${l.id}"><span class="n" style="--p:${pct}%"><b>${i+1}</b></span><span class="t"><strong>${esc(l.emoji||"")} ${esc(l.title)}</strong><small>${learned===0?"Sin empezar":pct>=100?"Completa: todo firme":dueN?`${dueN} vencen hoy`:"Al día"} · ${esc(l.desc)}</small>${stageBar(its,m)}</span></button>`; }).join("")}
+   <p class="hint">Barra: <span style="color:var(--green)">■</span> firmes 🌳 · <span style="color:var(--ochre)">■</span> en estudio 🌿 · gris: aún no vistas 🌱. El anillo es el % de firmes.</p></div>`;
   app.querySelectorAll("[data-l]").forEach(b=>b.onclick=()=>renderLesson(lessonOf(b.dataset.l)));
 }
 function renderLesson(l){
@@ -451,8 +482,8 @@ function renderLesson(l){
     ${l.pattern?`<div class="pattern"><p class="eyebrow" style="color:#F6C9C2">Egitura · estructura clave</p><p class="pat">${esc(l.pattern).replace("___",'<span class="blank">___</span>')}</p></div>`:""}
     ${l.grid?`<p class="eyebrow">${esc(l.grid.title)}</p><table class="gtab"><tr><th></th>${l.grid.cols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>${l.grid.rows.map(r=>`<tr><td class="lab">${esc(r[0])}</td>${r.slice(1).map(c=>`<td><b>${esc(c)}</b></td>`).join("")}</tr>`).join("")}</table>`:""}
     <p class="eyebrow">Hiztegia eta esaldiak · ${VOICE?"toca una tarjeta para oírla":"vocabulario y frases"}</p>
-    <div class="vocab">${its.map(it=>{ const q=it.count?qty(it.count,it.countEm):""; return `<button class="v" data-say="${esc(it.eu)}"><span class="st ${st(it.key)}"></span><span class="em ${q?"q":""}">${esc(q||it.emoji||(it.chunk?"💬":"•"))}</span><b>${esc(it.eu)}</b><small>${esc(it.es)}</small></button>`; }).join("")}</div>
-    <p class="hint">Punto: <span style="color:var(--ochre)">●</span> en estudio · <span style="color:var(--green)">●</span> firme · sin punto: aún no introducida.</p>
+    <div class="vocab">${its.map(it=>{ const q=it.count?qty(it.count,it.countEm):""; const sg=stage(m[it.key]); return `<button class="v ${sg.k}" data-say="${esc(it.eu)}"><span class="tag">${sg.em}</span><span class="em ${q?"q":""}">${esc(q||it.emoji||(it.chunk?"💬":"•"))}</span><b>${esc(it.eu)}</b><small>${esc(it.es)}</small>${m[it.key]?`<span class="due">${dueLabel(m[it.key])}${m[it.key].lapses?` · ${m[it.key].lapses} fallos`:""}</span>`:`<span class="due">aún no vista</span>`}</button>`; }).join("")}</div>
+    <p class="hint">🌱 aún no vista · 🌿 en estudio (borde ámbar) · 🌳 firme (fondo verde). Debajo de cada una, cuándo vuelve a salir.</p>
     ${l.tips&&l.tips.length?`<p class="eyebrow">Nola funtzionatzen du · cómo funciona</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
     ${l.dialogue&&l.dialogue.length?`<p class="eyebrow">Elkarrizketa · diálogo</p><div class="card dlg">${l.scene?`<div class="scene"><span>${esc(l.scene.emoji)}</span><p>${esc(l.scene.title)}</p></div>`:""}${VOICE?`<button class="btn ghost sm" id="playdlg" style="align-self:center;position:relative;z-index:1">🔊 Entzun osorik · escuchar entero</button>`:""}${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><div><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>${spkBtn(eu)}</div>`).join("")}</div>`:""}
    </div>
