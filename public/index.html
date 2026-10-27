@@ -467,7 +467,7 @@ function buildEx(it, pool){
   const opts=list=>shuffle([it.eu,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>x!==it.eu))]).slice(0,3)]);
   const ex={key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",opts:opts(),mode:"produce"};
   if(it.count){ ex.mode="count"; ex.visual=qty(it.count,it.countEm||"🍎"); const nums=[...new Set(catalog().filter(p=>p.count&&p.eu!==it.eu).sort((a,b)=>Math.abs(a.count-it.count)-Math.abs(b.count-it.count)).slice(0,8).map(p=>p.eu))]; ex.opts=shuffle([it.eu,...shuffle(nums).slice(0,3)]); }
-  else if(!it.isNew && it.reps>=1 && transformsFor(it.eu).length && Math.random()<0.35){ const tr=pick(transformsFor(it.eu)); ex.mode="transform"; ex.from=it.eu; ex.instr=tr.i; ex.to=tr.to; ex.opts=shuffle([tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)]); }
+  else if(!it.isNew && it.reps>=1 && transformsFor(it.eu).length && Math.random()<0.35){ const tr=pick(transformsFor(it.eu)); ex.mode="transform"; ex.from=it.eu; ex.instr=tr.i; ex.to=tr.to; ex.toEs=tr.es||""; ex.opts=shuffle([tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)]); }
   else if(VOICE && words(it.eu).length>=2 && Math.random()<0.3) ex.mode="listen";
   else if(Math.random()<0.15 && words(it.es).length<=4) { ex.mode="meaning"; ex.opts=shuffle([it.es,...shuffle([...new Set(pool.map(p=>p.es).filter(x=>x!==it.es))]).slice(0,3)]); }
   return ex;
@@ -475,7 +475,7 @@ function buildEx(it, pool){
 function startSession(opts){
   noTabs(); const pool=[...opts.items,...catalog()];
   const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""});
-    if(opts.forceTransform&&it.tr){ ex.push({key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",mode:"transform",from:it.eu,instr:it.tr.i,to:it.tr.to,opts:shuffle([it.tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(it.tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)])}); }
+    if(opts.forceTransform&&it.tr){ ex.push({key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",mode:"transform",from:it.eu,instr:it.tr.i,to:it.tr.to,toEs:it.tr.es||"",opts:shuffle([it.tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(it.tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)])}); }
     else ex.push(buildEx(it,pool)); }
   SES={label:opts.label,free:!!opts.free,noReview:!!opts.forceTransform,ex,i:0,good:0,total:opts.items.length,xp:0,wrong:[],retried:0,lessonId:opts.lessonId||null,challenge:opts.challenge||null,answers:[]};
   if(!ex.length){ setTab(TAB); return; } saveSes(); preload(opts.items.map(i=>i.eu)); renderExercise();
@@ -493,7 +493,7 @@ function renderExercise(){
   } else if(e.mode==="count"){
     body=`<p class="eyebrow" data-es="¿cuántos hay? Escríbelo en euskera">Zenbat daude?</p><div class="count">${esc(e.visual)}</div><input class="ans" id="typed" autocomplete="off" autocapitalize="none" placeholder="Número en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="transform"){
-    body=`<p class="eyebrow" data-es="Transforma la frase">Eraldatu</p><div class="drill" style="padding:12px 14px"><p class="from">${esc(e.from)} ${spkBtn(e.from)}</p><p class="instr">→ ${esc(e.instr)}</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="La frase transformada…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
+    body=`<p class="eyebrow" data-es="Transforma la frase">Eraldatu</p><div class="drill" style="padding:12px 14px"><p class="from">${esc(e.from)} ${spkBtn(e.from)}</p><p class="hint" style="margin-top:-6px">${esc(e.es)}</p><p class="instr">→ ${esc(e.instr)}</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="La frase transformada…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="meaning"){
     body=`<p class="eyebrow" data-es="¿qué significa?">Zer esan nahi du?</p><div class="row">${prompt}${spkBtn(e.eu)}</div><input class="ans" id="typed" autocomplete="off" placeholder="En castellano…"><div class="helps"><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else {
@@ -538,7 +538,7 @@ function showSheet(ok,grade,e,given,near){
   const ph=ok?(grade===2?pick(GOOD):pick(HARD)):pick(BAD); const target=e.mode==="meaning"?e.es:e.mode==="transform"?e.to:e.eu; const note=noteFor(e.mode==="transform"?e.to:e.eu);
   inn.innerHTML=`<div class="row" style="align-items:flex-start"><div class="sh-olen">${OLEN(ok?"happy":"sad",64)}</div><div style="min-width:0;flex:1"><h3>${esc(ph[0])}</h3><p class="hint">${esc(ph[1])}</p>
     ${near?`<p class="hint">Casi exacto: escribiste «${esc(given)}».</p>`:""}</div></div>
-    <div class="answer-box"><div style="flex:1;min-width:0"><b>${esc(target)}</b>${e.mode==="transform"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.instr)} · desde «${esc(e.from)}»</div>`:e.mode!=="meaning"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.es)}</div>`:""}</div>${spkBtn(e.mode==="transform"?e.to:e.eu)}</div>
+    <div class="answer-box"><div style="flex:1;min-width:0"><b>${esc(target)}</b>${e.mode==="meaning"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.eu)}</div>`:""}${e.mode==="transform"?`<div style="font-size:14px;font-weight:700;color:#141414;margin-top:3px">${esc(e.toEs||"")}</div><div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:2px">${esc(e.instr)} · desde «${esc(e.from)}» (${esc(e.es)})</div>`:e.mode!=="meaning"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.es)}</div>`:""}</div>${spkBtn(e.mode==="transform"?e.to:e.eu)}</div>
     ${!ok&&note?`<div class="note">💡 ${esc(note)}</div>`:""}
     ${!ok&&e.mode!=="meaning"?`<p class="eyebrow" data-es="copia la forma correcta">Idatzi zuzena</p><input class="ans" id="copy" autocomplete="off" autocapitalize="sentences" placeholder="${esc(target)}">`:""}
     <button class="btn" id="sh-next" ${!ok&&e.mode!=="meaning"?"disabled":""}>Jarraitu<small>Continuar</small></button>`;
@@ -625,7 +625,7 @@ function renderGrammar(g){
       const a=norm(inp.value), t=norm(d.to); const good=a===t||(a.length>=5&&lev(a,t)<=1);
       inp.classList.add(good?"ok":"bad"); chk.disabled=true;
       const note=noteFor(d.to);
-      fb.innerHTML=`<div class="note" style="border-color:${good?"var(--green)":"var(--red)"}"><b>${good?pick(GOOD)[0]:"Ia-ia."}</b> ${esc(d.to)} ${spkBtn(d.to)}${!good&&note?`<br><span class="hint">💡 ${esc(note)}</span>`:""}</div><button class="btn sm" id="dnext" style="margin-top:8px">${i+1<g.drills.length?"Hurrengoa →<small>Siguiente</small>":"Amaitu<small>Terminar</small>"}</button>`;
+      fb.innerHTML=`<div class="note" style="border-color:${good?"var(--green)":"var(--red)"}"><b>${good?pick(GOOD)[0]:"Ia-ia."}</b> ${esc(d.to)} ${spkBtn(d.to)}${d.es?`<br><span class="hint" style="color:#5A5A5A">${esc(d.es)}</span>`:""}${!good&&note?`<br><span class="hint">💡 ${esc(note)}</span>`:""}</div><button class="btn sm" id="dnext" style="margin-top:8px">${i+1<g.drills.length?"Hurrengoa →<small>Siguiente</small>":"Amaitu<small>Terminar</small>"}</button>`;
       wireSpeak(fb); if(VOICE) speak(d.to);
       i++; gramSet(g.id,i); fb.querySelector("#dnext").onclick=show; fb.querySelector("#dnext").focus();
     };
