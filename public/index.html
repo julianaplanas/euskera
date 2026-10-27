@@ -78,7 +78,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tab .badge{position:absolute;top:6px;right:14%;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:1px 6px;border:2px solid #141414}
 /* lecciones */
 .lesson{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:var(--bw) solid var(--line);padding:12px 14px}
-.lesson .n{width:40px;height:40px;flex:none;display:grid;place-items:center;font-family:var(--display);font-size:20px;color:var(--cream);background:var(--ink)}
+.lesson .n{width:40px;height:40px;flex:none;display:grid;place-items:center;font-family:var(--display);font-size:20px;color:#FFF9EC;background:#141414;border:2px solid var(--line)}
 .lesson.done .n{background:var(--green)}
 .lesson .n b{font-weight:400}
 .lesson .t{flex:1;min-width:0}
@@ -134,8 +134,9 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
 .chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;padding:7px 12px;border:var(--bw) solid var(--line);background:var(--card);font-weight:700;font-size:14px}
-.chip.on{background:var(--ink);color:var(--cream)}
-.pattern{background:var(--ink);color:var(--cream);padding:14px 16px}
+.chip.on{background:#141414;color:#FFF9EC;border-color:var(--line)}
+@media (prefers-color-scheme:dark){ .chip.on{background:#FFF9EC;color:#141414} }
+.pattern{background:#141414;color:#FFF9EC;padding:14px 16px;border:var(--bw) solid var(--line)}
 .pattern .eyebrow,.pattern .eyebrow::after{color:var(--ochre)}
 .pattern .pat{font-family:var(--display);font-size:32px;line-height:1.05;margin-top:6px}
 .pattern .blank{color:var(--ochre);border-bottom:4px solid var(--ochre)}
@@ -160,7 +161,8 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
 .dlg .eu{font-family:var(--display);font-weight:400;font-size:18px;line-height:1.05} .dlg .es{font-size:12px;color:var(--muted);font-weight:600}
 .gtab{width:100%;border-collapse:collapse;background:var(--card);border:var(--bw) solid var(--line)}
 .gtab th,.gtab td{padding:9px 8px;text-align:center;border-top:2px solid var(--line);font-size:14px}
-.gtab th{background:var(--ink);color:var(--cream);font-weight:700;border-top:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+.gtab th{background:#141414;color:#FFF9EC;font-weight:700;border-top:0;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+@media (prefers-color-scheme:dark){ .gtab th{background:#FFF9EC;color:#141414} }
 .gtab td.lab{text-align:left;color:var(--muted);font-weight:700}
 .gtab td b{font-family:var(--display);font-weight:400;font-size:17px}
 .count{display:flex;flex-wrap:wrap;gap:4px;font-size:32px;line-height:1.1;padding:12px;background:var(--card);border:var(--bw) solid var(--line)}
@@ -182,12 +184,14 @@ input.ans.ok{border-color:var(--green);background:var(--green-soft)} input.ans.b
 .legend{display:flex;gap:14px;font-size:12px;font-weight:700;color:var(--muted);flex-wrap:wrap}
 .legend i{display:inline-block;width:12px;height:12px;border:2px solid var(--line);vertical-align:-2px;margin-right:4px}
 .tabwrap{overflow-x:auto;border:var(--bw) solid var(--line);background:var(--card)}
-.stab{width:100%;border-collapse:collapse;font-size:14px;min-width:460px}
-.stab th,.stab td{padding:9px 8px;text-align:center;border-top:2px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
-.stab th{border-top:0;background:var(--ink);color:var(--cream);font-weight:700;font-size:12px}
+.stab{width:100%;border-collapse:collapse;font-size:14px;min-width:0}
+.stab th,.stab td{padding:9px 5px;text-align:center;border-top:2px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap}
+.stab th{border-top:0;background:#141414;color:#FFF9EC;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+@media (prefers-color-scheme:dark){ .stab th{background:#FFF9EC;color:#141414} }
 .stab td.lab{text-align:left;font-weight:800}
 .stab tr.me td{background:var(--ochre-soft)}
-.stab td.win{color:var(--green);font-weight:800}
+.stab td.win{color:var(--green);font-weight:800;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:3px}
+@media (prefers-color-scheme:dark){ .stab td.win{color:#F2C230} }
 .dot{display:inline-block;width:10px;height:10px;margin-right:6px;vertical-align:1px;border:2px solid var(--line)}
 .ch{background:var(--card);border:var(--bw) solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .ch .who{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
@@ -665,8 +669,8 @@ async function renderStats(){
     <p class="eyebrow" data-es="XP por día">Azken 7 egunak</p>
     <div class="card"><div class="chart">${data.days.map((d,i)=>`<div class="d"><div class="bars">${active.map(u=>`<i style="height:${Math.round(u.perDay[i]/mx*100)}%;background:${u.color}" title="${esc(u.name)}: ${u.perDay[i]} XP"></i>`).join("")}</div><small>${dayLabel(d)}</small></div>`).join("")}</div><div class="legend" style="margin-top:10px">${active.map(u=>`<span><i style="background:${u.color}"></i>${esc(u.name)}</span>`).join("")}</div></div>
     <p class="eyebrow" data-es="todos">Denak</p>
-    <div class="tabwrap"><table class="stab"><tr><th></th><th>Sendoak</th><th>Ikasten</th><th>Astea</th><th>Guztira</th><th>🔥</th><th>%</th></tr>${users.map(u=>`<tr class="${u.me?"me":""}"><td class="lab"><span class="dot" style="background:${u.color}"></span>${esc(u.name)}</td>${cell(u,"consolidated")}${cell(u,"learned")}${cell(u,"weekXp")}${cell(u,"xp")}${cell(u,"streak")}${cell(u,"accuracy",x=>x+"%")}</tr>`).join("")}</table></div>
-    <p class="hint">🌳 firmes · Ikasten = en estudio · Astea = XP de la semana · Guztira = XP total · % = aciertos a la primera.</p>`;
+    <div class="tabwrap"><table class="stab"><tr><th></th><th title="Firmes">Sendo</th><th title="En estudio">Ikast</th><th title="XP semana">Astea</th><th title="XP total">Guzt</th><th>🔥</th><th>%</th></tr>${users.map(u=>`<tr class="${u.me?"me":""}"><td class="lab"><span class="dot" style="background:${u.color}"></span>${esc(u.name)}</td>${cell(u,"consolidated")}${cell(u,"learned")}${cell(u,"weekXp")}${cell(u,"xp")}${cell(u,"streak")}${cell(u,"accuracy",x=>x+"%")}</tr>`).join("")}</table></div>
+    <p class="hint">Sendo = firmes · Ikast = en estudio · Astea = XP de la semana · Guzt = XP total · 🔥 = racha · % = aciertos a la primera.</p>`;
 }
 
 // arranque
