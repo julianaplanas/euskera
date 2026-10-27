@@ -208,7 +208,17 @@ app.get("/api/board", auth, (req, res) => res.json(db.prepare("SELECT name, xp F
 const AUDIO_DIR = path.join(path.dirname(DB_PATH), "audio");
 fs.mkdirSync(AUDIO_DIR, { recursive: true });
 const VOICE = process.env.TTS_VOICE || "eu-ES-AinhoaNeural";
-const ttsProvider = process.env.AZURE_TTS_KEY ? "azure" : "edge";
+const ttsProvider = process.env.GOOGLE_TTS_KEY ? "google" : process.env.AZURE_TTS_KEY ? "azure" : "edge";
+const GOOGLE_VOICE = process.env.GOOGLE_TTS_VOICE || "eu-ES-Standard-A";
+async function synthGoogle(text) {
+  const r = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(process.env.GOOGLE_TTS_KEY), {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ input: { text }, voice: { languageCode: "eu-ES", name: GOOGLE_VOICE }, audioConfig: { audioEncoding: "MP3", speakingRate: 0.9 } })
+  });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.audioContent) throw new Error("Google TTS " + r.status + " " + JSON.stringify(d.error || d).slice(0, 200));
+  return Buffer.from(d.audioContent, "base64");
+}
 const ssml = (text) => `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="eu-ES"><voice name="${VOICE}"><prosody rate="-10%">${text.replace(/[<>&]/g, c => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]))}</prosody></voice></speak>`;
 async function synthAzure(text) {
   const region = process.env.AZURE_TTS_REGION || "westeurope";
@@ -246,15 +256,15 @@ async function synthEdge(text) {
 process.on("unhandledRejection", e => { console.error("TTS/promesa no manejada:", e && (e.message || e)); try { edgeTTS && edgeTTS.close(); } catch (x) {} edgeTTS = null; });
 const inflight = new Map();
 let ttsBroken = false;
-app.get("/api/tts/status", (req, res) => res.json({ ok: !ttsBroken, provider: ttsProvider, voice: VOICE }));
+app.get("/api/tts/status", (req, res) => res.json({ ok: !ttsBroken && ttsProvider !== "edge", provider: ttsProvider, voice: ttsProvider === "google" ? GOOGLE_VOICE : VOICE }));
 app.get("/api/tts", async (req, res) => {
   const text = String(req.query.text || "").trim().slice(0, 200);
   if (!text) return res.status(400).end();
-  const file = path.join(AUDIO_DIR, crypto.createHash("sha1").update(VOICE + "|" + text).digest("hex") + ".mp3");
+  const file = path.join(AUDIO_DIR, crypto.createHash("sha1").update((ttsProvider === "google" ? GOOGLE_VOICE : VOICE) + "|" + text).digest("hex") + ".mp3");
   res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
   if (fs.existsSync(file)) return res.sendFile(file);
   try {
-    if (!inflight.has(file)) inflight.set(file, (ttsProvider === "azure" ? synthAzure(text) : synthEdge(text)).then(buf => { fs.writeFileSync(file, buf); return buf; }).finally(() => inflight.delete(file)));
+    if (!inflight.has(file)) inflight.set(file, (ttsProvider === "google" ? synthGoogle(text) : ttsProvider === "azure" ? synthAzure(text) : synthEdge(text)).then(buf => { fs.writeFileSync(file, buf); return buf; }).finally(() => inflight.delete(file)));
     const buf = await inflight.get(file);
     ttsBroken = false; res.type("audio/mpeg").send(buf);
   } catch (e) { ttsBroken = true; console.error("TTS error:", e && (e.message || JSON.stringify(e))); res.status(503).json({ error: "Audio no disponible ahora mismo." }); }

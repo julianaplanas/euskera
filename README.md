@@ -11,7 +11,7 @@ App tipo Duolingo para practicar euskera, con login por nombre + PIN y progreso 
    - `DB_PATH` = `/data/app.db`
    - `NODE_ENV` = `production`
    - (opcional) `INVITE_CODE` = una palabra secreta, para que solo quien la conozca pueda crear cuenta.
-   - Audio en euskera: sin configurar nada usa el servicio de voces de Edge (voz `eu-ES-AinhoaNeural`, gratis pero no oficial). Para la vía oficial, crea un recurso *Speech* en Azure (hay nivel gratuito) y añade `AZURE_TTS_KEY` y `AZURE_TTS_REGION` (p. ej. `westeurope`). Opcional: `TTS_VOICE=eu-ES-AnderNeural` para voz masculina. Los mp3 se generan una vez por frase y se guardan en el volumen (`/data/audio`).
+   - Audio en euskera (necesario para dictados y altavoces). Opción A, Google: `GOOGLE_TTS_KEY` (clave de API de Google Cloud con *Cloud Text-to-Speech API* activada; 1 M caracteres/mes gratis). Voz por defecto `eu-ES-Standard-A`, opcional `GOOGLE_TTS_VOICE=eu-ES-Standard-B`. Opción B, Azure: `AZURE_TTS_KEY` + `AZURE_TTS_REGION` (recurso *Speech* en plan F0; voz `eu-ES-AinhoaNeural`, opcional `TTS_VOICE=eu-ES-AnderNeural`). Los mp3 se generan una vez por frase y se guardan en el volumen (`/data/audio`). Sin clave, la app funciona sin audio.
 5. En **Settings → Networking → Generate Domain** para obtener la URL pública.
 
 ## Añadir la app al inicio del móvil
