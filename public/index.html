@@ -416,18 +416,23 @@ const sesKey=()=>"euskara.ses2."+(P?P.name:"");
 function saveSes(){ try{ if(SES) localStorage.setItem(sesKey(),JSON.stringify(SES)); }catch(e){} }
 function loadSes(){ try{ const d=JSON.parse(localStorage.getItem(sesKey())||"null"); return d&&d.ex&&d.i<d.ex.length?d:null; }catch(e){ return null; } }
 function clearSes(){ try{ localStorage.removeItem(sesKey()); }catch(e){} }
+const TR=(()=>{ const o={}; for(const [k,v] of Object.entries(window.TRANSFORMS||{})) o[norm(k)]=v; return o; })();
+function transformsFor(eu){ return TR[norm(eu)]||[]; }
 function buildEx(it, pool){
   const opts=list=>shuffle([it.eu,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>x!==it.eu))]).slice(0,3)]);
   const ex={key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",opts:opts(),mode:"produce"};
   if(it.count){ ex.mode="count"; ex.visual=qty(it.count,it.countEm||"🍎"); ex.opts=shuffle([it.eu,...shuffle(pool.filter(p=>p.count&&p.eu!==it.eu).map(p=>p.eu)).slice(0,3)]); }
+  else if(!it.isNew && it.reps>=1 && transformsFor(it.eu).length && Math.random()<0.35){ const tr=pick(transformsFor(it.eu)); ex.mode="transform"; ex.from=it.eu; ex.instr=tr.i; ex.to=tr.to; ex.opts=shuffle([tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)]); }
   else if(VOICE && words(it.eu).length>=2 && Math.random()<0.3) ex.mode="listen";
   else if(Math.random()<0.15 && words(it.es).length<=4) { ex.mode="meaning"; ex.opts=shuffle([it.es,...shuffle([...new Set(pool.map(p=>p.es).filter(x=>x!==it.es))]).slice(0,3)]); }
   return ex;
 }
 function startSession(opts){
   noTabs(); const pool=opts.items.length>=4?opts.items:[...opts.items,...catalog()];
-  const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""}); ex.push(buildEx(it,pool)); }
-  SES={label:opts.label,free:!!opts.free,ex,i:0,good:0,total:opts.items.length,xp:0,wrong:[],retried:0,lessonId:opts.lessonId||null,challenge:opts.challenge||null,answers:[]};
+  const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""});
+    if(opts.forceTransform&&it.tr){ ex.push({key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",mode:"transform",from:it.eu,instr:it.tr.i,to:it.tr.to,opts:shuffle([it.tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(it.tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)])}); }
+    else ex.push(buildEx(it,pool)); }
+  SES={label:opts.label,free:!!opts.free,noReview:!!opts.forceTransform,ex,i:0,good:0,total:opts.items.length,xp:0,wrong:[],retried:0,lessonId:opts.lessonId||null,challenge:opts.challenge||null,answers:[]};
   if(!ex.length){ setTab(TAB); return; } saveSes(); preload(opts.items.map(i=>i.eu)); renderExercise();
 }
 function resumeSession(d){ noTabs(); SES=d; renderExercise(); }
@@ -442,6 +447,8 @@ function renderExercise(){
     body=`<p class="eyebrow" data-es="escucha y escribe">Entzun eta idatzi</p><div style="text-align:center">${spkBtn(e.eu,"big")}<p class="hint">Toca para repetir · mantén pulsado para oírlo despacio 🐢</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Lo que has oído, en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="count"){
     body=`<p class="eyebrow" data-es="¿cuántos hay? Escríbelo en euskera">Zenbat daude?</p><div class="count">${esc(e.visual)}</div><input class="ans" id="typed" autocomplete="off" autocapitalize="none" placeholder="Número en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
+  } else if(e.mode==="transform"){
+    body=`<p class="eyebrow" data-es="Transforma la frase">Eraldatu</p><div class="drill" style="padding:12px 14px"><p class="from">${esc(e.from)} ${spkBtn(e.from)}</p><p class="instr">→ ${esc(e.instr)}</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="La frase transformada…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="meaning"){
     body=`<p class="eyebrow" data-es="¿qué significa?">Zer esan nahi du?</p><div class="row">${prompt}${spkBtn(e.eu)}</div><input class="ans" id="typed" autocomplete="off" placeholder="En castellano…"><div class="helps"><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else {
@@ -459,19 +466,19 @@ function renderExercise(){
   inp.oninput=()=>check.disabled=!inp.value.trim(); inp.onkeydown=ev=>{ if(ev.key==="Enter"&&inp.value.trim()) check.click(); }; setTimeout(()=>inp.focus(),80);
   app.querySelectorAll(".help").forEach(b=>b.onclick=()=>{
     const box=document.getElementById("helpbox"); b.classList.add("on");
-    if(b.dataset.h==="hint"){ help=Math.max(help,1); box.insertAdjacentHTML("beforeend",`<p class="hint" style="font-size:18px;letter-spacing:1px;font-family:monospace">${esc(hintFor(e.eu))}</p>`); }
+    if(b.dataset.h==="hint"){ help=Math.max(help,1); box.insertAdjacentHTML("beforeend",`<p class="hint" style="font-size:18px;letter-spacing:1px;font-family:monospace">${esc(hintFor(e.mode==="transform"?e.to:e.eu))}</p>`); }
     else { help=2; box.innerHTML=`<div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`; box.querySelectorAll(".opt").forEach(ob=>ob.onclick=()=>{ box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); ob.setAttribute("aria-pressed","true"); picked=e.opts[+ob.dataset.k]; inp.value=picked; check.disabled=false; }); }
   });
   check.onclick=async()=>{
-    const given=inp.value; const target=e.mode==="meaning"?e.es:e.eu; const a=norm(given), t=norm(target);
+    const given=inp.value; const target=e.mode==="meaning"?e.es:e.mode==="transform"?e.to:e.eu; const a=norm(given), t=norm(target);
     let ok=a===t, near=false;
     if(!ok && e.mode==="meaning"){ ok=t.includes(a)&&a.length>=3 || a.includes(t); }
     if(!ok && a.length>=5 && lev(a,t)<=1){ ok=true; near=true; }
     check.disabled=true; inp.classList.add(ok?"ok":"bad");
     let grade = !ok?0 : (help||near||e.retry)?1 : 2;
     SES.answers.push({key:e.key,ok,grade,retry:!!e.retry});
-    if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ SES.ex.push({...e,retry:true,mode:e.mode==="listen"?"produce":e.mode}); SES.retried++; } }
-    if(!e.retry && !SES.challenge){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses,last:todayStr()}); SES.results=SES.results||{}; SES.results[e.key]={interval:r.interval,due:r.due}; }catch(err){} }
+    if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ SES.ex.push({...e,retry:true,mode:(e.mode==="listen"||e.mode==="transform")?"produce":e.mode}); SES.retried++; } }
+    if(!e.retry && !SES.challenge && !SES.noReview){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses,last:todayStr()}); SES.results=SES.results||{}; SES.results[e.key]={interval:r.interval,due:r.due}; }catch(err){} }
     saveSes();
     showSheet(ok,grade,e,given,near);
   };
@@ -479,17 +486,17 @@ function renderExercise(){
 function noteFor(eu){ const n=(window.NOTES||[]).find(x=>x.m.test(eu)); return n?n.t:""; }
 function showSheet(ok,grade,e,given,near){
   const sh=document.getElementById("sheet"), inn=document.getElementById("sh-in"); sh.className="sheet show "+(ok?"ok":"bad");
-  const ph=ok?(grade===2?pick(GOOD):pick(HARD)):pick(BAD); const note=noteFor(e.eu); const target=e.mode==="meaning"?e.es:e.eu;
+  const ph=ok?(grade===2?pick(GOOD):pick(HARD)):pick(BAD); const target=e.mode==="meaning"?e.es:e.mode==="transform"?e.to:e.eu; const note=noteFor(e.mode==="transform"?e.to:e.eu);
   inn.innerHTML=`<div class="row" style="align-items:flex-start"><div class="sh-olen">${OLEN(ok?"happy":"sad",64)}</div><div style="min-width:0;flex:1"><h3>${esc(ph[0])}</h3><p class="hint">${esc(ph[1])}</p>
     ${near?`<p class="hint">Casi exacto: escribiste «${esc(given)}».</p>`:""}</div></div>
-    <div class="answer-box"><div style="flex:1;min-width:0"><b>${esc(target)}</b>${e.mode!=="meaning"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.es)}</div>`:""}</div>${spkBtn(e.eu)}</div>
+    <div class="answer-box"><div style="flex:1;min-width:0"><b>${esc(target)}</b>${e.mode==="transform"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.instr)} · desde «${esc(e.from)}»</div>`:e.mode!=="meaning"?`<div style="font-size:12px;font-weight:600;color:#5A5A5A;margin-top:3px">${esc(e.es)}</div>`:""}</div>${spkBtn(e.mode==="transform"?e.to:e.eu)}</div>
     ${!ok&&note?`<div class="note">💡 ${esc(note)}</div>`:""}
     ${!ok&&e.mode!=="meaning"?`<p class="eyebrow" data-es="copia la forma correcta">Idatzi zuzena</p><input class="ans" id="copy" autocomplete="off" autocapitalize="sentences" placeholder="${esc(target)}">`:""}
     <button class="btn" id="sh-next" ${!ok&&e.mode!=="meaning"?"disabled":""}>Jarraitu<small>Continuar</small></button>`;
   wireSpeak(inn);
   const next=document.getElementById("sh-next"), cp=document.getElementById("copy");
   if(cp){ cp.oninput=()=>{ next.disabled=norm(cp.value)!==norm(target); if(!next.disabled) cp.classList.add("ok"); }; cp.onkeydown=ev=>{ if(ev.key==="Enter"&&!next.disabled) next.click(); }; setTimeout(()=>cp.focus(),100); }
-  if(ok&&VOICE) speak(e.eu);
+  if(ok&&VOICE) speak(e.mode==="transform"?e.to:e.eu);
   next.onclick=()=>{ sh.className="sheet"; SES.i++; saveSes(); SES.i<SES.ex.length?renderExercise():finish(); };
   if(!cp) next.focus();
 }
@@ -585,7 +592,8 @@ function renderLesson(l){
     <p class="eyebrow" data-es="${VOICE?"Vocabulario y frases · toca para escuchar":"Vocabulario y frases"}">Hiztegia eta esaldiak</p>
     <div class="vocab">${its.map(it=>{ const q=it.count?qty(it.count,it.countEm):""; const sg=stage(m[it.key]); return `<button class="v ${sg.k}" data-say="${esc(it.eu)}"><span class="tag">${sg.em}</span><span class="em ${q?"q":""}">${esc(q||it.emoji||(it.chunk?"💬":"•"))}</span><b>${esc(it.eu)}</b><small>${esc(it.es)}</small>${m[it.key]?`<span class="due">${dueLabel(m[it.key])}${m[it.key].lapses?` · ${m[it.key].lapses} fallos`:""}</span>`:`<span class="due">aún no vista</span>`}</button>`; }).join("")}</div>
     <p class="hint">Cada tarjeta muestra su etapa (🌱 🌿 🌳) y cuándo vuelve a salir.</p>
-    ${l.tips&&l.tips.length?`<p class="eyebrow" data-es="cómo funciona">Nola funtzionatzen du</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
+    ${(()=>{ const n=its.reduce((a,x)=>a+transformsFor(x.eu).length,0); return n?`<button class="gcard" id="lessondrills" style="border-left-color:var(--red)"><span class="em">🔁</span><span class="t"><strong>Eraldatu</strong><small>${n} transformaciones con las frases de esta lección</small></span><span class="pill">${n}</span></button>`:""; })()}
+    ${l.tips&&l.tips.length?`<p class="eyebrow" data-es="Cómo funciona">Nola funtzionatzen du</p>${l.tips.map(t=>`<div class="tip"><b>${esc(t.t)}</b><p>${esc(t.b)}</p></div>`).join("")}`:""}
     ${l.dialogue&&l.dialogue.length?`<p class="eyebrow" data-es="diálogo">Elkarrizketa</p><div class="card dlg">${l.scene?`<div class="scene"><span>${esc(l.scene.emoji)}</span><p>${esc(l.scene.title)}</p></div>`:""}${VOICE?`<button class="btn ghost sm" id="playdlg" style="align-self:center;position:relative;z-index:1">🔊 Entzun osorik<small>escuchar entero</small></button>`:""}${l.dialogue.map(([w,eu,es])=>`<div class="line ${w==="A"?"a":"b"}"><div><p class="eu">${esc(eu)}</p><p class="es">${esc(es)}</p></div>${spkBtn(eu)}</div>`).join("")}</div>`:""}
    </div>
    <div class="bottom pad stack" style="gap:8px">${fresh.length?`<button class="btn red" id="learn">Ikasi · ${fresh.length}<small>Aprender nuevas</small></button>`:""}<button class="btn ${fresh.length?"ghost":""}" id="go">Praktikatu<small>Practicar esta lección</small></button></div>`;
@@ -593,6 +601,7 @@ function renderLesson(l){
   document.getElementById("back").onclick=()=>setTab("ikasgaiak");
   const pd=document.getElementById("playdlg"); if(pd) pd.onclick=()=>speakSeq(l.dialogue.map(d=>d[1]));
   preload(its.map(i=>i.eu));
+  const ld=document.getElementById("lessondrills"); if(ld) ld.onclick=()=>{ const items=[]; for(const x of its) for(const tr of transformsFor(x.eu)) items.push({key:x.key,eu:x.eu,es:x.es,lesson_id:l.id,emoji:x.emoji||"",tr}); startSession({items:shuffle(items).slice(0,10),label:"Eraldatu · "+l.title,free:true,forceTransform:true}); };
   const lb=document.getElementById("learn"); if(lb) lb.onclick=async()=>{ const n=fresh.slice(0,6); try{ await api("items/introduce",{items:n}); await loadItems(); }catch(e){} startSession({items:n.map(i=>({...i,isNew:true})),label:l.title,lessonId:l.id}); };
   document.getElementById("go").onclick=()=>{ const mm=imap(); const known=its.filter(x=>mm[x.key]); startSession({items:shuffle(known.length?known:its).slice(0,10),label:l.title,lessonId:l.id,free:true}); };
   window.scrollTo(0,0);
@@ -617,13 +626,14 @@ async function renderTeam(){
   app.querySelector(".stack").innerHTML=`
     ${!users.length?`<div class="card"><p class="eyebrow" data-es="Todavía sin compañía">Oraindik bakarrik</p><p style="margin-top:6px">Cuando alguien más entre con el código de invitación podrás retarle aquí.</p></div>`:`
     <p class="eyebrow" data-es="reto de 6 frases">Erronka</p>
-    <div class="card stack" style="gap:10px"><p class="hint">Los dos respondéis las mismas 6 frases escribiendo. Gana quien acierte más a la primera.</p><div class="row"><select class="ans" id="duelTo" style="flex:1">${users.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join("")}</select><button class="btn red sm" id="duel">Erronka!<small>Retar</small></button></div></div>
+    <div class="card stack" style="gap:10px"><p class="hint">Los dos respondéis las mismas 6 frases escribiendo. Gana quien acierte más a la primera.</p><div class="row"><select class="ans" id="duelTo" style="flex:1">${users.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join("")}</select></div><div class="row"><button class="btn red sm" id="duel" style="flex:1">Erronka!<small>Retar · escribir 6 frases</small></button><button class="btn sm" id="duelT" style="flex:1">Eraldatu!<small>Retar · transformar 6</small></button></div></div>
     <p class="eyebrow" data-es="tareas en persona">Elkarrekin</p>
     ${tasks.length?`<div class="card stack" style="gap:10px"><p class="hint">Haz la tarea con la otra persona (en el café, por mensaje…), escribe aquí lo que te dijo en euskera y ella confirma si está bien.</p><select class="ans" id="taskTo">${users.map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join("")}</select><select class="ans" id="taskSel">${tasks.map((t,i)=>`<option value="${i}">${esc(t.t.replace("{X}","…"))}</option>`).join("")}</select><input class="ans" id="taskAns" placeholder="Lo que respondió, en euskera"><button class="btn sm" id="sendTask">Bidali<small>Enviar</small></button></div>`:`<p class="hint">Las tareas en persona se desbloquean al introducir las lecciones de presentarse, qué tal, edad…</p>`}`}
     ${chs.length?`<p class="eyebrow" data-es="retos y tareas">Historia</p>${chs.map(c=>renderChallenge(c)).join("")}`:""}`;
   const d=document.getElementById("duel"); if(d) d.onclick=()=>{ const to=document.getElementById("duelTo").value; const pool=catalog().filter(i=>m[i.key]); const items=shuffle(pool.length>=6?pool:catalog()).slice(0,6).map(i=>({key:i.key,eu:i.eu,es:i.es,emoji:i.emoji||""})); startSession({items,label:"Erronka vs "+to,challenge:{to,items}}); };
+  const dt=document.getElementById("duelT"); if(dt) dt.onclick=()=>{ const to=document.getElementById("duelTo").value; const pool=catalog().filter(i=>transformsFor(i.eu).length); const items=shuffle(pool).slice(0,6).map(i=>({key:i.key,eu:i.eu,es:i.es,emoji:i.emoji||"",tr:pick(transformsFor(i.eu))})); startSession({items,label:"Eraldatu vs "+to,challenge:{to,items,transform:true},forceTransform:true}); };
   const st=document.getElementById("sendTask"); if(st) st.onclick=async()=>{ const to=document.getElementById("taskTo").value, t=tasks[+document.getElementById("taskSel").value], ans=document.getElementById("taskAns").value.trim(); if(!ans) return toast("Escribe la respuesta primero"); try{ await api("challenges",{to,kind:"task",payload:{text:t.t.replace("{X}",to),check:t.check},fromResult:{answer:ans}}); toast("Bidalita · enviado"); renderTeam(); }catch(e){ toast(e.message); } };
-  app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{ const c=chs.find(x=>x.id===+b.dataset.play); startSession({items:c.payload.items,label:"Erronka de "+c.from,challenge:{id:c.id}}); });
+  app.querySelectorAll("[data-play]").forEach(b=>b.onclick=()=>{ const c=chs.find(x=>x.id===+b.dataset.play); startSession({items:c.payload.items,label:(c.payload.transform?"Eraldatu de ":"Erronka de ")+c.from,challenge:{id:c.id},forceTransform:!!c.payload.transform}); });
   app.querySelectorAll("[data-ok]").forEach(b=>b.onclick=async()=>{ const id=+b.dataset.ok, fix=(app.querySelector(`[data-fix="${id}"]`)||{}).value||""; try{ await api(`challenges/${id}/result`,{result:{ok:b.dataset.v==="1",fix}}); renderTeam(); }catch(e){ toast(e.message); } });
 }
 function renderChallenge(c){
@@ -631,7 +641,7 @@ function renderChallenge(c){
   if(c.kind==="duel"){
     const a=c.fromResult, b=c.toResult;
     if(a&&b) return `<div class="ch">${who}<div class="vs"><b class="${a.score>b.score?"w":""}">${a.score}/${a.total}</b><span class="muted">vs</span><b class="${b.score>a.score?"w":""}">${b.score}/${b.total}</b></div><p class="hint" style="text-align:center">${a.score===b.score?"Berdinketa · empate":(a.score>b.score?c.from:c.to)+" irabazle · gana"}</p></div>`;
-    if(c.forMe&&!b) return `<div class="ch">${who}<p>${esc(c.from)} te reta: 6 frases escribiendo. ${a?`Ya ha hecho ${a.score}/${a.total}.`:""}</p><button class="btn red sm" data-play="${c.id}">Onartu<small>Jugar</small></button></div>`;
+    if(c.forMe&&!b) return `<div class="ch">${who}<p>${esc(c.from)} te reta: ${c.payload.transform?"6 transformaciones":"6 frases escribiendo"}. ${a?`Ya ha hecho ${a.score}/${a.total}.`:""}</p><button class="btn red sm" data-play="${c.id}">Onartu<small>Jugar</small></button></div>`;
     return `<div class="ch">${who}<p class="hint">Tu resultado: ${a?a.score+"/"+a.total:"–"}. Esperando a ${esc(c.to)}.</p></div>`;
   }
   const r=c.toResult, mine=c.fromResult||{};
@@ -642,7 +652,7 @@ async function finishChallenge(score,total){
   const c=SES.challenge; const answers=SES.answers;
   try{
     if(c.id) await api(`challenges/${c.id}/result`,{result:{score,total}});
-    else await api("challenges",{to:c.to,kind:"duel",payload:{items:c.items},fromResult:{score,total}});
+    else await api("challenges",{to:c.to,kind:"duel",payload:{items:c.items,transform:!!c.transform},fromResult:{score,total}});
     P=await api("round",{lessonId:null,ok:score,total:Math.max(total,1)});
   }catch(e){ toast(e.message); }
   app.innerHTML=`<div class="head pad" style="padding-bottom:28px;text-align:center"><div class="lb">${LAUBURU}</div><p class="eyebrow" data-es="Reto terminado">Erronka amaituta</p><h1 style="margin-top:6px">${score}/${total}</h1><p class="sub" style="max-width:none">${c.id?"Resultado enviado. Mira el marcador en Taldea.":"Reto enviado. Cuando conteste, veréis el marcador en Taldea."}</p></div><div class="stack pad" style="padding-top:18px"><button class="btn" id="home">Taldera<small>ir a Taldea</small></button></div>`;

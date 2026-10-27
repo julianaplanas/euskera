@@ -147,3 +147,51 @@ window.GRAMMAR = [
     drills: [{ from: "Hogei urte ditut.", to: "Zenbat urte dituzu?", instr: "Haz la pregunta que provoca esta respuesta" }, { from: "Musika gustatzen zait.", to: "Zer gustatzen zaizu?", instr: "Haz la pregunta" }, { from: "Ni Ane naiz.", to: "Nor zara?", instr: "Haz la pregunta con «nor»" }]
   }
 ];
+
+// Transformaciones por frase (clave = frase en euskera normalizada). Cada una: instrucción, resultado esperado y nota.
+// Las usan la ronda diaria (a veces en vez de pedir la frase tal cual), cada lección (bloque Eraldatu) y los retos.
+window.TRANSFORMS = {
+  "ni ane naiz": [{ i: "Cámbialo a «tú»", to: "Zu Ane zara." }, { i: "Dilo con «nire izena … da»", to: "Nire izena Ane da." }],
+  "ni mikel naiz": [{ i: "Cámbialo a «tú»", to: "Zu Mikel zara." }, { i: "Dilo con «nire izena … da»", to: "Nire izena Mikel da." }],
+  "nire izena ane da": [{ i: "Dilo con «ni … naiz»", to: "Ni Ane naiz." }],
+  "nola duzu izena?": [{ i: "Pregúntalo con «zein da»", to: "Zein da zure izena?" }],
+  "zein da zure izena?": [{ i: "Pregúntalo con «nola»", to: "Nola duzu izena?" }],
+  "ondo, eskerrik asko. eta zu?": [{ i: "Responde «muy bien» en vez de «bien»", to: "Oso ondo, eskerrik asko. Eta zu?" }],
+  "oso ondo nago.": [{ i: "Quita el «muy»", to: "Ondo nago." }, { i: "Cámbialo a «tú estás»", to: "Oso ondo zaude." }],
+  "hala-hola, nekatuta nago.": [{ i: "Di solo «estoy cansado/a»", to: "Nekatuta nago." }],
+  "zer moduz zaude?": [{ i: "Dilo de «yo»: estoy bien", to: "Ondo nago." }],
+  "nekatuta": [{ i: "Haz la frase «estoy cansado/a»", to: "Nekatuta nago." }],
+  "zenbat urte dituzu?": [{ i: "Responde: tengo 20 años", to: "Hogei urte ditut." }, { i: "Responde: tengo 35 años", to: "Hogeita hamabost urte ditut." }],
+  "hogeita hamar urte ditut.": [{ i: "Ahora son 31", to: "Hogeita hamaika urte ditut." }, { i: "Dilo de otra persona (él/ella)", to: "Hogeita hamar urte ditu." }],
+  "hogeita zortzi urte ditut.": [{ i: "Ahora son 29", to: "Hogeita bederatzi urte ditut." }, { i: "Dilo de otra persona (él/ella)", to: "Hogeita zortzi urte ditu." }],
+  "berrogei urte ditu.": [{ i: "Dilo de «yo»", to: "Berrogei urte ditut." }, { i: "Ahora son 42", to: "Berrogeita bi urte ditu." }],
+  "hogeita hamar": [{ i: "Suma uno (31)", to: "hogeita hamaika" }, { i: "Suma veinte (50)", to: "berrogeita hamar" }],
+  "berrogei": [{ i: "Suma dos (42)", to: "berrogeita bi" }, { i: "Suma veinte (60)", to: "hirurogei" }],
+  "hogei": [{ i: "Suma cinco (25)", to: "hogeita bost" }],
+  "hamabost": [{ i: "Suma veinte (35)", to: "hogeita hamabost" }],
+  "musika gustatzen zait": [{ i: "Ponlo en negativo", to: "Ez zait gustatzen musika." }, { i: "Añade «mucho»", to: "Musika asko gustatzen zait." }, { i: "Dilo de «tú» (te gusta)", to: "Musika gustatzen zaizu." }],
+  "musika gustatzen zait.": [{ i: "Ponlo en negativo", to: "Ez zait gustatzen musika." }, { i: "Añade «mucho»", to: "Musika asko gustatzen zait." }],
+  "liburuak gustatzen zaizkit": [{ i: "Ponlo en singular (un libro)", to: "Liburua gustatzen zait." }, { i: "Ponlo en negativo", to: "Ez zaizkit gustatzen liburuak." }],
+  "pintxoak gustatzen zaizkit.": [{ i: "Ponlo en singular (un pintxo)", to: "Pintxoa gustatzen zait." }, { i: "Ponlo en negativo", to: "Ez zaizkit gustatzen pintxoak." }],
+  "ez zait gustatzen hotza": [{ i: "Ponlo en afirmativo", to: "Hotza gustatzen zait." }],
+  "ez zait gustatzen hotza.": [{ i: "Ponlo en afirmativo", to: "Hotza gustatzen zait." }],
+  "zinema asko gustatzen zait.": [{ i: "Quita el «mucho»", to: "Zinema gustatzen zait." }, { i: "Ponlo en negativo", to: "Ez zait gustatzen zinema." }],
+  "asko gustatzen zait": [{ i: "Haz la frase: me gusta mucho el deporte", to: "Kirola asko gustatzen zait." }],
+  "zinema": [{ i: "Haz la frase: me gusta el cine", to: "Zinema gustatzen zait." }],
+  "kirola": [{ i: "Haz la frase: me gusta el deporte", to: "Kirola gustatzen zait." }],
+  "bidaiatzea": [{ i: "Haz la frase: me gusta viajar", to: "Bidaiatzea gustatzen zait." }],
+  "sukaldatzea": [{ i: "Haz la frase: me gusta cocinar", to: "Sukaldatzea gustatzen zait." }],
+  "ahizpa bat dut.": [{ i: "Ahora son dos", to: "Ahizpa bi ditut." }, { i: "Ponlo en negativo: no tengo hermanos", to: "Ez dut anai-arrebarik." }],
+  "neba bi ditut.": [{ i: "Ahora es uno", to: "Neba bat dut." }],
+  "anaia bat eta arreba bat ditut.": [{ i: "Solo un hermano", to: "Anaia bat dut." }],
+  "ez dut anai-arrebarik.": [{ i: "Ahora tengo una hermana (dicho por una chica)", to: "Ahizpa bat dut." }],
+  "neba": [{ i: "Plural", to: "nebak" }, { i: "Haz la frase: tengo un hermano (chica)", to: "Neba bat dut." }],
+  "ahizpa": [{ i: "Plural", to: "ahizpak" }, { i: "Haz la frase: tengo una hermana (chica)", to: "Ahizpa bat dut." }],
+  "anaia": [{ i: "Plural", to: "anaiak" }, { i: "Haz la frase: tengo un hermano (chico)", to: "Anaia bat dut." }],
+  "arreba": [{ i: "Plural", to: "arrebak" }, { i: "Haz la frase: tengo una hermana (chico)", to: "Arreba bat dut." }],
+  "egun on": [{ i: "Ahora es por la tarde", to: "Arratsalde on" }, { i: "Ahora es de noche", to: "Gabon" }],
+  "arratsalde on": [{ i: "Ahora es por la mañana", to: "Egun on" }],
+  "gabon": [{ i: "Ahora es por la mañana", to: "Egun on" }],
+  "kaixo! zer moduz?": [{ i: "Responde: bien, gracias. ¿Y tú?", to: "Ondo, eskerrik asko. Eta zu?" }],
+  "agur, gero arte!": [{ i: "Despídete con «hasta la vista»", to: "Agur, ikusi arte!" }]
+};
