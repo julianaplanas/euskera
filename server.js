@@ -98,7 +98,7 @@ app.get("/api/me", auth, (req, res) => res.json(profile(req.user)));
 app.post("/api/profile", auth, (req, res) => {
   const p = req.body || {};
   const clean = { gender: p.gender === "neska" || p.gender === "mutila" ? p.gender : null, age: Number.isInteger(p.age) && p.age > 0 && p.age < 120 ? p.age : null,
-    nebak: Math.max(0, Math.min(9, p.nebak | 0)), ahizpak: Math.max(0, Math.min(9, p.ahizpak | 0)), town: String(p.town || "").slice(0, 40) };
+    nebak: Math.max(0, Math.min(9, p.nebak | 0)), ahizpak: Math.max(0, Math.min(9, p.ahizpak | 0)), town: String(p.town || "").slice(0, 40), origin: String(p.origin || "").slice(0, 40) };
   db.prepare("UPDATE users SET profile = ? WHERE id = ?").run(JSON.stringify(clean), req.user.id);
   res.json(clean);
 });

@@ -335,11 +335,15 @@ const imap=()=>Object.fromEntries(ITEMS.map(i=>[i.key,i]));
 async function loadItems(){ ITEMS=await api("items"); }
 
 // Catálogo de ítems: lecciones + personales
+function locIn(p){ const w=p.trim(); if(!w) return ""; const last=w.slice(-1).toLowerCase(); return /[aeiou]/.test(last)? w+"n" : w+"en"; }
+function locFrom(p){ const w=p.trim(); if(!w) return ""; const l=w.toLowerCase(); const last=l.slice(-1); return l.endsWith("n")? l+"goa" : /[aeiou]/.test(last)? l+"koa" : l+"ekoa"; }
 function personalItems(){
   const pr=P.profile||{}; const out=[]; const Name=P.name[0].toUpperCase()+P.name.slice(1);
   out.push({key:"me:naiz",eu:`Ni ${Name} naiz`,es:`Yo soy ${Name}`,lesson_id:"me",emoji:"🙋"});
   out.push({key:"me:izena",eu:`Nire izena ${Name} da`,es:`Mi nombre es ${Name}`,lesson_id:"me",emoji:"✍️"});
   if(pr.age){ out.push({key:"me:adina",eu:`${numEu(pr.age)} urte ditut`,es:`Tengo ${pr.age} años`,lesson_id:"me",emoji:"🎂"}); }
+  if(pr.town){ out.push({key:"me:bizi",eu:`Ni ${locIn(pr.town)} bizi naiz`,es:`Yo vivo en ${pr.town}`,lesson_id:"me",emoji:"🏠"}); }
+  if(pr.origin){ out.push({key:"me:nongoa",eu:`Ni ${locFrom(pr.origin)} naiz`,es:`Yo soy de ${pr.origin}`,lesson_id:"me",emoji:"🌍"}); }
   if(pr.gender){
     const bro=pr.gender==="neska"?"neba":"anaia", sis=pr.gender==="neska"?"ahizpa":"arreba", mix=pr.gender==="neska"?"neba-arrebak":"anai-arrebak";
     const parts=[]; if(pr.nebak) parts.push(`${bro} ${numEu(pr.nebak)}`); if(pr.ahizpak) parts.push(`${sis} ${numEu(pr.ahizpak)}`);
@@ -406,7 +410,7 @@ function renderProfile(first=false){
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{ g=b.dataset.g; app.querySelectorAll("[data-g]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.g===g)); });
   document.getElementById("back").onclick=()=>first?null:setTab("gaur");
   document.getElementById("save").onclick=async()=>{
-    const body={gender:g,age:+document.getElementById("age").value||null,nebak:+document.getElementById("nebak").value||0,ahizpak:+document.getElementById("ahizpak").value||0};
+    const body={gender:g,age:+document.getElementById("age").value||null,nebak:+document.getElementById("nebak").value||0,ahizpak:+document.getElementById("ahizpak").value||0,town:document.getElementById("town").value.trim(),origin:document.getElementById("origin").value.trim()};
     try{ P.profile=await api("profile",body); await api("items/introduce",{items:personalItems()}); await loadItems(); P=await api("me"); setTab("gaur"); }catch(e){ toast(e.message); }
   };
 }
