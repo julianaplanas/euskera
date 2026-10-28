@@ -83,11 +83,11 @@ window.LESSONS = [
   {
     id: "l10", title: "Dónde vives y de dónde eres", desc: "Non bizi zara? Nongoa zara?", emoji: "🌍", scene: { emoji: "✈️", title: "Aireportuan · en el aeropuerto" },
     grid: { title: "Nongoa zara? (¿de dónde eres?) → lugar + -koa / -ekoa / -goa", cols: ["acaba en…", "ejemplo"], rows: [["vocal → -koa", "Bilbo → Bilbokoa"], ["consonante → -ekoa", "Madril → Madrilekoa"], ["-n → -goa", "Irun → Irungoa"], ["país en vocal → -koa", "Peru → Perukoa"]] },
-    pairs: [["Non bizi zara?", "¿Dónde vives?", "🏠"], ["Ni Bilbon bizi naiz", "Yo vivo en Bilbao", "🏙️"], ["Ramon Londresen bizi da", "Ramón vive en Londres", "🇬🇧"], ["Nire osaba Ekuadorren bizi da", "Mi tío vive en Ecuador", "🇪🇨"], ["Gu Perun bizi gara", "Nosotros vivimos en Perú", "🇵🇪"], ["Nongoa zara?", "¿De dónde eres?", "🌍"], ["Ni bilbokoa naiz", "Yo soy de Bilbao", "🏙️"], ["Ni madrildarra naiz", "Yo soy madrileño/a", "🏛️"], ["Ane donostiarra da", "Ane es donostiarra", "🏖️"], ["Jon irungoa da", "Jon es de Irun", "🌉"], ["Gu argentinarrak gara", "Nosotros somos argentinos", "🇦🇷"], ["osaba", "tío", "👨"], ["izeba", "tía", "👩"], ["bizi naiz", "vivo", "🏠"], ["bizi da", "vive", "🏠"], ["bizi gara", "vivimos", "🏠"], ["Bilbon", "en Bilbao", "📍"], ["Londresen", "en Londres", "📍"], ["Perun", "en Perú", "📍"], ["Ekuadorren", "en Ecuador", "📍"]],
+    pairs: [["Non bizi zara?", "¿Dónde vives?", "🏠"], ["Ni Bilbon bizi naiz", "Yo vivo en Bilbao", "🏙️"], ["Ramon Londresen bizi da", "Ramón vive en Londres", "🇬🇧"], ["Nire osaba Ekuadorren bizi da", "Mi tío vive en Ecuador", "🇪🇨"], ["Gu Perun bizi gara", "Nosotros vivimos en Perú", "🇵🇪"], ["Nongoa zara?", "¿De dónde eres?", "🌍"], ["Ni bilbokoa naiz", "Yo soy de Bilbao", "🏙️"], ["Ni madrilekoa naiz", "Yo soy de Madrid", "🏛️"], ["Ane donostiakoa da", "Ane es de Donostia", "🏖️"], ["Jon irungoa da", "Jon es de Irun", "🌉"], ["Gu argentinakoak gara", "Nosotros somos de Argentina", "🇦🇷"], ["osaba", "tío", "👨"], ["izeba", "tía", "👩"], ["bizi naiz", "vivo", "🏠"], ["bizi da", "vive", "🏠"], ["bizi gara", "vivimos", "🏠"], ["Bilbon", "en Bilbao", "📍"], ["Londresen", "en Londres", "📍"], ["Perun", "en Perú", "📍"], ["Ekuadorren", "en Ecuador", "📍"]],
     sentences: [["Non bizi zara?", "¿Dónde vives?"], ["Ni Bilbon bizi naiz.", "Yo vivo en Bilbao."], ["Ramon Londresen bizi da.", "Ramón vive en Londres."], ["Nire osaba Ekuadorren bizi da.", "Mi tío vive en Ecuador."], ["Gu Perun bizi gara.", "Nosotros vivimos en Perú."], ["Nongoa zara?", "¿De dónde eres?"], ["Ni bilbokoa naiz.", "Yo soy de Bilbao."], ["Nongoa da Ane?", "¿De dónde es Ane?"], ["Ane madrilekoa da.", "Ane es de Madrid."]],
     pattern: "Ni ___n bizi naiz",
-    tips: [{ t: "Vivir en: lugar + -n", b: "bizi naiz / bizi da / bizi gara. El lugar lleva -n (en): Bilbo → Bilbon, Peru → Perun. Si acaba en consonante, -en: Londres → Londresen, Ekuador → Ekuadorren." }, { t: "Ser de: lugar + -koa", b: "Bilbo → bilbokoa. Tras consonante, -ekoa: Madril → madrilekoa. Tras -n, -goa: Irun → irungoa. Con -arra se forma el gentilicio: madrildarra, donostiarra, argentinarra." }, { t: "Nongoa vs non", b: "Nongoa zara? = ¿de dónde eres? (origen). Non bizi zara? = ¿dónde vives? (lugar actual)." }],
-    dialogue: [["A", "Nongoa zara?", "¿De dónde eres?"], ["B", "Ni argentinarra naiz, baina Bilbon bizi naiz. Eta zu?", "Yo soy argentina, pero vivo en Bilbao. ¿Y tú?"], ["A", "Ni irungoa naiz eta Donostian bizi naiz.", "Yo soy de Irun y vivo en Donostia."]]
+    tips: [{ t: "Vivir en: lugar + -n", b: "bizi naiz / bizi da / bizi gara. El lugar lleva -n (en): Bilbo → Bilbon, Peru → Perun. Si acaba en consonante, -en: Londres → Londresen, Ekuador → Ekuadorren." }, { t: "Ser de: lugar + -koa", b: "Bilbo → bilbokoa. Tras consonante, -ekoa: Madril → madrilekoa. Tras -n, -goa: Irun → irungoa. Los países van igual: Argentina → argentinakoa, Peru → perukoa." }, { t: "Nongoa vs non", b: "Nongoa zara? = ¿de dónde eres? (origen). Non bizi zara? = ¿dónde vives? (lugar actual)." }],
+    dialogue: [["A", "Nongoa zara?", "¿De dónde eres?"], ["B", "Ni argentinakoa naiz, baina Bilbon bizi naiz. Eta zu?", "Yo soy de Argentina, pero vivo en Bilbao. ¿Y tú?"], ["A", "Ni irungoa naiz eta Donostian bizi naiz.", "Yo soy de Irun y vivo en Donostia."]]
   }
 ];
 
@@ -124,7 +124,6 @@ window.NOTES = [
   { m: /\w+ekoa\b/i, t: "-ekoa = «de» tras consonante: Madril → madrilekoa." },
   { m: /\w+goa\b/i, t: "-goa = «de» tras -n: Irun → irungoa." },
   { m: /\w+koa\b/i, t: "-koa = «de» tras vocal: Bilbo → bilbokoa. Plural: -koak (gu bilbokoak gara)." },
-  { m: /\w+(d|t)arra\b/i, t: "-arra forma el gentilicio: madrildarra, donostiarra, argentinarra." },
   { m: /^nongoa/i, t: "Nongoa? = ¿de dónde (eres)? Se responde con -koa/-ekoa/-goa. Non? es «dónde» (vives)." },
   { m: /^non bizi/i, t: "Non bizi zara? = ¿dónde vives? Se responde con lugar + -n + bizi naiz." },
   { m: /^nor /i, t: "nor = quién (personas). Para cosas se usa zer." },
@@ -168,7 +167,6 @@ window.NOTES = [
   { m: /\w+ekoa\b/i, t: "-ekoa = «de» tras consonante: Madril → madrilekoa." },
   { m: /\w+goa\b/i, t: "-goa = «de» tras -n: Irun → irungoa." },
   { m: /\w+koa\b/i, t: "-koa = «de» tras vocal: Bilbo → bilbokoa. Plural: -koak (gu bilbokoak gara)." },
-  { m: /\w+(d|t)arra\b/i, t: "-arra forma el gentilicio: madrildarra, donostiarra, argentinarra." },
   { m: /^nongoa/i, t: "Nongoa? = ¿de dónde (eres)? Se responde con -koa/-ekoa/-goa. Non? es «dónde» (vives)." },
   { m: /^non bizi/i, t: "Non bizi zara? = ¿dónde vives? Se responde con lugar + -n + bizi naiz." },
   { m: /^nor /i, t: "nor = quién (personas). Para cosas se usa zer." },
@@ -278,9 +276,9 @@ window.GRAMMAR = [
   },
   {
     id: "g-nongoa", title: "De dónde: -koa / -ekoa / -goa", lessons: ["l10"], emoji: "🌍",
-    summary: "Nongoa zara? se responde con el lugar + -koa (tras vocal), -ekoa (tras consonante) o -goa (tras -n). Con -arra se hace el gentilicio.",
+    summary: "Nongoa zara? se responde con el lugar + -koa (tras vocal), -ekoa (tras consonante) o -goa (tras -n). Plural: -koak.",
     pieces: [{ t: "Ni", k: "subj" }, { t: "bilbo", k: "obj" }, { t: "-koa", k: "num" }, { t: "naiz", k: "verb" }],
-    table: { cols: ["lugar", "de + lugar"], rows: [["Bilbo (vocal)", "bilbokoa"], ["Madril (consonante)", "madrilekoa"], ["Irun (-n)", "irungoa"], ["Peru", "perukoa"], ["Donostia → gentilicio", "donostiarra"]] },
+    table: { cols: ["lugar", "de + lugar"], rows: [["Bilbo (vocal)", "bilbokoa"], ["Madril (consonante)", "madrilekoa"], ["Irun (-n)", "irungoa"], ["Peru", "perukoa"], ["Argentina", "argentinakoa"]] },
     examples: [["Ni bilbokoa naiz.", "Soy de Bilbao."], ["Ane madrilekoa da.", "Ane es de Madrid."], ["Jon irungoa da.", "Jon es de Irun."]],
     drills: [{ from: "Ni Bilbon bizi naiz.", to: "Ni bilbokoa naiz.", es: "Soy de Bilbao.", instr: "Di que ERES de ahí (no que vives)" }, { from: "Ane Madrilen bizi da.", to: "Ane madrilekoa da.", es: "Ane es de Madrid.", instr: "Di que ES de ahí" }, { from: "Jon Irunen bizi da.", to: "Jon irungoa da.", es: "Jon es de Irun.", instr: "Di que ES de ahí (acaba en -n)" }, { from: "Ni bilbokoa naiz.", to: "Nongoa zara?", es: "¿De dónde eres?", instr: "Haz la pregunta" }, { from: "Gu Perun bizi gara.", to: "Gu perukoak gara.", es: "Somos de Perú.", instr: "Di que SOIS de ahí (plural: -koak)" }]
   }
@@ -361,7 +359,7 @@ window.TRANSFORMS = {
   "ni bilbokoa naiz.": [{ i: "Haz la pregunta", to: "Nongoa zara?", es: "¿De dónde eres?" }, { i: "Ahora eres de Madrid", to: "Ni madrilekoa naiz.", es: "Soy de Madrid." }, { i: "Ahora eres de Irun", to: "Ni irungoa naiz.", es: "Soy de Irun." }],
   "ane madrilekoa da.": [{ i: "Haz la pregunta", to: "Nongoa da Ane?", es: "¿De dónde es Ane?" }, { i: "Ahora vive en Madrid (no es de allí)", to: "Ane Madrilen bizi da.", es: "Ane vive en Madrid." }],
   "jon irungoa da": [{ i: "Haz la pregunta", to: "Nongoa da Jon?", es: "¿De dónde es Jon?" }],
-  "gu argentinarrak gara": [{ i: "Cámbialo a «yo»", to: "Ni argentinarra naiz.", es: "Soy argentino/a." }],
+  "gu argentinakoak gara": [{ i: "Cámbialo a «yo»", to: "Ni argentinakoa naiz.", es: "Soy de Argentina." }],
   "bilbon": [{ i: "Haz la frase: vivo en Bilbao", to: "Ni Bilbon bizi naiz.", es: "Vivo en Bilbao." }],
   "londresen": [{ i: "Haz la frase: vivimos en Londres", to: "Gu Londresen bizi gara.", es: "Vivimos en Londres." }],
   "osaba": [{ i: "Haz la frase: mi tío vive en Perú", to: "Nire osaba Perun bizi da.", es: "Mi tío vive en Perú." }]
