@@ -35,7 +35,7 @@ db.exec(`
 for (const sql of ["ALTER TABLE users ADD COLUMN weak TEXT NOT NULL DEFAULT '[]'", "ALTER TABLE users ADD COLUMN profile TEXT NOT NULL DEFAULT '{}'"]) { try { db.exec(sql); } catch (e) {} }
 
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString("hex");
-const norm = (s) => String(s || "").trim().toLowerCase();
+const norm = (s) => String(s || "").trim().toLowerCase().normalize("NFC").replace(/\s+/g, " ");
 const madridDay = (offsetDays = 0) => new Date(Date.now() + offsetDays * 86400000).toLocaleDateString("sv-SE", { timeZone: process.env.TZ_NAME || "Europe/Madrid" });
 const addDays = (day, n) => new Date(new Date(day + "T12:00:00Z").getTime() + n * 86400000).toISOString().slice(0, 10);
 const J = (s, d) => { try { return JSON.parse(s); } catch (e) { return d; } };
@@ -76,7 +76,7 @@ function profile(user) {
 // ---------- cuentas ----------
 app.post("/api/register", (req, res) => {
   const name = norm(req.body.name), pin = String(req.body.pin || "");
-  if (!/^[a-z0-9àáâäèéêëìíîïòóôöùúûüñç._-]{2,20}$/.test(name)) return res.status(400).json({ error: "El nombre debe tener entre 2 y 20 letras o números." });
+  if (!/^[a-z0-9àáâäèéêëìíîïòóôöùúûüñç._ -]{2,24}$/.test(name)) return res.status(400).json({ error: "El nombre: de 2 a 24 letras, números o espacios (sin símbolos)." });
   if (!/^\d{4,8}$/.test(pin)) return res.status(400).json({ error: "El PIN debe tener entre 4 y 8 cifras." });
   if (process.env.INVITE_CODE && String(req.body.invite || "") !== process.env.INVITE_CODE) return res.status(403).json({ error: "Código de invitación incorrecto." });
   if (db.prepare("SELECT 1 FROM users WHERE name = ?").get(name)) return res.status(409).json({ error: "Ese nombre ya existe. Inicia sesión con tu PIN." });
@@ -182,6 +182,34 @@ app.post("/api/challenges/:id/result", auth, (req, res) => {
   const c2 = db.prepare("SELECT * FROM challenges WHERE id = ?").get(c.id);
   if (c2.from_result && c2.to_result) db.prepare("UPDATE challenges SET status = 'done' WHERE id = ?").run(c.id);
   res.json(chView(db.prepare("SELECT * FROM challenges WHERE id = ?").get(c.id), req.user.id));
+});
+
+// ---------- admin (ADMIN_KEY en Railway) ----------
+function admin(req, res, next) {
+  const key = process.env.ADMIN_KEY;
+  if (!key) return res.status(503).json({ error: "ADMIN_KEY no configurada." });
+  const given = req.get("x-admin-key") || req.query.key || (req.body && req.body.key);
+  if (!given || given.length !== key.length || !crypto.timingSafeEqual(Buffer.from(given), Buffer.from(key))) return res.status(403).json({ error: "Clave incorrecta." });
+  next();
+}
+app.get("/api/admin/users", admin, (req, res) => {
+  res.json(db.prepare("SELECT id, name, xp, streak, last_day, created_at FROM users ORDER BY created_at").all().map(u => ({ ...u, items: itemStats(u.id) })));
+});
+app.post("/api/admin/reset-pin", admin, (req, res) => {
+  const name = norm(req.body.name), pin = String(req.body.pin || "");
+  if (!/^\d{4,8}$/.test(pin)) return res.status(400).json({ error: "El PIN debe tener entre 4 y 8 cifras." });
+  const u = db.prepare("SELECT id FROM users WHERE name = ?").get(name);
+  if (!u) return res.status(404).json({ error: "No existe ese usuario." });
+  const salt = crypto.randomBytes(16).toString("hex");
+  db.prepare("UPDATE users SET salt = ?, hash = ? WHERE id = ?").run(salt, hashPin(pin, salt), u.id);
+  db.prepare("DELETE FROM sessions WHERE user_id = ?").run(u.id);
+  res.json({ ok: true, name });
+});
+app.post("/api/admin/delete-user", admin, (req, res) => {
+  const u = db.prepare("SELECT id FROM users WHERE name = ?").get(norm(req.body.name));
+  if (!u) return res.status(404).json({ error: "No existe ese usuario." });
+  db.transaction(() => { for (const t of ["sessions", "progress", "rounds", "items"]) db.prepare(`DELETE FROM ${t} WHERE user_id = ?`).run(u.id); db.prepare("DELETE FROM challenges WHERE from_id = ? OR to_id = ?").run(u.id, u.id); db.prepare("DELETE FROM users WHERE id = ?").run(u.id); })();
+  res.json({ ok: true });
 });
 
 // ---------- estadísticas ----------

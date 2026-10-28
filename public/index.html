@@ -374,8 +374,8 @@ function noTabs(){ tabs.hidden=true; document.body.classList.add("notabs"); }
 function renderLogin(mode="login",prefill={}){
   noTabs(); const reg=mode==="register";
   app.innerHTML=`<div class="head pad" style="padding-bottom:26px"><div class="lb">${LAUBURU}</div><div class="row" style="gap:18px;position:relative"><div class="olen">${OLEN("wave",80)}</div><div><p class="eyebrow" data-es="Práctica de euskera">Euskara praktika</p><h1>${reg?"Sortu kontua":"Nor zara?"}</h1><p style="color:var(--on-color);font-weight:600;font-size:13px">${reg?"Crea tu cuenta":"¿Quién eres?"}</p></div></div></div>
-   <div class="stack pad" style="padding-top:22px"><p class="muted">${reg?"Elige un nombre, un PIN de 4 cifras y el código de invitación.":"Entra con tu nombre y tu PIN."}</p>
-    <form id="f" class="stack"><input class="ans" id="name" placeholder="Nombre" autocomplete="username" autocapitalize="none" value="${esc(prefill.name||"")}"><input class="ans" id="pin" placeholder="PIN" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="${reg?"new-password":"current-password"}" value="${esc(prefill.pin||"")}">${reg?`<input class="ans" id="invite" placeholder="Código de invitación" autocomplete="off" autocapitalize="none">`:""}<p class="err" id="err"></p><button class="btn red" type="submit">${reg?"Crear cuenta":"Sartu<small>Entrar"}</small></button></form>
+   <div class="stack pad" style="padding-top:22px"><p class="muted">${reg?"Elige un nombre (letras, números o espacios), un PIN de 4 cifras y el código de invitación que te han pasado.":"Entra con tu nombre y tu PIN."}</p>
+    <form id="f" class="stack"><input class="ans" id="name" placeholder="Nombre" autocomplete="username" autocapitalize="none" maxlength="24" value="${esc(prefill.name||"")}"><input class="ans" id="pin" placeholder="PIN" inputmode="numeric" pattern="[0-9]*" type="password" autocomplete="${reg?"new-password":"current-password"}" value="${esc(prefill.pin||"")}">${reg?`<input class="ans" id="invite" placeholder="Código de invitación" autocomplete="off" autocapitalize="none">`:""}<p class="err" id="err"></p><button class="btn red" type="submit">${reg?"Crear cuenta":"Sartu<small>Entrar"}</small></button></form>
     <button class="link" id="swap">${reg?"Ya tengo cuenta":"Crear una cuenta nueva"}</button></div>`;
   document.getElementById("swap").onclick=()=>renderLogin(reg?"login":"register");
   document.getElementById("f").onsubmit=async e=>{ e.preventDefault(); const name=document.getElementById("name").value,pin=document.getElementById("pin").value,invite=(document.getElementById("invite")||{}).value||""; const err=document.getElementById("err"); err.textContent="";
@@ -714,10 +714,12 @@ async function renderStats(){
   app.innerHTML=header("Datuak · lo que de verdad se queda")+`<div class="stack pad" style="padding-top:18px"><p class="muted">Kargatzen…</p></div>`;
   let data; try{ data=await api("stats"); }catch(e){ app.querySelector(".stack").innerHTML=`<p class="err">No se pudieron cargar los datos.</p>`; return; }
   const COLORS=["#B8281F","#2A7A4F","#D9A441","#3B6EA5","#8E4A9E","#C8683A"];
-  const users=data.users.slice().sort((a,b)=>b.consolidated-a.consolidated||b.weekXp-a.weekXp).map((u,i)=>({...u,color:COLORS[i%COLORS.length]}));
+  const users=data.users.slice().sort((a,b)=>b.weekXp-a.weekXp||b.consolidated-a.consolidated).map((u,i)=>({...u,color:COLORS[i%COLORS.length]}));
   const active=users.filter(u=>u.weekXp>0||u.me); const me=users.find(u=>u.me);
   const dayLabel=d=>["Ig","Al","Ar","Az","Og","Ol","Lr"][new Date(d+"T12:00:00").getDay()];
-  const maxC=Math.max(1,...users.map(u=>u.learned)); const mx=Math.max(1,...users.flatMap(u=>u.perDay));
+  const maxW=Math.max(1,...users.map(u=>u.weekXp)); const mx=Math.max(1,...users.flatMap(u=>u.perDay));
+  const monday=(()=>{ const d=new Date(data.days[6]+"T12:00:00"); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d; })();
+  const daysLeft=7-((new Date(data.days[6]+"T12:00:00").getDay()+6)%7);
   const best=k=>Math.max(...users.map(u=>u[k])); const cell=(u,k,f=x=>x)=>`<td class="${u[k]===best(k)&&u[k]>0?"win":""}">${f(u[k])}</td>`;
   const m=imap(); const soon=ITEMS.filter(i=>i.due>data.days[6]).length;
   app.querySelector(".stack").classList.add("cols");

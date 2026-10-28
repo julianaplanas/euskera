@@ -11,8 +11,13 @@ App tipo Duolingo para practicar euskera, con login por nombre + PIN y progreso 
    - `DB_PATH` = `/data/app.db`
    - `NODE_ENV` = `production`
    - (opcional) `INVITE_CODE` = una palabra secreta, para que solo quien la conozca pueda crear cuenta.
+   - (recomendado) `ADMIN_KEY` = una clave larga para el panel `/admin` (ver usuarios, restablecer PIN, borrar cuentas).
    - Audio en euskera (necesario para dictados y altavoces). Opción A, Google: `GOOGLE_TTS_KEY` (clave de API de Google Cloud con *Cloud Text-to-Speech API* activada; 1 M caracteres/mes gratis). Voz por defecto `eu-ES-Standard-A`, opcional `GOOGLE_TTS_VOICE=eu-ES-Standard-B`. Opción B, Azure: `AZURE_TTS_KEY` + `AZURE_TTS_REGION` (recurso *Speech* en plan F0; voz `eu-ES-AinhoaNeural`, opcional `TTS_VOICE=eu-ES-AnderNeural`). Los mp3 se generan una vez por frase y se guardan en el volumen (`/data/audio`). Sin clave, la app funciona sin audio.
 5. En **Settings → Networking → Generate Domain** para obtener la URL pública.
+
+## Administrar usuarios
+
+Abre `https://TU-DOMINIO/admin`, pega la `ADMIN_KEY` y podrás ver la lista de usuarios, restablecer el PIN de alguien que lo olvidó y borrar cuentas. Nada se guarda en el navegador.
 
 ## Añadir la app al inicio del móvil
 
