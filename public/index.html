@@ -718,7 +718,6 @@ async function renderStats(){
   const active=users.filter(u=>u.weekXp>0||u.me); const me=users.find(u=>u.me);
   const dayLabel=d=>["Ig","Al","Ar","Az","Og","Ol","Lr"][new Date(d+"T12:00:00").getDay()];
   const maxW=Math.max(1,...users.map(u=>u.weekXp)); const mx=Math.max(1,...users.flatMap(u=>u.perDay));
-  const monday=(()=>{ const d=new Date(data.days[6]+"T12:00:00"); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d; })();
   const daysLeft=7-((new Date(data.days[6]+"T12:00:00").getDay()+6)%7);
   const best=k=>Math.max(...users.map(u=>u[k])); const cell=(u,k,f=x=>x)=>`<td class="${u[k]===best(k)&&u[k]>0?"win":""}">${f(u[k])}</td>`;
   const m=imap(); const soon=ITEMS.filter(i=>i.due>data.days[6]).length;
@@ -726,9 +725,9 @@ async function renderStats(){
   app.querySelector(".stack").innerHTML=`<div class="col">
     <div class="stats"><div class="stat g"><b style="display:flex;justify-content:center;align-items:center;gap:6px"><span style="display:inline-flex;width:22px;height:22px">${LAUBURU}</span>${me.consolidated}</b><span>Sendoak · firmes</span></div><div class="stat"><b>${me.learned}</b><span>Ikasten · en estudio</span></div><div class="stat"><b>🔥 ${me.streak}</b><span>Egunak · seguidos</span></div><div class="stat"><b>${me.accuracy}%</b><span>Lehenengoan · a la primera</span></div></div>
     <p class="hint">Firme = la has acertado tantas veces que no hace falta repasarla hasta dentro de una semana o más. ${soon?`${soon} frases programadas para más adelante.`:""}</p>
-    <p class="eyebrow" data-es="firmes por persona">Taldea</p>
-    <div class="card lb-list">${users.map((u,i)=>`<div class="lbrow ${u.me?"me":""}"><span class="rank">${["🥇","🥈","🥉"][i]||(i+1)}</span><span class="av" style="background:${u.color}">${esc(u.name[0].toUpperCase())}</span><span class="who"><b>${esc(u.name)}${u.me?" (tú)":""}</b>${u.practicedToday?" <span class='muted' style='font-size:13px'>· gaur 🔥</span>":""}<i class="wbar"><i style="width:${Math.round(u.learned/maxC*100)}%;background:${u.color};opacity:.4"></i></i><i class="wbar" style="margin-top:-6px;background:transparent"><i style="width:${Math.round(u.consolidated/maxC*100)}%;background:${u.color}"></i></i></span><b class="num">${u.consolidated}<span class="muted" style="font-size:13px;font-family:var(--body)"> / ${u.learned}</span></b></div>`).join("")}</div>
-    <p class="hint">Barra clara: frases en estudio. Barra oscura: firmes.</p>
+    <p class="eyebrow" data-es="Ranking de la semana · empieza de cero cada lunes">Asteko sailkapena</p>
+    <div class="card lb-list">${users.map((u,i)=>`<div class="lbrow ${u.me?"me":""}"><span class="rank">${u.weekXp>0?(["🥇","🥈","🥉"][i]||(i+1)):"–"}</span><span class="av" style="background:${u.color}">${esc(u.name[0].toUpperCase())}</span><span class="who"><b>${esc(u.name)}${u.me?" (tú)":""}</b>${u.practicedToday?" <span class='muted' style='font-size:13px'>· gaur 🔥</span>":""}<i class="wbar"><i style="width:${Math.round(u.weekXp/maxW*100)}%;background:${u.color}"></i></i></span><b class="num">${u.weekXp}<span class="muted" style="font-size:13px;font-family:var(--body)"> XP</span></b></div>`).join("")}</div>
+    <p class="hint">${daysLeft===1?"Último día de la semana.":`Quedan ${daysLeft} días de semana.`} Cada frase acertada son 10 XP; las frases firmes de cada persona están en la tabla de abajo.</p>
     </div><div class="col">
     <p class="eyebrow" data-es="XP por día">Azken 7 egunak</p>
     <div class="card"><div class="chart">${data.days.map((d,i)=>`<div class="d"><div class="bars">${active.map(u=>`<i style="height:${Math.round(u.perDay[i]/mx*100)}%;background:${u.color}" title="${esc(u.name)}: ${u.perDay[i]} XP"></i>`).join("")}</div><small>${dayLabel(d)}</small></div>`).join("")}</div><div class="legend" style="margin-top:10px">${active.map(u=>`<span><i style="background:${u.color}"></i>${esc(u.name)}</span>`).join("")}</div></div>
