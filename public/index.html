@@ -529,7 +529,7 @@ function renderExercise(){
     check.disabled=true; inp.classList.add(ok?"ok":"bad");
     let grade = !ok?0 : (help||near||e.retry)?1 : 2;
     SES.answers.push({key:e.key,ok,grade,retry:!!e.retry});
-    if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ SES.ex.push({...e,retry:true,mode:(e.mode==="listen"||e.mode==="transform")?"produce":e.mode}); SES.retried++; } }
+    if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ { const r={...e,retry:true,mode:(e.mode==="listen"||e.mode==="transform")?"produce":e.mode}; if(r.mode!==e.mode||e.mode==="transform"){ const pool=catalog().map(p=>p.eu).filter(x=>norm(x)!==norm(r.eu)); r.opts=shuffle([r.eu,...shuffle([...new Set(pool)]).slice(0,3)]); } SES.ex.push(r); SES.retried++; } } }
     if(!e.retry && !SES.challenge && !SES.noReview){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses,last:todayStr()}); SES.results=SES.results||{}; SES.results[e.key]={interval:r.interval,due:r.due}; }catch(err){} }
     saveSes();
     showSheet(ok,grade,e,given,near);
