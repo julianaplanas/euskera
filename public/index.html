@@ -519,7 +519,8 @@ function renderExercise(){
   app.querySelectorAll(".help").forEach(b=>b.onclick=()=>{
     const box=document.getElementById("helpbox"); b.classList.add("on");
     if(b.dataset.h==="hint"){ if(help>=1&&box.querySelector(".hint")) return; help=Math.max(help,1); box.insertAdjacentHTML("beforeend",`<p class="hint" style="font-size:18px;letter-spacing:1px;font-family:monospace">${esc(hintFor(e.mode==="transform"?e.to:e.eu))}</p>`); }
-    else { help=2; box.innerHTML=`<div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`; box.querySelectorAll(".opt").forEach(ob=>ob.onclick=()=>{ box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); ob.setAttribute("aria-pressed","true"); picked=e.opts[+ob.dataset.k]; inp.value=picked; check.disabled=false; }); }
+    else { help=2; const target=e.mode==="meaning"?e.es:e.mode==="transform"?e.to:e.eu; if(!Array.isArray(e.opts)||!e.opts.some(o=>norm(o)===norm(target))){ const field=e.mode==="meaning"?"es":"eu"; const pool=[...new Set(catalog().map(p=>p[field]).filter(x=>norm(x)!==norm(target)))]; e.opts=shuffle([target,...shuffle(pool).slice(0,3)]); saveSes(); }
+      box.innerHTML=`<div class="opts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`; box.querySelectorAll(".opt").forEach(ob=>ob.onclick=()=>{ box.querySelectorAll(".opt").forEach(x=>x.setAttribute("aria-pressed","false")); ob.setAttribute("aria-pressed","true"); picked=e.opts[+ob.dataset.k]; inp.value=picked; check.disabled=false; }); }
   });
   check.onclick=async()=>{
     const given=inp.value; const target=e.mode==="meaning"?e.es:e.mode==="transform"?e.to:e.eu; const a=norm(given), t=norm(target);
