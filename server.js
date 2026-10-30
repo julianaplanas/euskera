@@ -26,6 +26,10 @@ db.exec(`
     reps INTEGER NOT NULL DEFAULT 0, lapses INTEGER NOT NULL DEFAULT 0, last TEXT,
     PRIMARY KEY (user_id, key)
   );
+  CREATE TABLE IF NOT EXISTS push_subs (
+    endpoint TEXT PRIMARY KEY, user_id INTEGER NOT NULL, sub TEXT NOT NULL, daily INTEGER NOT NULL DEFAULT 1, challenges INTEGER NOT NULL DEFAULT 1,
+    hour INTEGER NOT NULL DEFAULT 19, last_sent TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
   CREATE TABLE IF NOT EXISTS challenges (
     id INTEGER PRIMARY KEY AUTOINCREMENT, from_id INTEGER NOT NULL, to_id INTEGER NOT NULL, kind TEXT NOT NULL,
     payload TEXT NOT NULL, from_result TEXT, to_result TEXT, status TEXT NOT NULL DEFAULT 'open',
@@ -72,6 +76,53 @@ function profile(user) {
   const pending = db.prepare("SELECT COUNT(*) n FROM challenges WHERE to_id = ? AND status = 'open' AND to_result IS NULL").get(user.id).n;
   return { name: user.name, xp: user.xp, streak, practicedToday: user.last_day === today, lessons, weak: J(user.weak, []), profile: J(user.profile, {}), items: itemStats(user.id), pendingChallenges: pending, today };
 }
+
+// ---------- notificaciones push (web-push, sin servicio externo) ----------
+let webpush = null;
+const PUSH_ON = !!(process.env.VAPID_PUBLIC && process.env.VAPID_PRIVATE);
+if (PUSH_ON) { webpush = require("web-push"); webpush.setVapidDetails(process.env.VAPID_SUBJECT || "mailto:euskara@example.com", process.env.VAPID_PUBLIC, process.env.VAPID_PRIVATE); }
+async function sendPush(userId, payload, kind) {
+  if (!PUSH_ON) return 0;
+  const col = kind === "daily" ? "daily" : "challenges";
+  const subs = db.prepare(`SELECT endpoint, sub FROM push_subs WHERE user_id = ? AND ${col} = 1`).all(userId);
+  let n = 0;
+  for (const row of subs) {
+    try { await webpush.sendNotification(JSON.parse(row.sub), JSON.stringify(payload), { TTL: 60 * 60 * 12 }); n++; }
+    catch (e) { if (e.statusCode === 404 || e.statusCode === 410) db.prepare("DELETE FROM push_subs WHERE endpoint = ?").run(row.endpoint); else console.error("push error", e.statusCode || e.message); }
+  }
+  return n;
+}
+app.get("/api/push/key", (req, res) => res.json({ enabled: PUSH_ON, key: process.env.VAPID_PUBLIC || null }));
+app.get("/api/push/status", auth, (req, res) => {
+  const rows = db.prepare("SELECT endpoint, daily, challenges, hour FROM push_subs WHERE user_id = ?").all(req.user.id);
+  res.json({ enabled: PUSH_ON, subs: rows });
+});
+app.post("/api/push/subscribe", auth, (req, res) => {
+  const sub = req.body.sub; if (!sub || !sub.endpoint) return res.status(400).json({ error: "Suscripción inválida." });
+  const daily = req.body.daily === false ? 0 : 1, challenges = req.body.challenges === false ? 0 : 1, hour = Math.max(6, Math.min(23, parseInt(req.body.hour) || 19));
+  db.prepare(`INSERT INTO push_subs (endpoint, user_id, sub, daily, challenges, hour) VALUES (?, ?, ?, ?, ?, ?)
+    ON CONFLICT(endpoint) DO UPDATE SET user_id = excluded.user_id, sub = excluded.sub, daily = excluded.daily, challenges = excluded.challenges, hour = excluded.hour`).run(sub.endpoint, req.user.id, JSON.stringify(sub), daily, challenges, hour);
+  res.json({ ok: true });
+});
+app.post("/api/push/unsubscribe", auth, (req, res) => { if (req.body.endpoint) db.prepare("DELETE FROM push_subs WHERE endpoint = ? AND user_id = ?").run(req.body.endpoint, req.user.id); res.json({ ok: true }); });
+app.post("/api/push/test", auth, async (req, res) => { const n = await sendPush(req.user.id, { title: "Kaixo! 👋", body: "Así se verán los recordatorios. Ondo dago!", url: "/" }, "challenges"); res.json({ sent: n }); });
+// Recordatorio diario: cada hora en punto, a quien tenga esa hora elegida, frases pendientes y no haya practicado hoy
+async function dailyReminders() {
+  if (!PUSH_ON) return;
+  const today = madridDay();
+  const hourNow = parseInt(new Date().toLocaleTimeString("en-GB", { timeZone: process.env.TZ_NAME || "Europe/Madrid", hour: "2-digit", hour12: false }));
+  const rows = db.prepare("SELECT DISTINCT user_id FROM push_subs WHERE daily = 1 AND hour = ? AND (last_sent IS NULL OR last_sent < ?)").all(hourNow, today);
+  for (const r of rows) {
+    const u = db.prepare("SELECT * FROM users WHERE id = ?").get(r.user_id); if (!u || u.last_day === today) continue;
+    const due = db.prepare("SELECT COUNT(*) n FROM items WHERE user_id = ? AND due <= ?").get(u.id, today).n;
+    if (!due) continue;
+    const name = u.name[0].toUpperCase() + u.name.slice(1);
+    const n = await sendPush(u.id, { title: `Kaixo, ${name}!`, body: `${due} ${due === 1 ? "frase" : "frases"} para repasar hoy. Bost minutu · cinco minutos.`, url: "/", tag: "daily" }, "daily");
+    if (n) db.prepare("UPDATE push_subs SET last_sent = ? WHERE user_id = ? AND daily = 1").run(today, u.id);
+  }
+}
+if (PUSH_ON) { setInterval(() => { const m = new Date().getMinutes(); if (m === 0 || m === 1) dailyReminders().catch(e => console.error(e)); }, 60 * 1000); console.log("Push activado; recordatorios diarios en marcha."); }
+else console.log("Push desactivado (faltan VAPID_PUBLIC / VAPID_PRIVATE).");
 
 // ---------- cuentas ----------
 app.post("/api/register", (req, res) => {
@@ -171,6 +222,8 @@ app.post("/api/challenges", auth, (req, res) => {
   const kind = req.body.kind === "task" ? "task" : "duel";
   const payload = req.body.payload && typeof req.body.payload === "object" ? req.body.payload : {};
   const info = db.prepare("INSERT INTO challenges (from_id, to_id, kind, payload, from_result) VALUES (?, ?, ?, ?, ?)").run(req.user.id, to.id, kind, JSON.stringify(payload), req.body.fromResult ? JSON.stringify(req.body.fromResult) : null);
+  const from = req.user.name[0].toUpperCase() + req.user.name.slice(1);
+  sendPush(to.id, kind === "task" ? { title: `${from} te manda una tarea`, body: "Confirma si lo que escribió está bien. Taldea → Historia.", url: "/#taldea", tag: "challenge" } : { title: `${from} te reta! ⚔️`, body: payload.transform ? "6 transformaciones. ¿Aceptas?" : "6 frases escribiendo. ¿Aceptas?", url: "/#taldea", tag: "challenge" }, "challenges").catch(() => {});
   res.json(chView(db.prepare("SELECT * FROM challenges WHERE id = ?").get(info.lastInsertRowid), req.user.id));
 });
 app.post("/api/challenges/:id/result", auth, (req, res) => {
@@ -180,7 +233,13 @@ app.post("/api/challenges/:id/result", auth, (req, res) => {
   const result = req.body.result && typeof req.body.result === "object" ? req.body.result : {};
   db.prepare(`UPDATE challenges SET ${col} = ? WHERE id = ?`).run(JSON.stringify(result), c.id);
   const c2 = db.prepare("SELECT * FROM challenges WHERE id = ?").get(c.id);
-  if (c2.from_result && c2.to_result) db.prepare("UPDATE challenges SET status = 'done' WHERE id = ?").run(c.id);
+  if (c2.from_result && c2.to_result) {
+    db.prepare("UPDATE challenges SET status = 'done' WHERE id = ?").run(c.id);
+    const other = c.from_id === req.user.id ? c.to_id : c.from_id; const me = req.user.name[0].toUpperCase() + req.user.name.slice(1);
+    const a = J(c2.from_result, {}), b = J(c2.to_result, {});
+    const body = c.kind === "task" ? (b.ok ? `${me} confirma: correcto ✓` : `${me} lo ha corregido: ${b.fix || ""}`) : `${me} ya ha jugado: ${a.score}/${a.total} vs ${b.score}/${b.total}. Mira el marcador.`;
+    sendPush(other, { title: c.kind === "task" ? "Tarea revisada" : "Erronka amaituta ⚔️", body, url: "/#taldea", tag: "challenge" }, "challenges").catch(() => {});
+  }
   res.json(chView(db.prepare("SELECT * FROM challenges WHERE id = ?").get(c.id), req.user.id));
 });
 
