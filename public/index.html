@@ -396,7 +396,9 @@ function renderProfile(first=false){
     <p class="eyebrow" data-es="¿Chica o chico?">Neska ala mutila?</p>
     <div class="opts" style="grid-template-columns:1fr 1fr"><button class="opt" data-g="neska" aria-pressed="${pr.gender==="neska"}">👧 Neska<br><small class="muted">chica · neba / ahizpa</small></button><button class="opt" data-g="mutila" aria-pressed="${pr.gender==="mutila"}">👦 Mutila<br><small class="muted">chico · anaia / arreba</small></button></div>
     <p class="eyebrow" data-es="¿Cuántos años tienes?">Zenbat urte dituzu?</p><input class="ans" id="age" type="number" inputmode="numeric" min="1" max="119" placeholder="Edad" value="${pr.age||""}">
-    <p class="eyebrow" data-es="hermanos">Anai-arrebak</p>
+    <p class="eyebrow" data-es="¿Dónde vives? (ciudad, en su forma habitual)">Non bizi zara?</p><input class="ans" id="town" placeholder="Bilbo, Madril, Donostia…" autocomplete="off" value="${esc(pr.town||"")}">
+    <p class="eyebrow" data-es="¿De dónde eres? (ciudad o país)">Nongoa zara?</p><input class="ans" id="origin" placeholder="Bilbo, Argentina, Peru…" autocomplete="off" value="${esc(pr.origin||"")}">
+    <p class="eyebrow" data-es="Hermanos">Anai-arrebak</p>
     <div class="row"><label style="flex:1">Hermanos<input class="ans" id="nebak" type="number" inputmode="numeric" min="0" max="9" value="${pr.nebak||0}"></label><label style="flex:1">Hermanas<input class="ans" id="ahizpak" type="number" inputmode="numeric" min="0" max="9" value="${pr.ahizpak||0}"></label></div>
     <p class="eyebrow" data-es="Avisos en el móvil">Jakinarazpenak</p>
     <div class="card stack" id="pushbox" style="gap:10px"><p class="hint">Kargatzen…</p></div>
@@ -414,7 +416,7 @@ function renderProfile(first=false){
   document.getElementById("back").onclick=()=>first?null:setTab("gaur");
   document.getElementById("save").onclick=async()=>{
     const body={gender:g,age:+document.getElementById("age").value||null,nebak:+document.getElementById("nebak").value||0,ahizpak:+document.getElementById("ahizpak").value||0,town:document.getElementById("town").value.trim(),origin:document.getElementById("origin").value.trim()};
-    try{ P.profile=await api("profile",body); await api("items/introduce",{items:personalItems()}); await loadItems(); P=await api("me"); setTab("gaur"); }catch(e){ toast(e.message); }
+    try{ P.profile=await api("profile",body); await api("items/introduce",{items:personalItems()}); await loadItems(); P=await api("me"); if(first&&!seenWelcome()) renderWelcome(); else setTab("gaur"); }catch(e){ toast(e.message); }
   };
 }
 
@@ -459,6 +461,20 @@ async function renderPushBox(){
 // abrir pestaña desde la notificación (#taldea)
 window.addEventListener("hashchange",()=>{ const h=location.hash.replace("#",""); if(P&&["gaur","ikasgaiak","taldea","datuak"].includes(h)) setTab(h); });
 
+// ---------- bienvenida ----------
+function renderWelcome(){
+  noTabs(); const slides=[
+    {em:OLEN("wave",90),t:"Ongi etorri!",es:"Bienvenido/a",b:"Esta app es para practicar entre clase y clase lo que vais viendo: saludos, presentarse, números, gustos… Cinco minutos al día bastan."},
+    {em:`<div style="font-size:54px;line-height:1">🌱 🌿 🌳</div>`,t:"Hazia, kimua, zuhaitza",es:"Semilla, brote, árbol",b:"Cada frase empieza como semilla. Cuando la estudias es un brote y vuelve a salir al día siguiente, a los 3, a los 7… Si la recuerdas cada vez, se hace árbol: firme. Si la fallas, vuelve mañana."},
+    {em:`<div style="font-size:54px;line-height:1">✍️</div>`,t:"Idatzi, ez aukeratu",es:"Escribe, no elijas",b:"Casi siempre te pediré escribir la frase. Hay pista y opciones, pero cuentan menos. Escribir es lo que hace que se quede."}
+  ]; let i=0;
+  const show=()=>{ const sl=slides[i]; app.innerHTML=`<div class="stack pad" style="padding-top:calc(60px + env(safe-area-inset-top,0px));min-height:100vh;justify-content:center;align-items:center;text-align:center;gap:18px"><div>${sl.em}</div><h1 style="font-size:36px">${esc(sl.t)}</h1><p class="muted" style="margin-top:-10px">${esc(sl.es)}</p><p style="max-width:420px;font-size:17px">${sl.b}</p><div class="row" style="justify-content:center;gap:8px">${slides.map((_,k)=>`<span style="width:10px;height:10px;background:${k===i?"var(--red)":"var(--line-soft)"}"></span>`).join("")}</div><button class="btn red" id="wnext" style="max-width:360px">${i<slides.length-1?"Hurrengoa<small>Siguiente</small>":"Hasi!<small>Empezar</small>"}</button>${i<slides.length-1?`<button class="link" id="wskip">Saltar</button>`:""}</div>`;
+    document.getElementById("wnext").onclick=()=>{ i++; i<slides.length?show():done(); }; const sk=document.getElementById("wskip"); if(sk) sk.onclick=done; };
+  const done=()=>{ try{ localStorage.setItem("euskara.welcome."+P.name,"1"); }catch(e){} setTab("gaur"); };
+  show();
+}
+const seenWelcome=()=>{ try{ return localStorage.getItem("euskara.welcome."+P.name)==="1"; }catch(e){ return true; } };
+
 // ---------- GAUR (ronda diaria por repetición espaciada) ----------
 function dueToday(){ const t=todayStr(); return ITEMS.filter(i=>i.due<=t).sort((a,b)=>a.due<b.due?-1:a.due>b.due?1:b.lapses-a.lapses); }
 function nextNew(n){
@@ -467,32 +483,38 @@ function nextNew(n){
   return out;
 }
 async function renderToday(){
-  const due=dueToday(); const cat=catalog(); const catMap=Object.fromEntries(cat.map(i=>[i.key,i]));
+  const firstTime=!ITEMS.some(i=>i.lesson_id&&i.lesson_id!=="me");
+  let due=firstTime?[]:dueToday(); const cat=catalog(); const catMap=Object.fromEntries(cat.map(i=>[i.key,i]));
   const hard=ITEMS.filter(i=>i.lapses>=2).slice(0,6);
   const newAvail=nextNew(5); const nextL=newAvail[0]?lessonOf(newAvail[0].lesson_id):null;
-  const nNew=newAvail.length&&due.length<8?Math.min(newAvail.length,due.length<4?5:3):0;
+  const nNew=ITEMS.some(i=>i.lesson_id&&i.lesson_id!=="me")&&newAvail.length&&due.length<8?Math.min(newAvail.length,due.length<4?5:3):0;
   const total=due.length+nNew; const pend=loadSes(); const t=todayStr();
   const doneToday=ITEMS.filter(i=>i.last===t); const upcoming=ITEMS.filter(i=>i.due>t).sort((a,b)=>a.due<b.due?-1:1);
-  const sub = pend?"Txanda bat erdizka · tienes una ronda a medias" : total?`Gaur: ${due.length} para repasar${nNew?` eta ${nNew} berri`:""}` : "Gaurkoa eginda · lo de hoy está hecho";
+  const nextLesson=LESSONS.find(l=>lessonItems(l).some(x=>!imap()[x.key]));
+  const sub = pend?"Txanda bat erdizka · tienes una ronda a medias" : firstTime?"Ongi etorri · empieza por la primera lección" : total?`Gaur: ${due.length} para repasar${nNew?` eta ${nNew} berri`:""}` : "Gaurkoa eginda · lo de hoy está hecho";
   app.innerHTML=header(sub)+`
    <div class="stack pad cols" style="padding-top:18px"><div class="col">
     ${pend?`<button class="btn red" id="resume">▶ Jarraitu<small>continuar (${pend.i}/${pend.ex.length})</small></button>`
+      : firstTime?`<div class="card stack" style="gap:12px"><p style="font-weight:700;font-size:18px">Kaixo! Así funciona:</p><p>1 · Abres una lección: lees, escuchas y miras la estructura.</p><p>2 · Pulsas <b>Ikasi</b>: te presento unas pocas frases, eliges su significado y las copias. Sin examen el primer día.</p><p>3 · Al día siguiente, aquí en <b>Gaur</b>, te las pido de memoria. Lo que aciertas se aleja en el calendario; lo que fallas vuelve mañana.</p></div><button class="btn red" id="golesson">${esc(LESSONS[0].title)}<small>Empezar por la lección 1</small></button>`
       : total?`<button class="btn red" id="start">Hasi<small>Empezar la ronda de hoy (${total})</small></button><p class="hint">${due.length?`${due.length} frases que toca repasar hoy`:""}${due.length&&nNew?" y ":""}${nNew?`${nNew} nuevas de «${esc(nextL.title)}»`:""}.</p>`
       : `<button class="btn red" id="free" ${ITEMS.length<4?"disabled":""}>Txanda librea<small>Ronda libre · 10 frases</small></button><p class="hint">Lo de hoy está hecho${upcoming.length?`; la siguiente ${dueLabel(upcoming[0])}`:""}. La ronda libre repasa 10 frases al azar sin tocar el calendario.</p>`}
-    <div class="row" style="justify-content:center;flex-wrap:wrap">${total||pend?`<button class="btn ghost sm" id="free" ${ITEMS.length<4?"disabled":""}>Txanda librea<small>ronda libre</small></button>`:""}<button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailenak (${hard.length})</button></div>
+    ${!firstTime&&!pend&&nextLesson&&due.length<4?`<button class="btn ghost" id="nextlesson">${esc(nextLesson.emoji||"")} ${esc(nextLesson.title)}<small>Siguiente lección · aprender nuevas</small></button>`:""}
+    <div class="row" style="justify-content:center;flex-wrap:wrap">${(total||pend)&&!firstTime?`<button class="btn ghost sm" id="free" ${ITEMS.length<4?"disabled":""}>Txanda librea<small>ronda libre</small></button>`:""}${firstTime?"":`<button class="btn ghost sm" id="hardb" ${hard.length<3?"disabled":""}>Zailenak (${hard.length})</button>`}</div>
     <p class="eyebrow" data-es="tu huerto">Zure baratzea</p>
     <div class="three"><div class="t"><b>${LAUBURU}${P.items.consolidated}</b><span>Sendoak · firmes</span></div><div class="s"><b>🌿 ${ITEMS.length-P.items.consolidated}</b><span>Ikasten · estudio</span></div><div class="n"><b>🌱 ${cat.length-ITEMS.length}</b><span>Haziak · por ver</span></div></div>
     ${stageBar(cat,imap()).replace('class="sbar"','class="sbar" style="margin-top:-3px;border-top:0"')}${doneToday.length?`<p class="hint">Gaur ${doneToday.length} esaldi · hoy has repasado ${doneToday.length} frases.</p>`:""}
     <button class="link" id="how" style="align-self:center;font-size:14px">¿Cómo funciona?</button>
    </div></div>`;
   const rs=document.getElementById("resume"); if(rs) rs.onclick=()=>{ const d=loadSes(); d?resumeSession(d):renderToday(); };
+  const gl=document.getElementById("golesson"); if(gl) gl.onclick=()=>renderLesson(LESSONS[0]);
+  const nl=document.getElementById("nextlesson"); if(nl) nl.onclick=()=>renderLesson(nextLesson);
   const st=document.getElementById("start"); if(st) st.onclick=async()=>{
     let items=shuffle(due).slice(0,12).map(i=>({...i,...(catMap[i.key]||{})}));
     if(nNew){ const n=newAvail.slice(0,nNew); try{ await api("items/introduce",{items:n}); await loadItems(); }catch(e){} items=[...n.map(i=>({...i,isNew:true})),...items]; }
     startSession({items,label:"Gaurko txanda"});
   };
-  document.getElementById("free").onclick=()=>{ const learned=ITEMS.map(i=>({...i,...(catMap[i.key]||{})})); startSession({items:shuffle(learned).slice(0,10),label:"Txanda librea",free:true}); };
-  document.getElementById("hardb").onclick=()=>startSession({items:shuffle(hard.map(i=>({...i,...(catMap[i.key]||{})}))),label:"Zailenak",free:true});
+  const fb=document.getElementById("free"); if(fb) fb.onclick=()=>{ const learned=ITEMS.map(i=>({...i,...(catMap[i.key]||{})})); startSession({items:shuffle(learned).slice(0,10),label:"Txanda librea",free:true}); };
+  const hb=document.getElementById("hardb"); if(hb) hb.onclick=()=>startSession({items:shuffle(hard.map(i=>({...i,...(catMap[i.key]||{})}))),label:"Zailenak",free:true});
   document.getElementById("how").onclick=()=>{ const sh=document.getElementById("sheet"), inn=document.getElementById("sh-in"); sh.className="sheet show info"; inn.innerHTML=`<h3>Nola funtzionatzen du</h3><p class="hint" style="margin-top:-8px">Cómo funciona</p><div class="stack" style="gap:8px;font-size:15px"><p><b>Ronda de hoy.</b> La app decide qué frases toca repasar (las que estás a punto de olvidar) y añade unas pocas nuevas. Una al día basta.</p><p><b>Escribes antes de elegir.</b> Pista y opciones están ahí, pero cuentan menos.</p><p><b>🌱 → 🌿 → 🌳.</b> Una frase nueva es semilla; al estudiarla, brote; cuando la has recordado varias veces con días entre medias, árbol (firme). Si la fallas, baja a brote y la repasas mañana.</p><p><b>Ronda libre.</b> 10 frases al azar de las que ya conoces, sin tocar el calendario. Para cuando quieres más.</p><p><b>Zailenak.</b> Solo las que has fallado dos veces o más.</p></div><button class="btn" id="sh-close">Ulertu dut<small>Entendido</small></button>`; document.getElementById("sh-close").onclick=()=>sh.className="sheet"; };
 }
 
@@ -515,7 +537,13 @@ function buildEx(it, pool){
 }
 function startSession(opts){
   noTabs(); const pool=[...opts.items,...catalog()];
-  const ex=[]; for(const it of opts.items){ if(it.isNew) ex.push({key:it.key,eu:it.eu,es:it.es,emoji:it.emoji||"",mode:"learn",visual:it.count?qty(it.count,it.countEm||"🍎"):""});
+  const ex=[]; for(const it of opts.items){ if(it.isNew){
+      const base={key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",visual:it.count?qty(it.count,it.countEm||"🍎"):""};
+      ex.push({...base,mode:"learn"});
+      const same=pool.filter(p=>p.lesson_id===it.lesson_id&&norm(p.es)!==norm(it.es)&&!/^\d+$/.test(p.es)).map(p=>p.es); const rest=pool.filter(p=>norm(p.es)!==norm(it.es)&&!/^\d+$/.test(p.es)).map(p=>p.es); const esPool=[...new Set([...shuffle(same),...shuffle(rest)])];
+      ex.push({...base,mode:"recognize",opts:shuffle([it.es,...esPool.slice(0,3)])});
+      ex.push({...base,mode:"copy"});
+      continue; }
     if(opts.forceTransform&&it.tr){ ex.push({key:it.key,eu:it.eu,es:it.es,lesson_id:it.lesson_id,emoji:it.emoji||"",mode:"transform",from:it.eu,instr:it.tr.i,to:it.tr.to,toEs:it.tr.es||"",opts:shuffle([it.tr.to,...shuffle([...new Set(pool.map(p=>p.eu).filter(x=>norm(x)!==norm(it.tr.to)&&norm(x)!==norm(it.eu)))]).slice(0,3)])}); }
     else ex.push(buildEx(it,pool)); }
   SES={label:opts.label,free:!!opts.free,noReview:!!opts.forceTransform,ex,i:0,good:0,total:opts.items.length,xp:0,wrong:[],retried:0,lessonId:opts.lessonId||null,challenge:opts.challenge||null,answers:[]};
@@ -528,7 +556,11 @@ function renderExercise(){
   let body="", wire=()=>{};
   const prompt=e.mode==="meaning"?`<p class="prompt eu">${esc(e.eu)}</p>`:`<p class="prompt">${e.emoji?`<span style="font-size:34px;vertical-align:-4px;margin-right:6px">${esc(e.emoji)}</span>`:""}${esc(e.es)}</p>`;
   if(e.mode==="learn"){
-    body=`<p class="eyebrow" data-es="nuevo">Berria</p><div class="learn">${e.visual?`<p class="em" style="font-size:30px;letter-spacing:-2px">${esc(e.visual)}</p>`:e.emoji?`<p class="em">${esc(e.emoji)}</p>`:""}<p class="eu">${esc(e.eu)}</p><p class="es">${esc(e.es)}</p>${spkBtn(e.eu,"big")}<p class="hint">Léelo en voz alta dos veces. Luego te lo pediré sin mirar.</p></div>`;
+    body=`<p class="eyebrow" data-es="nuevo">Berria</p><div class="learn">${e.visual?`<p class="em" style="font-size:30px;letter-spacing:-2px">${esc(e.visual)}</p>`:e.emoji?`<p class="em">${esc(e.emoji)}</p>`:""}<p class="eu">${esc(e.eu)}</p><p class="es">${esc(e.es)}</p>${spkBtn(e.eu,"big")}<p class="hint">Léelo en voz alta. Ahora te preguntaré qué significa y luego la copiarás.</p></div>`;
+  } else if(e.mode==="recognize"){
+    body=`<p class="eyebrow" data-es="¿Qué significa? Elige">Zer esan nahi du?</p><div class="row">${prompt.replace('class="prompt"','class="prompt eu"').replace(esc(e.es),esc(e.eu))}${spkBtn(e.eu)}</div><div class="opts" id="recopts">${e.opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="false">${esc(o)}</button>`).join("")}</div>`;
+  } else if(e.mode==="copy"){
+    body=`<p class="eyebrow" data-es="Cópiala mirando el modelo">Idatzi begira</p><div class="learn" style="padding:18px"><p class="eu" style="font-size:28px">${esc(e.eu)}</p><p class="es" style="font-size:16px">${esc(e.es)}</p>${spkBtn(e.eu)}</div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Escríbela igual…"><p class="hint">Escribirla una vez fija la forma. Mañana te la pediré sin modelo.</p>`;
   } else if(e.mode==="listen"){
     body=`<p class="eyebrow" data-es="escucha y escribe">Entzun eta idatzi</p><div style="text-align:center">${spkBtn(e.eu,"big")}<p class="hint">Toca para repetir · mantén pulsado para oírlo despacio 🐢</p></div><input class="ans" id="typed" autocomplete="off" autocapitalize="sentences" placeholder="Lo que has oído, en euskera…"><div class="helps"><button class="help" data-h="hint">💡 Pista</button><button class="help" data-h="opts">🔘 Opciones</button></div><div id="helpbox" class="stack"></div>`;
   } else if(e.mode==="count"){
@@ -552,6 +584,9 @@ function renderExercise(){
   const check=document.getElementById("check");
   if(e.mode==="learn"){ check.onclick=()=>{ SES.i++; saveSes(); SES.i<SES.ex.length?renderExercise():finish(); }; if(VOICE) setTimeout(()=>speak(e.eu),300); return; }
   if(e.mode==="listen"&&VOICE) setTimeout(()=>speak(e.eu),300);
+  if(e.mode==="recognize"){ if(VOICE) setTimeout(()=>speak(e.eu),300); let pk=null; app.querySelectorAll("#recopts .opt").forEach(ob=>ob.onclick=()=>{ app.querySelectorAll("#recopts .opt").forEach(x=>x.setAttribute("aria-pressed","false")); ob.setAttribute("aria-pressed","true"); pk=e.opts[+ob.dataset.k]; check.disabled=false; });
+    check.onclick=()=>{ const ok=norm(pk)===norm(e.es); app.querySelectorAll("#recopts .opt").forEach(b=>{ const v=e.opts[+b.dataset.k]; if(norm(v)===norm(e.es)) b.classList.add("ok"); else if(v===pk&&!ok) b.classList.add("bad"); }); check.disabled=true; SES.answers.push({key:e.key,ok,grade:ok?1:0,retry:true,intro:true}); if(!ok){ SES.ex.splice(SES.i+1,0,{...e,mode:"learn"}); } saveSes(); showSheet(ok,ok?1:0,{...e,mode:"meaning"},pk,false); };
+    return; }
   const inp=document.getElementById("typed"); let help=0, picked=null;
   inp.oninput=()=>check.disabled=!inp.value.trim(); inp.onkeydown=ev=>{ if(ev.key==="Enter"&&inp.value.trim()) check.click(); }; setTimeout(()=>inp.focus(),80);
   app.querySelectorAll(".help").forEach(b=>b.onclick=()=>{
@@ -567,6 +602,7 @@ function renderExercise(){
     if(!ok && a.length>=5 && lev(a,t)<=1){ ok=true; near=true; }
     check.disabled=true; inp.classList.add(ok?"ok":"bad");
     let grade = !ok?0 : (help||near||e.retry)?1 : 2;
+    if(e.mode==="copy"){ SES.answers.push({key:e.key,ok,grade:ok?1:0,retry:true,intro:true}); if(!ok) SES.ex.splice(SES.i+1,0,{...e}); saveSes(); showSheet(ok,ok?1:0,e,given,near); return; }
     SES.answers.push({key:e.key,ok,grade,retry:!!e.retry});
     if(ok) { if(grade===2) SES.good++; } else { SES.wrong.push(e); if(!e.retry && SES.retried<5){ { const r={...e,retry:true,mode:(e.mode==="listen"||e.mode==="transform")?"produce":e.mode}; if(r.mode!==e.mode||e.mode==="transform"){ const pool=catalog().map(p=>p.eu).filter(x=>norm(x)!==norm(r.eu)); r.opts=shuffle([r.eu,...shuffle([...new Set(pool)]).slice(0,3)]); } SES.ex.push(r); SES.retried++; } } }
     if(!e.retry && !SES.challenge && !SES.noReview){ try{ const r=await api("review",{key:e.key,grade,eu:e.eu,es:e.es,lesson_id:e.lesson_id}); SES.xp+=r.gained; P.items=r.items; P.xp+=r.gained; const m=imap(); if(m[e.key]) Object.assign(m[e.key],{interval:r.interval,due:r.due,reps:r.reps,lapses:r.lapses,last:todayStr()}); SES.results=SES.results||{}; SES.results[e.key]={interval:r.interval,due:r.due}; }catch(err){} }
@@ -593,7 +629,7 @@ function showSheet(ok,grade,e,given,near){
   if(!cp) next.focus();
 }
 async function finish(){
-  clearSes(); const total=SES.total; const first=SES.answers.filter(a=>!a.retry);
+  clearSes(); const total=SES.total; const first=SES.answers.filter(a=>!a.retry&&!a.intro);
   const okFirst=first.filter(a=>a.ok).length;
   const acc=Math.round(okFirst/Math.max(1,first.length)*100);
   if(SES.challenge){ return finishChallenge(okFirst,first.length); }
