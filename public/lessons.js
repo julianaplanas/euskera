@@ -73,12 +73,12 @@ window.LESSONS = [
   },
   {
     id: "l9", title: "Nor, zer, zein", desc: "¿Quién? ¿Qué? ¿Cuál?", emoji: "❓", scene: { emoji: "🖼️", title: "Museoan · en el museo" },
-    grid: { title: "Nor para personas, zer para cosas, zein para elegir", cols: ["pregunta", "respuesta"], rows: [["Nor da?", "Ane da. (persona)"], ["Zer da?", "Liburua da. (cosa)"], ["Zein da?", "Hori da. (cuál de varios)"]] },
-    pairs: [["nor", "quién", "👤"], ["zer", "qué", "📦"], ["zein", "cuál", "👉"], ["Nor da?", "¿Quién es?", "👤"], ["Zer da hau?", "¿Qué es esto?", "📦"], ["Zein da zurea?", "¿Cuál es el tuyo?", "👉"], ["hau", "esto / este", "👇"], ["hori", "eso / ese", "👉"], ["hura", "aquello / aquel", "☝️"], ["Nor zara?", "¿Quién eres?", "❓"], ["Zer da?", "¿Qué es?", "❓"], ["Hau liburua da", "Esto es un libro", "📚"], ["Hori Ane da", "Esa es Ane", "👩"], ["zurea", "el tuyo / la tuya", "🫵"], ["nirea", "el mío / la mía", "🙋"]],
-    sentences: [["Nor da hura?", "¿Quién es aquel/aquella?"], ["Hura nire irakaslea da.", "Aquel/aquella es mi profesor/a."], ["Zer da hau?", "¿Qué es esto?"], ["Hau nire liburua da.", "Esto es mi libro."], ["Zein da zure kafea?", "¿Cuál es tu café?"], ["Hori nirea da.", "Ese es el mío."]],
-    pattern: "Nor da ___?",
-    tips: [{ t: "Nor = persona, zer = cosa", b: "Nor da? (¿quién es?) se contesta con alguien: Ane da. Zer da? (¿qué es?) se contesta con algo: liburua da." }, { t: "Zein = elegir entre varios", b: "Zein da zurea? = ¿cuál es el tuyo? Se responde señalando: hau (esto), hori (eso), hura (aquello)." }],
-    dialogue: [["A", "Nor da hura?", "¿Quién es aquella?"], ["B", "Hura Miren da, nire irakaslea.", "Aquella es Miren, mi profesora."], ["A", "Eta zer da hau?", "¿Y qué es esto?"], ["B", "Hau nire liburua da.", "Esto es mi libro."]]
+    grid: { title: "Zer = qué (no sé qué es) · Zein = cuál (hay varios y hay que elegir)", cols: ["zer · qué", "zein · cuál"], rows: [["Zer da hau?", "Zein da zurea?"], ["¿qué es esto?", "¿cuál es el tuyo?"], ["Zer nahi duzu?", "Zein nahi duzu?"], ["¿qué quieres?", "¿cuál quieres?"], ["Zer liburu da?", "Zein liburu da?"], ["¿qué libro es?", "¿cuál libro es? (de estos)"]] },
+    pairs: [["nor", "quién", "👤"], ["zer", "qué", "📦"], ["zein", "cuál", "👉"], ["Nor da?", "¿Quién es?", "👤"], ["Zer da hau?", "¿Qué es esto?", "📦"], ["Zein da zurea?", "¿Cuál es el tuyo?", "👉"], ["hau", "esto / este", "👇"], ["hori", "eso / ese", "👉"], ["hura", "aquello / aquel", "☝️"], ["Nor zara?", "¿Quién eres?", "❓"], ["Zer da?", "¿Qué es?", "❓"], ["Hau liburua da", "Esto es un libro", "📚"], ["Hori Ane da", "Esa es Ane", "👩"], ["zurea", "el tuyo / la tuya", "🫵"], ["nirea", "el mío / la mía", "🙋"], ["Zer nahi duzu?", "¿Qué quieres?", "🤲"], ["Zein nahi duzu?", "¿Cuál quieres? (de estos)", "👉"], ["Zein liburu da zurea?", "¿Cuál libro es el tuyo?", "📚"], ["Zer liburu da?", "¿Qué libro es?", "❓"], ["Nor da irakaslea?", "¿Quién es el profesor/a?", "👩‍🏫"], ["Zein da irakaslea?", "¿Cuál es el profesor/a? (de estas personas)", "👉"]],
+    sentences: [["Nor da hura?", "¿Quién es aquel/aquella?"], ["Hura nire irakaslea da.", "Aquel/aquella es mi profesor/a."], ["Zer da hau?", "¿Qué es esto?"], ["Hau nire liburua da.", "Esto es mi libro."], ["Zein da zure kafea?", "¿Cuál es tu café?"], ["Hori nirea da.", "Ese es el mío."], ["Zer nahi duzu? Kafea.", "¿Qué quieres? Café."], ["Zein nahi duzu? Hori.", "¿Cuál quieres? Ese."]],
+    pattern: "Zer da ___? · Zein da ___?",
+    tips: [{ t: "Nor = persona, zer = cosa", b: "Nor da? (¿quién es?) se contesta con alguien: Ane da. Zer da? (¿qué es?) se contesta con algo: liburua da." }, { t: "Zer vs zein: ¿hay dónde elegir?", b: "Zer pregunta por algo que no conoces (zer da hau? → liburua da). Zein pregunta cuál de varios que ya tienes delante (zein da zurea? → hori). Truco: si la respuesta es señalar, es zein." }, { t: "Zein también con personas", b: "Nor da irakaslea? = ¿quién es (cómo se llama) el profesor? Zein da irakaslea? = ¿cuál de estos es el profesor? Zein vale para personas y cosas: lo que marca es la elección." }],
+    dialogue: [["A", "Nor da hura?", "¿Quién es aquella?"], ["B", "Hura Miren da, nire irakaslea.", "Aquella es Miren, mi profesora."], ["A", "Eta zer da hau?", "¿Y qué es esto?"], ["B", "Hau nire liburua da.", "Esto es mi libro."], ["A", "Zein da zurea, hau ala hori?", "¿Cuál es el tuyo, este o ese?"], ["B", "Hori nirea da.", "Ese es el mío."]]
   },
   {
     id: "l10", title: "Dónde vives y de dónde eres", desc: "Non bizi zara? Nongoa zara?", emoji: "🌍", scene: { emoji: "✈️", title: "Aireportuan · en el aeropuerto" },
@@ -128,7 +128,8 @@ window.NOTES = [
   { m: /^non bizi/i, t: "Non bizi zara? = ¿dónde vives? Se responde con lugar + -n + bizi naiz." },
   { m: /^nor /i, t: "nor = quién (personas). Para cosas se usa zer." },
   { m: /^zer da/i, t: "zer = qué (cosas). Para personas se usa nor." },
-  { m: /^zein/i, t: "zein = cuál (elegir entre varios): Zein da zurea?" },
+  { m: /^zein/i, t: "zein = cuál: hay varios delante y hay que elegir (Zein da zurea? → hori). Si no hay dónde elegir, es zer." },
+  { m: /^zer nahi|^zer liburu/i, t: "zer = qué, en general, sin un grupo del que elegir. Para «cuál de estos» se usa zein." },
   { m: /(irakasle|ikasle|mediku|erizain|sukaldari|zerbitzari|abokatu|arkitekto|ingeniari|diseinatzaile|dendari)a\b/i, t: "La profesión lleva -a (artículo) en la frase: irakaslea naiz. En plural, -ak: irakasleak gara." }
 ];
 
@@ -171,7 +172,8 @@ window.NOTES = [
   { m: /^non bizi/i, t: "Non bizi zara? = ¿dónde vives? Se responde con lugar + -n + bizi naiz." },
   { m: /^nor /i, t: "nor = quién (personas). Para cosas se usa zer." },
   { m: /^zer da/i, t: "zer = qué (cosas). Para personas se usa nor." },
-  { m: /^zein/i, t: "zein = cuál (elegir entre varios): Zein da zurea?" },
+  { m: /^zein/i, t: "zein = cuál: hay varios delante y hay que elegir (Zein da zurea? → hori). Si no hay dónde elegir, es zer." },
+  { m: /^zer nahi|^zer liburu/i, t: "zer = qué, en general, sin un grupo del que elegir. Para «cuál de estos» se usa zein." },
   { m: /(irakasle|ikasle|mediku|erizain|sukaldari|zerbitzari|abokatu|arkitekto|ingeniari|diseinatzaile|dendari)a\b/i, t: "La profesión lleva -a (artículo) en la frase: irakaslea naiz. En plural, -ak: irakasleak gara." }
 ];
 
@@ -260,11 +262,11 @@ window.GRAMMAR = [
   },
   {
     id: "g-nor-zer", title: "Nor / zer / zein", lessons: ["l9"], emoji: "❓",
-    summary: "nor pregunta por personas, zer por cosas, zein pide elegir entre varios. Todas van al principio y el verbo detrás.",
+    summary: "nor pregunta por personas, zer por cosas que no conoces, zein pide elegir entre varios (personas o cosas). Todas van al principio y el verbo detrás.",
     pieces: [{ t: "Zer", k: "q" }, { t: "da", k: "verb" }, { t: "hau", k: "obj" }],
-    table: { cols: ["pregunta", "respuesta"], rows: [["Nor da?", "Ane da."], ["Zer da?", "Liburua da."], ["Zein da zurea?", "Hau da."], ["Nor zara?", "Ni Ane naiz."]] },
+    table: { cols: ["pregunta", "respuesta"], rows: [["Nor da?", "Ane da. (persona)"], ["Zer da?", "Liburua da. (no sabía qué era)"], ["Zein da zurea?", "Hau da. (elijo entre varios)"], ["Zer nahi duzu?", "Kafea. (en general)"], ["Zein nahi duzu?", "Hori. (de los que hay)"]] },
     examples: [["Nor da hura?", "¿Quién es aquel?"], ["Zer da hau?", "¿Qué es esto?"], ["Zein da zure kafea?", "¿Cuál es tu café?"]],
-    drills: [{ from: "Hura Miren da.", to: "Nor da hura?", es: "¿Quién es aquella?", instr: "Haz la pregunta (persona)" }, { from: "Hau liburua da.", to: "Zer da hau?", es: "¿Qué es esto?", instr: "Haz la pregunta (cosa)" }, { from: "Hori nirea da.", to: "Zein da zurea?", es: "¿Cuál es el tuyo?", instr: "Haz la pregunta con «zein»" }, { from: "Zer da hau?", to: "Hau nire liburua da.", es: "Esto es mi libro.", instr: "Responde: esto es mi libro" }]
+    drills: [{ from: "Hura Miren da.", to: "Nor da hura?", es: "¿Quién es aquella?", instr: "Haz la pregunta (persona)" }, { from: "Hau liburua da.", to: "Zer da hau?", es: "¿Qué es esto?", instr: "Haz la pregunta (cosa)" }, { from: "Hori nirea da.", to: "Zein da zurea?", es: "¿Cuál es el tuyo?", instr: "Haz la pregunta con «zein»" }, { from: "Zer da hau?", to: "Hau nire liburua da.", es: "Esto es mi libro.", instr: "Responde: esto es mi libro" }, { from: "Zer nahi duzu?", to: "Zein nahi duzu?", es: "¿Cuál quieres?", instr: "Ahora hay varios para elegir" }, { from: "Zein liburu da?", to: "Zer liburu da?", es: "¿Qué libro es?", instr: "Ahora no hay dónde elegir (pregunta en general)" }, { from: "Nor da irakaslea?", to: "Zein da irakaslea?", es: "¿Cuál es el profesor? (de estos)", instr: "Pregunta cuál de estas personas" }]
   },
   {
     id: "g-bizi", title: "Vivir en: -n + bizi", lessons: ["l10"], emoji: "🏠",
@@ -351,6 +353,12 @@ window.TRANSFORMS = {
   "hau nire liburua da.": [{ i: "Haz la pregunta", to: "Zer da hau?", es: "¿Qué es esto?" }, { i: "Ahora es «eso»", to: "Hori nire liburua da.", es: "Eso es mi libro." }],
   "hura nire irakaslea da.": [{ i: "Haz la pregunta", to: "Nor da hura?", es: "¿Quién es aquel/aquella?" }],
   "zein da zure kafea?": [{ i: "Responde: ese es el mío", to: "Hori nirea da.", es: "Ese es el mío." }],
+  "zer nahi duzu?": [{ i: "Ahora hay varios para elegir", to: "Zein nahi duzu?", es: "¿Cuál quieres?" }, { i: "Responde: café", to: "Kafea.", es: "Café." }],
+  "zein nahi duzu?": [{ i: "Ahora no hay dónde elegir", to: "Zer nahi duzu?", es: "¿Qué quieres?" }, { i: "Responde señalando: ese", to: "Hori.", es: "Ese." }],
+  "zein liburu da zurea?": [{ i: "Responde: este es el mío", to: "Hau nirea da.", es: "Este es el mío." }],
+  "zer liburu da?": [{ i: "Ahora hay varios libros delante", to: "Zein liburu da?", es: "¿Cuál libro es?" }],
+  "nor da irakaslea?": [{ i: "Pregunta cuál de estas personas", to: "Zein da irakaslea?", es: "¿Cuál es el profesor/a?" }],
+  "zein da irakaslea?": [{ i: "Pregunta quién es (su nombre)", to: "Nor da irakaslea?", es: "¿Quién es el profesor/a?" }],
   "hori nirea da.": [{ i: "Ahora es el tuyo", to: "Hori zurea da.", es: "Ese es el tuyo." }],
   "ni bilbon bizi naiz.": [{ i: "Cámbialo a «nosotros»", to: "Gu Bilbon bizi gara.", es: "Vivimos en Bilbao." }, { i: "Ahora vives en Londres", to: "Ni Londresen bizi naiz.", es: "Vivo en Londres." }, { i: "Di que ERES de Bilbao", to: "Ni bilbokoa naiz.", es: "Soy de Bilbao." }],
   "ramon londresen bizi da.": [{ i: "Ahora vive en Perú", to: "Ramon Perun bizi da.", es: "Ramón vive en Perú." }, { i: "Haz la pregunta", to: "Non bizi da Ramon?", es: "¿Dónde vive Ramón?" }],
