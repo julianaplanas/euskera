@@ -88,6 +88,32 @@ window.LESSONS = [
     pattern: "Ni ___n bizi naiz",
     tips: [{ t: "Vivir en: lugar + -n", b: "bizi naiz / bizi da / bizi gara. El lugar lleva -n (en): Bilbo → Bilbon, Peru → Perun. Si acaba en consonante, -en: Londres → Londresen, Ekuador → Ekuadorren." }, { t: "Ser de: lugar + -koa", b: "Bilbo → bilbokoa. Tras consonante, -ekoa: Madril → madrilekoa. Tras -n, -goa: Irun → irungoa. Los países van igual: Argentina → argentinakoa, Peru → perukoa." }, { t: "Nongoa vs non", b: "Nongoa zara? = ¿de dónde eres? (origen). Non bizi zara? = ¿dónde vives? (lugar actual)." }],
     dialogue: [["A", "Nongoa zara?", "¿De dónde eres?"], ["B", "Ni argentinakoa naiz, baina Bilbon bizi naiz. Eta zu?", "Yo soy de Argentina, pero vivo en Bilbao. ¿Y tú?"], ["A", "Ni irungoa naiz eta Donostian bizi naiz.", "Yo soy de Irun y vivo en Donostia."]]
+  },
+  {
+    id: "l11", title: "Familia", desc: "Ama, aita, gurasoak, seme-alabak…", emoji: "👨‍👩‍👧‍👦", scene: { emoji: "🏡", title: "Etxean · en casa" },
+    pairs: [["ama", "madre", "👩"], ["aita", "padre", "👨"], ["gurasoak", "padres", "👫"], ["alaba", "hija", "👧"], ["semea", "hijo", "👦"], ["seme-alabak", "hijos (hijos e hijas)", "👧👦"], ["amona / amama", "abuela", "👵"], ["aitona / aitite", "abuelo", "👴"], ["aiton-amonak", "abuelos", "👴👵"], ["osaba", "tío", "🧔"], ["izeba / izeko", "tía", "👩‍🦱"], ["osaba-izebak", "tíos", "🧔👩‍🦱"], ["lehengusua", "primo", "🧑"], ["lehengusina", "prima", "👩"], ["emaztea", "mujer (esposa)", "💍"], ["senarra", "marido", "💍"], ["biloba", "nieto/a", "🧒"], ["iloba", "sobrino/a", "🧒"], ["mutil-laguna", "novio", "💑"], ["neska-laguna", "novia", "💑"], ["familia", "familia", "🏡"], ["neba", "hermano (dice una chica)", "👧➡️👦"], ["anaia", "hermano (dice un chico)", "👦➡️👦"], ["ahizpa", "hermana (dice una chica)", "👧➡️👧"], ["arreba", "hermana (dice un chico)", "👦➡️👧"]],
+    sentences: [["Nire ama irakaslea da.", "Mi madre es profesora."], ["Nire gurasoak Bilbon bizi dira.", "Mis padres viven en Bilbao."], ["Nik osaba bat eta izeba bi dauzkat.", "Tengo un tío y dos tías."], ["Nire amona Donostian bizi da.", "Mi abuela vive en Donostia."], ["Zenbat lehengusu dituzu?", "¿Cuántos primos tienes?"], ["Nire senarra medikua da.", "Mi marido es médico."]],
+    pattern: "Nire ___ ___ da",
+    tips: [{ t: "Compuestos con guion = los dos juntos", b: "seme-alabak (hijos e hijas), aiton-amonak (abuelos y abuelas), osaba-izebak (tíos y tías), neba-arrebak / anai-arrebak (hermanos)." }, { t: "Dos formas, misma palabra", b: "amona = amama (abuela), aitona = aitite (abuelo), izeba = izeko (tía). Dependen de la zona; cualquiera vale." }, { t: "Para decir «mi»", b: "nire + palabra: nire ama, nire aita, nire gurasoak. El verbo al final: Nire ama irakaslea da." }],
+    dialogue: [["A", "Nolakoa da zure familia?", "¿Cómo es tu familia?"], ["B", "Nire gurasoak Bilbon bizi dira eta ahizpa bat daukat.", "Mis padres viven en Bilbao y tengo una hermana."], ["A", "Eta aiton-amonak?", "¿Y los abuelos?"], ["B", "Nire amona Donostiakoa da. Aitona ez daukat.", "Mi abuela es de Donostia. Abuelo no tengo."]]
+  },
+  {
+    id: "l12", title: "Tener: ukan y eduki", desc: "dut / ditut · daukat / dauzkat", emoji: "✋", scene: { emoji: "🎒", title: "Ikastolan · en la escuela" },
+    grid: { title: "Dos verbos para «tener»: ukan (dut) y eduki (daukat). Singular / plural", cols: ["ukan", "eduki"], rows: [["nik dut / ditut", "nik daukat / dauzkat"], ["zuk duzu / dituzu", "zuk daukazu / dauzkazu"], ["hark du / ditu", "hark dauka / dauzka"], ["guk dugu / ditugu", "guk daukagu / dauzkagu"], ["zuek duzue / dituzue", "zuek daukazue / dauzkazue"], ["haiek dute / dituzte", "haiek daukate / dauzkate"]] },
+    pairs: [["nik", "yo (con tener)", "🙋"], ["zuk", "tú (con tener)", "👉"], ["hark", "él / ella (con tener)", "👤"], ["guk", "nosotros (con tener)", "👫"], ["zuek", "vosotros (con tener)", "👥"], ["haiek", "ellos (con tener)", "👨‍👩‍👧‍👦"], ["dut", "tengo (una cosa)", "1️⃣"], ["ditut", "tengo (varias)", "🔢"], ["duzu", "tienes (una)", "1️⃣"], ["dituzu", "tienes (varias)", "🔢"], ["du", "tiene (una)", "1️⃣"], ["ditu", "tiene (varias)", "🔢"], ["dugu", "tenemos (una)", "1️⃣"], ["ditugu", "tenemos (varias)", "🔢"], ["dute", "tienen (una)", "1️⃣"], ["dituzte", "tienen (varias)", "🔢"], ["daukat", "tengo (una) · eduki", "1️⃣"], ["dauzkat", "tengo (varias) · eduki", "🔢"], ["daukazu", "tienes (una) · eduki", "1️⃣"], ["dauka", "tiene (una) · eduki", "1️⃣"], ["daukagu", "tenemos (una) · eduki", "1️⃣"], ["daukate", "tienen (una) · eduki", "1️⃣"]],
+    sentences: [["Nik neba bat dut.", "Yo tengo un hermano (dice una chica)."], ["Nik neba bat daukat.", "Yo tengo un hermano (eduki)."], ["Zuk bi ahizpa dituzu.", "Tú tienes dos hermanas."], ["Hark etxe bat dauka.", "Él/ella tiene una casa."], ["Guk txakur bat dugu.", "Nosotros tenemos un perro."], ["Haiek hiru seme-alaba dituzte.", "Ellos tienen tres hijos."], ["Zuek liburu asko dauzkazue.", "Vosotros tenéis muchos libros."], ["Nik lehengusu asko dauzkat.", "Tengo muchos primos."]],
+    pattern: "Nik ___ dut · Nik ___ daukat",
+    tips: [{ t: "Con «tener», el sujeto lleva -k", b: "ni → nik, zu → zuk, hura → hark, gu → guk, zuek → zuek, haiek → haiek. Nik neba bat dut. (Con ser/estar, sin -k: ni naiz, ni nago.)" }, { t: "Singular / plural en el verbo", b: "Una cosa: dut, daukat. Varias: ditut, dauzkat. Lo plural es lo que se tiene, no quien tiene: nik liburuak ditut." }, { t: "ukan y eduki significan lo mismo", b: "Nik neba bat dut = Nik neba bat daukat. Las dos formas son correctas; eduki es más habitual en la calle, ukan es la forma básica." }],
+    dialogue: [["A", "Zenbat lehengusu dauzkazu?", "¿Cuántos primos tienes?"], ["B", "Sei dauzkat. Eta zuk?", "Tengo seis. ¿Y tú?"], ["A", "Nik bat bakarrik daukat.", "Yo tengo uno solo."], ["B", "Eta txakurrik baduzu?", "¿Y tienes perro?"], ["A", "Bai, txakur bat dut.", "Sí, tengo un perro."]]
+  },
+  {
+    id: "l13", title: "Preguntas: nor, zer, zein, non, nongoa, zenbat, norengana", desc: "Las palabras para preguntar", emoji: "❓", scene: { emoji: "🚉", title: "Geltokian · en la estación" },
+    grid: { title: "Cada pregunta con su respuesta", cols: ["pregunta", "ejemplo"], rows: [["nor · quién", "Nor zara? → Ni Ane naiz."], ["zer · qué", "Zer da hau? → Liburua da."], ["zein · cuál", "Zein da zurea? → Hori."], ["non · dónde", "Non bizi zara? → Bilbon."], ["nongoa · de dónde", "Nongoa zara? → Bilbokoa."], ["zenbat · cuántos", "Zenbat urte dituzu? → Hogei."], ["norengana · a casa de quién / hacia quién", "Norengana zoaz? → Amarengana."]] },
+    pairs: [["nor", "quién", "👤"], ["zer", "qué", "📦"], ["zein", "cuál", "👉"], ["non", "dónde", "📍"], ["nongoa", "de dónde", "🌍"], ["zenbat", "cuántos/as", "🔢"], ["norengana", "a casa de quién / hacia quién", "🏃"], ["Norengana zoaz?", "¿A casa de quién vas?", "🏃"], ["Amarengana noa", "Voy a casa de mi madre / hacia mi madre", "👩"], ["Aitarengana noa", "Voy a casa de mi padre", "👨"], ["Lagunarengana noa", "Voy a casa de un amigo", "🤝"], ["Medikuarengana noa", "Voy al médico", "🩺"], ["noa", "voy", "🏃"], ["zoaz", "vas", "🏃"], ["Non dago?", "¿Dónde está?", "📍"], ["Nor dago etxean?", "¿Quién está en casa?", "🏡"], ["Zenbat dira?", "¿Cuántos son? / ¿Cuánto es?", "💶"]],
+    sentences: [["Nor zara?", "¿Quién eres?"], ["Zer da hau?", "¿Qué es esto?"], ["Zein da zurea?", "¿Cuál es el tuyo?"], ["Non bizi zara?", "¿Dónde vives?"], ["Nongoa zara?", "¿De dónde eres?"], ["Zenbat urte dituzu?", "¿Cuántos años tienes?"], ["Norengana zoaz?", "¿A casa de quién vas?"], ["Amarengana noa.", "Voy a casa de mi madre."], ["Medikuarengana noa.", "Voy al médico."]],
+    pattern: "Norengana zoaz? → ___rengana noa",
+    tips: [{ t: "La pregunta va al principio", b: "Nor, zer, zein, non, nongoa, zenbat, norengana: siempre primero, y el verbo justo detrás: Non bizi zara? Zenbat urte dituzu?" }, { t: "-rengana = hacia una persona", b: "Norengana? pregunta a casa de quién o hacia quién vas. La respuesta: persona + -(r)engana: ama → amarengana, aita → aitarengana, laguna → lagunarengana, medikua → medikuarengana." }, { t: "Non vs nongoa", b: "Non = dónde (estás, vives). Nongoa = de dónde (eres). Non bizi zara? Bilbon. Nongoa zara? Bilbokoa." }],
+    dialogue: [["A", "Norengana zoaz?", "¿A casa de quién vas?"], ["B", "Amarengana noa. Eta zu, non bizi zara?", "Voy a casa de mi madre. Y tú, ¿dónde vives?"], ["A", "Donostian. Zenbat urte dauzka zure amak?", "En Donostia. ¿Cuántos años tiene tu madre?"], ["B", "Hirurogei.", "Sesenta."]]
   }
 ];
 
@@ -130,6 +156,15 @@ window.NOTES = [
   { m: /^zer da/i, t: "zer = qué (cosas). Para personas se usa nor." },
   { m: /^zein/i, t: "zein = cuál: hay varios delante y hay que elegir (Zein da zurea? → hori). Si no hay dónde elegir, es zer." },
   { m: /^zer nahi|^zer liburu/i, t: "zer = qué, en general, sin un grupo del que elegir. Para «cuál de estos» se usa zein." },
+  { m: /\b(daukat|daukazu|dauka|daukagu|daukazue|daukate)\b/i, t: "eduki = tener (una cosa): nik daukat, zuk daukazu, hark dauka, guk daukagu, zuek daukazue, haiek daukate. Significa lo mismo que dut." },
+  { m: /\b(dauzkat|dauzkazu|dauzka|dauzkagu|dauzkazue|dauzkate)\b/i, t: "dauzka- = tener VARIAS cosas (eduki plural): nik dauzkat, zuk dauzkazu, hark dauzka… Una sola cosa: daukat." },
+  { m: /\b(duzu|du|dugu|duzue|dute)\b/i, t: "ukan = tener (una cosa): nik dut, zuk duzu, hark du, guk dugu, zuek duzue, haiek dute. Varias: ditut, dituzu, ditu, ditugu, dituzue, dituzte." },
+  { m: /\b(dituzu|ditu|ditugu|dituzue|dituzte)\b/i, t: "ditu- = tener VARIAS cosas (ukan plural). Una sola: dut, duzu, du…" },
+  { m: /^(nik|zuk|hark|guk|haiek)\b/i, t: "Con «tener» (ukan/eduki) el sujeto lleva -k: nik, zuk, hark, guk, zuek, haiek. Con ser/estar, sin -k: ni, zu, hura, gu." },
+  { m: /rengana\b/i, t: "-(r)engana = hacia una persona / a casa de: ama → amarengana, aita → aitarengana, laguna → lagunarengana. Responde a norengana?" },
+  { m: /^norengana/i, t: "Norengana? = ¿a casa de quién? / ¿hacia quién? Se responde con persona + -rengana: amarengana." },
+  { m: /^non /i, t: "non = dónde (estás, vives). Para «de dónde eres» es nongoa." },
+  { m: /(seme-alabak|aiton-amonak|osaba-izebak)/i, t: "Compuesto con guion = los dos juntos: seme-alabak (hijos e hijas), aiton-amonak (abuelos), osaba-izebak (tíos)." },
   { m: /(irakasle|ikasle|mediku|erizain|sukaldari|zerbitzari|abokatu|arkitekto|ingeniari|diseinatzaile|dendari)a\b/i, t: "La profesión lleva -a (artículo) en la frase: irakaslea naiz. En plural, -ak: irakasleak gara." }
 ];
 
@@ -174,6 +209,15 @@ window.NOTES = [
   { m: /^zer da/i, t: "zer = qué (cosas). Para personas se usa nor." },
   { m: /^zein/i, t: "zein = cuál: hay varios delante y hay que elegir (Zein da zurea? → hori). Si no hay dónde elegir, es zer." },
   { m: /^zer nahi|^zer liburu/i, t: "zer = qué, en general, sin un grupo del que elegir. Para «cuál de estos» se usa zein." },
+  { m: /\b(daukat|daukazu|dauka|daukagu|daukazue|daukate)\b/i, t: "eduki = tener (una cosa): nik daukat, zuk daukazu, hark dauka, guk daukagu, zuek daukazue, haiek daukate. Significa lo mismo que dut." },
+  { m: /\b(dauzkat|dauzkazu|dauzka|dauzkagu|dauzkazue|dauzkate)\b/i, t: "dauzka- = tener VARIAS cosas (eduki plural): nik dauzkat, zuk dauzkazu, hark dauzka… Una sola cosa: daukat." },
+  { m: /\b(duzu|du|dugu|duzue|dute)\b/i, t: "ukan = tener (una cosa): nik dut, zuk duzu, hark du, guk dugu, zuek duzue, haiek dute. Varias: ditut, dituzu, ditu, ditugu, dituzue, dituzte." },
+  { m: /\b(dituzu|ditu|ditugu|dituzue|dituzte)\b/i, t: "ditu- = tener VARIAS cosas (ukan plural). Una sola: dut, duzu, du…" },
+  { m: /^(nik|zuk|hark|guk|haiek)\b/i, t: "Con «tener» (ukan/eduki) el sujeto lleva -k: nik, zuk, hark, guk, zuek, haiek. Con ser/estar, sin -k: ni, zu, hura, gu." },
+  { m: /rengana\b/i, t: "-(r)engana = hacia una persona / a casa de: ama → amarengana, aita → aitarengana, laguna → lagunarengana. Responde a norengana?" },
+  { m: /^norengana/i, t: "Norengana? = ¿a casa de quién? / ¿hacia quién? Se responde con persona + -rengana: amarengana." },
+  { m: /^non /i, t: "non = dónde (estás, vives). Para «de dónde eres» es nongoa." },
+  { m: /(seme-alabak|aiton-amonak|osaba-izebak)/i, t: "Compuesto con guion = los dos juntos: seme-alabak (hijos e hijas), aiton-amonak (abuelos), osaba-izebak (tíos)." },
   { m: /(irakasle|ikasle|mediku|erizain|sukaldari|zerbitzari|abokatu|arkitekto|ingeniari|diseinatzaile|dendari)a\b/i, t: "La profesión lleva -a (artículo) en la frase: irakaslea naiz. En plural, -ak: irakasleak gara." }
 ];
 
@@ -283,6 +327,30 @@ window.GRAMMAR = [
     table: { cols: ["lugar", "de + lugar"], rows: [["Bilbo (vocal)", "bilbokoa"], ["Madril (consonante)", "madrilekoa"], ["Irun (-n)", "irungoa"], ["Peru", "perukoa"], ["Argentina", "argentinakoa"]] },
     examples: [["Ni bilbokoa naiz.", "Soy de Bilbao."], ["Ane madrilekoa da.", "Ane es de Madrid."], ["Jon irungoa da.", "Jon es de Irun."]],
     drills: [{ from: "Ni Bilbon bizi naiz.", to: "Ni bilbokoa naiz.", es: "Soy de Bilbao.", instr: "Di que ERES de ahí (no que vives)" }, { from: "Ane Madrilen bizi da.", to: "Ane madrilekoa da.", es: "Ane es de Madrid.", instr: "Di que ES de ahí" }, { from: "Jon Irunen bizi da.", to: "Jon irungoa da.", es: "Jon es de Irun.", instr: "Di que ES de ahí (acaba en -n)" }, { from: "Ni bilbokoa naiz.", to: "Nongoa zara?", es: "¿De dónde eres?", instr: "Haz la pregunta" }, { from: "Gu Perun bizi gara.", to: "Gu perukoak gara.", es: "Somos de Perú.", instr: "Di que SOIS de ahí (plural: -koak)" }]
+  },
+  {
+    id: "g-ukan", title: "Tener: ukan (dut) completo", lessons: ["l12", "l11"], emoji: "✋",
+    summary: "nik dut, zuk duzu, hark du, guk dugu, zuek duzue, haiek dute. En plural: ditut, dituzu, ditu, ditugu, dituzue, dituzte. El sujeto lleva -k.",
+    pieces: [{ t: "Nik", k: "subj" }, { t: "neba", k: "obj" }, { t: "bat", k: "num" }, { t: "dut", k: "verb" }],
+    table: { cols: ["sujeto", "una cosa", "varias"], rows: [["nik", "dut", "ditut"], ["zuk", "duzu", "dituzu"], ["hark", "du", "ditu"], ["guk", "dugu", "ditugu"], ["zuek", "duzue", "dituzue"], ["haiek", "dute", "dituzte"]] },
+    examples: [["Nik neba bat dut.", "Tengo un hermano."], ["Zuk bi ahizpa dituzu.", "Tienes dos hermanas."], ["Haiek hiru seme-alaba dituzte.", "Ellos tienen tres hijos."]],
+    drills: [{ from: "Nik neba bat dut.", to: "Guk neba bat dugu.", es: "Tenemos un hermano.", instr: "Cámbialo a «nosotros»" }, { from: "Zuk ahizpa bat duzu.", to: "Zuk ahizpa bi dituzu.", es: "Tienes dos hermanas.", instr: "Ahora son dos" }, { from: "Hark etxe bat du.", to: "Haiek etxe bat dute.", es: "Ellos tienen una casa.", instr: "Cámbialo a «ellos»" }, { from: "Guk txakur bat dugu.", to: "Zuek txakur bat duzue.", es: "Vosotros tenéis un perro.", instr: "Cámbialo a «vosotros»" }, { from: "Nik liburu bat dut.", to: "Nik liburuak ditut.", es: "Tengo libros.", instr: "Ahora son varios (plural)" }]
+  },
+  {
+    id: "g-eduki", title: "Tener: eduki (daukat) completo", lessons: ["l12", "l11"], emoji: "🤲",
+    summary: "nik daukat, zuk daukazu, hark dauka, guk daukagu, zuek daukazue, haiek daukate. En plural: dauzkat, dauzkazu, dauzka, dauzkagu, dauzkazue, dauzkate.",
+    pieces: [{ t: "Nik", k: "subj" }, { t: "lehengusu", k: "obj" }, { t: "asko", k: "num" }, { t: "dauzkat", k: "verb" }],
+    table: { cols: ["sujeto", "una cosa", "varias"], rows: [["nik", "daukat", "dauzkat"], ["zuk", "daukazu", "dauzkazu"], ["hark", "dauka", "dauzka"], ["guk", "daukagu", "dauzkagu"], ["zuek", "daukazue", "dauzkazue"], ["haiek", "daukate", "dauzkate"]] },
+    examples: [["Nik neba bat daukat.", "Tengo un hermano."], ["Hark etxe bat dauka.", "Tiene una casa."], ["Nik lehengusu asko dauzkat.", "Tengo muchos primos."]],
+    drills: [{ from: "Nik neba bat dut.", to: "Nik neba bat daukat.", es: "Tengo un hermano.", instr: "Dilo con eduki" }, { from: "Nik neba bat daukat.", to: "Nik neba bi dauzkat.", es: "Tengo dos hermanos.", instr: "Ahora son dos" }, { from: "Hark etxe bat dauka.", to: "Guk etxe bat daukagu.", es: "Tenemos una casa.", instr: "Cámbialo a «nosotros»" }, { from: "Zuk liburu bat daukazu.", to: "Zuek liburu bat daukazue.", es: "Tenéis un libro.", instr: "Cámbialo a «vosotros»" }, { from: "Haiek txakur bat daukate.", to: "Haiek txakurrak dauzkate.", es: "Tienen perros.", instr: "Ahora son varios (plural)" }]
+  },
+  {
+    id: "g-galderak", title: "Las 7 preguntas", lessons: ["l13", "l9", "l10"], emoji: "❓",
+    summary: "nor (quién), zer (qué), zein (cuál), non (dónde), nongoa (de dónde), zenbat (cuántos), norengana (a casa de quién). Primero la pregunta, después el verbo.",
+    pieces: [{ t: "Norengana", k: "q" }, { t: "zoaz", k: "verb" }],
+    table: { cols: ["pregunta", "respuesta"], rows: [["Nor zara?", "Ni Ane naiz."], ["Zer da hau?", "Liburua da."], ["Zein da zurea?", "Hori."], ["Non bizi zara?", "Bilbon."], ["Nongoa zara?", "Bilbokoa."], ["Zenbat urte dituzu?", "Hogei."], ["Norengana zoaz?", "Amarengana."]] },
+    examples: [["Norengana zoaz?", "¿A casa de quién vas?"], ["Amarengana noa.", "Voy a casa de mi madre."], ["Non dago zure ama?", "¿Dónde está tu madre?"]],
+    drills: [{ from: "Ni Bilbon bizi naiz.", to: "Non bizi zara?", es: "¿Dónde vives?", instr: "Haz la pregunta" }, { from: "Ni bilbokoa naiz.", to: "Nongoa zara?", es: "¿De dónde eres?", instr: "Haz la pregunta" }, { from: "Amarengana noa.", to: "Norengana zoaz?", es: "¿A casa de quién vas?", instr: "Haz la pregunta" }, { from: "Norengana zoaz?", to: "Aitarengana noa.", es: "Voy a casa de mi padre.", instr: "Responde: a casa de mi padre" }, { from: "Norengana zoaz?", to: "Medikuarengana noa.", es: "Voy al médico.", instr: "Responde: al médico" }, { from: "Hogei urte ditut.", to: "Zenbat urte dituzu?", es: "¿Cuántos años tienes?", instr: "Haz la pregunta" }]
   }
 ];
 
@@ -370,5 +438,28 @@ window.TRANSFORMS = {
   "gu argentinakoak gara": [{ i: "Cámbialo a «yo»", to: "Ni argentinakoa naiz.", es: "Soy de Argentina." }],
   "bilbon": [{ i: "Haz la frase: vivo en Bilbao", to: "Ni Bilbon bizi naiz.", es: "Vivo en Bilbao." }],
   "londresen": [{ i: "Haz la frase: vivimos en Londres", to: "Gu Londresen bizi gara.", es: "Vivimos en Londres." }],
-  "osaba": [{ i: "Haz la frase: mi tío vive en Perú", to: "Nire osaba Perun bizi da.", es: "Mi tío vive en Perú." }]
+  "osaba": [{ i: "Haz la frase: mi tío vive en Perú", to: "Nire osaba Perun bizi da.", es: "Mi tío vive en Perú." }, { i: "Haz la frase: tengo un tío", to: "Nik osaba bat daukat.", es: "Tengo un tío." }],
+  "nire ama irakaslea da.": [{ i: "Ahora es mi padre", to: "Nire aita irakaslea da.", es: "Mi padre es profesor." }, { i: "Ahora es médica", to: "Nire ama medikua da.", es: "Mi madre es médica." }],
+  "nire gurasoak bilbon bizi dira.": [{ i: "Ahora viven en Donostia", to: "Nire gurasoak Donostian bizi dira.", es: "Mis padres viven en Donostia." }, { i: "Ahora son mis abuelos", to: "Nire aiton-amonak Bilbon bizi dira.", es: "Mis abuelos viven en Bilbao." }],
+  "nik osaba bat eta izeba bi dauzkat.": [{ i: "Dilo con ukan (ditut)", to: "Nik osaba bat eta izeba bi ditut.", es: "Tengo un tío y dos tías." }, { i: "Solo un tío", to: "Nik osaba bat daukat.", es: "Tengo un tío." }],
+  "nire senarra medikua da.": [{ i: "Ahora es mi mujer", to: "Nire emaztea medikua da.", es: "Mi mujer es médica." }],
+  "zenbat lehengusu dituzu?": [{ i: "Pregúntalo con eduki", to: "Zenbat lehengusu dauzkazu?", es: "¿Cuántos primos tienes?" }, { i: "Responde: tengo seis", to: "Sei dauzkat.", es: "Tengo seis." }],
+  "gurasoak": [{ i: "Haz la frase: mis padres viven en Bilbao", to: "Nire gurasoak Bilbon bizi dira.", es: "Mis padres viven en Bilbao." }],
+  "amona / amama": [{ i: "Haz la frase: mi abuela vive en Donostia", to: "Nire amona Donostian bizi da.", es: "Mi abuela vive en Donostia." }],
+  "lehengusua": [{ i: "Plural", to: "lehengusuak", es: "primos" }],
+  "seme-alabak": [{ i: "Haz la frase: tienen tres hijos", to: "Haiek hiru seme-alaba dituzte.", es: "Tienen tres hijos." }],
+  "nik neba bat dut.": [{ i: "Dilo con eduki", to: "Nik neba bat daukat.", es: "Tengo un hermano." }, { i: "Cámbialo a «tú»", to: "Zuk neba bat duzu.", es: "Tienes un hermano." }, { i: "Ahora son dos", to: "Nik neba bi ditut.", es: "Tengo dos hermanos." }],
+  "nik neba bat daukat.": [{ i: "Dilo con ukan", to: "Nik neba bat dut.", es: "Tengo un hermano." }, { i: "Ahora son dos", to: "Nik neba bi dauzkat.", es: "Tengo dos hermanos." }, { i: "Cámbialo a «nosotros»", to: "Guk neba bat daukagu.", es: "Tenemos un hermano." }],
+  "zuk bi ahizpa dituzu.": [{ i: "Cámbialo a «yo»", to: "Nik bi ahizpa ditut.", es: "Tengo dos hermanas." }, { i: "Ahora es una", to: "Zuk ahizpa bat duzu.", es: "Tienes una hermana." }],
+  "hark etxe bat dauka.": [{ i: "Cámbialo a «ellos»", to: "Haiek etxe bat daukate.", es: "Tienen una casa." }, { i: "Dilo con ukan", to: "Hark etxe bat du.", es: "Tiene una casa." }],
+  "guk txakur bat dugu.": [{ i: "Cámbialo a «vosotros»", to: "Zuek txakur bat duzue.", es: "Tenéis un perro." }, { i: "Dilo con eduki", to: "Guk txakur bat daukagu.", es: "Tenemos un perro." }],
+  "haiek hiru seme-alaba dituzte.": [{ i: "Cámbialo a «nosotros»", to: "Guk hiru seme-alaba ditugu.", es: "Tenemos tres hijos." }],
+  "zuek liburu asko dauzkazue.": [{ i: "Cámbialo a «yo»", to: "Nik liburu asko dauzkat.", es: "Tengo muchos libros." }],
+  "nik lehengusu asko dauzkat.": [{ i: "Dilo con ukan", to: "Nik lehengusu asko ditut.", es: "Tengo muchos primos." }, { i: "Cámbialo a «él/ella»", to: "Hark lehengusu asko dauzka.", es: "Tiene muchos primos." }],
+  "norengana zoaz?": [{ i: "Responde: a casa de mi madre", to: "Amarengana noa.", es: "Voy a casa de mi madre." }, { i: "Responde: al médico", to: "Medikuarengana noa.", es: "Voy al médico." }],
+  "amarengana noa.": [{ i: "Ahora a casa de mi padre", to: "Aitarengana noa.", es: "Voy a casa de mi padre." }, { i: "Haz la pregunta", to: "Norengana zoaz?", es: "¿A casa de quién vas?" }],
+  "medikuarengana noa.": [{ i: "Ahora a casa de un amigo", to: "Lagunarengana noa.", es: "Voy a casa de un amigo." }],
+  "non bizi zara?": [{ i: "Pregunta de dónde es (origen)", to: "Nongoa zara?", es: "¿De dónde eres?" }, { i: "Responde: en Bilbao", to: "Bilbon.", es: "En Bilbao." }],
+  "nongoa zara?": [{ i: "Pregunta dónde vive", to: "Non bizi zara?", es: "¿Dónde vives?" }, { i: "Responde: de Bilbao", to: "Bilbokoa.", es: "De Bilbao." }],
+  "non dago?": [{ i: "Pregunta por una persona: ¿quién está en casa?", to: "Nor dago etxean?", es: "¿Quién está en casa?" }]
 };
